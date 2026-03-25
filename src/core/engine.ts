@@ -19,6 +19,15 @@ export class LintEngine {
         const severityOverride = this.config.rules?.[rule.id];
         if (severityOverride === 'off') continue;
 
+        // Filter by clients: skip rule if none of its clients are in config.clients
+        if (
+          this.config.clients &&
+          this.config.clients.length > 0 &&
+          !rule.clients.some((c) => this.config.clients!.includes(c))
+        ) {
+          continue;
+        }
+
         const ruleDiagnostics = rule.check(tool, context);
 
         for (const diag of ruleDiagnostics) {

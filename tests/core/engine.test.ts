@@ -66,4 +66,20 @@ describe('LintEngine', () => {
     const engine = new LintEngine([mockRule, rule2], {});
     expect(engine.lint([mockTool, tool2])).toHaveLength(4);
   });
+
+  it('skips rules whose clients do not match config.clients', () => {
+    // mockRule.clients = ['claude'], config.clients = ['cursor'] -> skip
+    const engine = new LintEngine([mockRule], { clients: ['cursor'] });
+    expect(engine.lint([mockTool])).toHaveLength(0);
+  });
+
+  it('runs rules when their client is in config.clients', () => {
+    const engine = new LintEngine([mockRule], { clients: ['claude'] });
+    expect(engine.lint([mockTool])).toHaveLength(1);
+  });
+
+  it('runs all rules when config.clients is empty', () => {
+    const engine = new LintEngine([mockRule], { clients: [] });
+    expect(engine.lint([mockTool])).toHaveLength(1);
+  });
 });

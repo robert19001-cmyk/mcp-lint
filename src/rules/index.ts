@@ -7,6 +7,10 @@ import { maxDepth } from './max-depth.js';
 import { noRecursiveRefs } from './no-recursive-refs.js';
 import { validJsonSchemaSubset } from './valid-json-schema-subset.js';
 import { noUnsupportedFormats } from './no-unsupported-formats.js';
+import { claudeNoTypeArray } from './client-specific/claude.js';
+import { cursorNoDefaultWithoutType } from './client-specific/cursor.js';
+import { geminiNoOptionalWithoutDefault, geminiNoNestedObjects } from './client-specific/gemini.js';
+import { vscodeMaxParams } from './client-specific/vscode.js';
 
 export const allRules: Rule[] = [
   noRequiredFalse,
@@ -17,4 +21,9 @@ export const allRules: Rule[] = [
   noRecursiveRefs,
   validJsonSchemaSubset,
   noUnsupportedFormats,
+  claudeNoTypeArray,
+  cursorNoDefaultWithoutType,
+  geminiNoOptionalWithoutDefault,
+  geminiNoNestedObjects,
+  vscodeMaxParams,
 ];

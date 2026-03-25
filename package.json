@@ -8,10 +8,20 @@
   },
   "main": "./dist/core/engine.js",
   "types": "./dist/core/engine.d.ts",
-  "files": ["dist/"],
-  "keywords": ["mcp", "model-context-protocol", "lint", "schema", "validation"],
+  "files": [
+    "dist/"
+  ],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "lint",
+    "schema",
+    "validation"
+  ],
   "license": "MIT",
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
@@ -21,6 +31,7 @@
     "prepublishOnly": "npm run build && npm run test"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.28.0",
     "chalk": "^5.6.2",
     "commander": "^14.0.3",
     "yaml": "^2.8.3"
