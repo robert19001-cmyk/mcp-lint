@@ -11,7 +11,7 @@ import { loadConfig } from '../../config/config.js';
 import type { Config, Severity, ClientId } from '../../core/rule.js';
 import type { Diagnostic } from '../../core/diagnostic.js';
 import type { MCPTool } from '../../core/rule.js';
-
+import { writeFile } from 'fs/promises';
 const SEVERITY_ORDER: Record<Severity, number> = { error: 3, warning: 2, info: 1 };
 
 function filterBySeverity(diagnostics: Diagnostic[], min: Severity): Diagnostic[] {
@@ -31,6 +31,7 @@ export function registerCheckCommand(program: Command): void {
     .option('--quiet', 'Only output errors (no warnings/info)')
     .option('--server <type>', 'Server transport: stdio|sse')
     .option('--url <url>', 'SSE server URL (use with --server sse)')
+    .option('--output-file <path>', 'Write results to a file instead of stdout')
     .allowExcessArguments(true)
     .action(async (
       input: string | undefined,
@@ -44,6 +45,7 @@ export function registerCheckCommand(program: Command): void {
         quiet?: boolean;
         server?: string;
         url?: string;
+        outputFile?: string;
       },
     ) => {
       try {
@@ -99,7 +101,11 @@ export function registerCheckCommand(program: Command): void {
           output = formatTerminal(diagnostics, !options.color);
         }
 
-        process.stdout.write(output);
+        if (options.outputFile) {
+          await writeFile(options.outputFile, output, 'utf8');
+        } else {
+          process.stdout.write(output);
+        }
 
         const hasErrors = diagnostics.some((d) => d.severity === 'error');
         process.exit(hasErrors ? 1 : 0);
