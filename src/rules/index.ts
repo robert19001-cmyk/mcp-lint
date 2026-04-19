@@ -12,6 +12,7 @@ import { cursorNoDefaultWithoutType } from './client-specific/cursor.js';
 import { geminiNoOptionalWithoutDefault, geminiNoNestedObjects } from './client-specific/gemini.js';
 import { vscodeMaxParams } from './client-specific/vscode.js';
 import { windsurfNoUnionTypes } from './client-specific/windsurf.js';
+import { clineDescriptionMaxLength } from './client-specific/cline.js';
 
 export const allRules: Rule[] = [
   noRequiredFalse,
@@ -28,4 +29,5 @@ export const allRules: Rule[] = [
   geminiNoNestedObjects,
   vscodeMaxParams,
   windsurfNoUnionTypes,
+  clineDescriptionMaxLength,
 ];
