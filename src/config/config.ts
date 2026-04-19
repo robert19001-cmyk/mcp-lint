@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
 import { homedir } from 'node:os';
 import type { Config } from '../core/rule.js';
+import { applyExtends } from './presets.js';
 
 async function readConfigFile(filePath: string): Promise<Config> {
   const content = await readFile(filePath, 'utf-8');
@@ -11,7 +12,8 @@ async function readConfigFile(filePath: string): Promise<Config> {
 export async function loadConfig(configPath?: string): Promise<Config> {
   if (configPath) {
     try {
-      return await readConfigFile(configPath);
+      const raw = await readConfigFile(configPath);
+      return applyExtends(raw);
     } catch (err) {
       throw new Error(`Cannot load config from "${configPath}": ${(err as Error).message}`);
     }
@@ -22,7 +24,8 @@ export async function loadConfig(configPath?: string): Promise<Config> {
 
   while (true) {
     try {
-      return await readConfigFile(resolve(dir, '.mcplintrc.json'));
+      const raw = await readConfigFile(resolve(dir, '.mcplintrc.json'));
+      return applyExtends(raw);
     } catch {
       // not found here, try parent
     }
@@ -36,7 +39,7 @@ export async function loadConfig(configPath?: string): Promise<Config> {
 }
 
 export const DEFAULT_CONFIG: Required<Omit<Config, 'rules' | 'extends'>> = {
-  clients: ['claude', 'cursor', 'gemini', 'vscode'],
+  clients: ['claude', 'cursor', 'gemini', 'vscode', 'windsurf', 'cline', 'openai', 'continue'],
   ignore: [],
   maxDepth: 5,
 };
