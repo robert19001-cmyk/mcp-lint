@@ -8,6 +8,20 @@ export const windsurfNoUnionTypes: Rule = {
   severity: 'warning',
   description: 'Windsurf does not support `anyOf` with more than 2 variants.',
   clients: ['windsurf'],
+  docs: {
+    why: 'Windsurf\'s MCP client has limited support for complex union types. `anyOf` with more than 2 variants may be silently ignored or cause unexpected behavior.',
+    badExample: {
+      properties: {
+        value: { anyOf: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }] },
+      },
+    },
+    goodExample: {
+      properties: {
+        value: { anyOf: [{ type: 'string' }, { type: 'null' }] },
+      },
+    },
+    fixNote: 'Reduce anyOf to at most 2 variants, or replace with a single type.',
+  },
 
   check(tool: MCPTool, _context: RuleContext): Diagnostic[] {
     const diagnostics: Diagnostic[] = [];
