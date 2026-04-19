@@ -7,7 +7,8 @@
       "properties": {
         "query": { "type": "string", "description": "Search query" }
       },
-      "required": ["query"]
+      "required": ["query"],
+      "additionalProperties": false
     }
   }
 ]
