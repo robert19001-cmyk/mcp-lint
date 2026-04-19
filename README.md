@@ -3,11 +3,11 @@
 [![npm version](https://img.shields.io/npm/v/mcp-lint?color=crimson)](https://www.npmjs.com/package/mcp-lint)
 [![npm downloads](https://img.shields.io/npm/dm/mcp-lint)](https://www.npmjs.com/package/mcp-lint)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Node.js ≥18](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org)
+[![Node.js ≥20](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org)
 
 **Lint MCP server tool schemas for cross-client compatibility.**
 
-MCP servers expose tool schemas consumed by **Claude**, **Cursor**, **Gemini**, and **VS Code Copilot**. Each client has different JSON Schema support and quirks — a schema that works in Claude may silently break in Cursor. `mcp-lint` catches these issues before your users do.
+MCP servers expose tool schemas consumed by **Claude**, **Cursor**, **Gemini**, **VS Code Copilot**, **Windsurf**, **Cline**, **OpenAI Agents SDK**, and **Continue.dev**. Each client has different JSON Schema support and quirks — a schema that works in Claude may silently break in Cursor or OpenAI. `mcp-lint` catches these issues before your users do.
 
 ```
 $ npx mcp-lint check tools.json
@@ -41,21 +41,79 @@ npm install --save-dev mcp-lint
 ## Quick Start
 
 ```bash
-# Generate a config file
-mcp-lint init
-
 # Check a JSON or YAML file
 mcp-lint check tools.json
-mcp-lint check tools.yaml
 
-# Check a live MCP server (stdio)
-mcp-lint check --server stdio -- node my-server.js
+# See compatibility across all clients at a glance
+mcp-lint compat tools.json
 
-# Check a live MCP server (SSE)
-mcp-lint check --server sse --url http://localhost:3000/sse
+# Learn what a rule does
+mcp-lint explain openai/no-additional-properties
 
 # Auto-fix what can be fixed
 mcp-lint fix tools.json --in-place
+
+# Generate a config file
+mcp-lint init
+```
+
+---
+
+## `mcp-lint compat` — Compatibility Matrix
+
+See exactly which tools work with which clients:
+
+```
+$ mcp-lint compat tools.json
+
+                    claude    cursor    gemini    vscode    windsurf  cline     openai    continue
+search-tool         ✓         ✗         ✓         ✓         ✓         ✓         ✓         ✓
+file-reader         ✓         ✓         ✗         ✓         ✓         ✓         ✓         ✗
+database-query      ✓         ✓         ✓         ✓         ✓         ✓         ✗         ✓
+
+2 tools have compatibility issues. Run `mcp-lint check` for details.
+```
+
+```bash
+mcp-lint compat tools.json --format markdown   # for PRs and GitHub Step Summary
+mcp-lint compat tools.json --format json       # machine-readable
+mcp-lint compat --server stdio -- node server.js
+```
+
+---
+
+## `mcp-lint explain` — Rule Documentation
+
+```
+$ mcp-lint explain openai/no-additional-properties
+
+Rule: openai/no-additional-properties
+Severity:  error
+Clients:   openai
+Fixable:   yes
+
+Description
+OpenAI Agents SDK strict mode requires `additionalProperties: false` on the root inputSchema.
+
+Why
+OpenAI's strict function calling mode rejects schemas that don't explicitly set
+`additionalProperties: false` at the root level.
+
+Bad example
+{
+  "type": "object",
+  "properties": { "q": { "type": "string" } }
+}
+
+Good example
+{
+  "type": "object",
+  "properties": { "q": { "type": "string" } },
+  "additionalProperties": false
+}
+
+Auto-fix
+Add `"additionalProperties": false` to the root inputSchema.
 ```
 
 ---
@@ -73,9 +131,9 @@ mcp-lint check tools.json --format json       # machine-readable (CI/CD)
 mcp-lint check tools.json --format markdown   # for PRs and GitHub summaries
 
 # Filters
-mcp-lint check tools.json --clients claude,cursor    # only these clients' rules
-mcp-lint check tools.json --severity error           # errors only
-mcp-lint check tools.json --quiet                    # same as --severity error
+mcp-lint check tools.json --clients claude,cursor,openai   # only these clients' rules
+mcp-lint check tools.json --severity error                 # errors only
+mcp-lint check tools.json --quiet                          # same as --severity error
 mcp-lint check tools.json --ignore "debug-tool,internal-tool"
 
 # Config
@@ -163,6 +221,31 @@ mcp-lint init --force  # overwrite existing
 |------|----------|---------|-------------|
 | `vscode/max-params` | 🟡 warning | ❌ | VS Code Copilot performance degrades with more than 15 parameters |
 
+### Windsurf-specific
+
+| Rule | Severity | Fixable | Description |
+|------|----------|---------|-------------|
+| `windsurf/no-union-types` | 🟡 warning | ❌ | `anyOf` with more than 2 variants not supported |
+
+### Cline-specific
+
+| Rule | Severity | Fixable | Description |
+|------|----------|---------|-------------|
+| `cline/description-max-length` | 🟡 warning | ✅ | Descriptions over 200 characters are truncated by Cline |
+
+### OpenAI Agents SDK-specific
+
+| Rule | Severity | Fixable | Description |
+|------|----------|---------|-------------|
+| `openai/no-additional-properties` | 🔴 error | ✅ | Strict mode requires `additionalProperties: false` on root inputSchema |
+| `openai/strict-types` | 🔴 error | ❌ | Only `string`, `number`, `boolean`, `object`, `array`, `null` allowed |
+
+### Continue.dev-specific
+
+| Rule | Severity | Fixable | Description |
+|------|----------|---------|-------------|
+| `continue/no-default-values` | 🟡 warning | ❌ | Continue.dev ignores `default` fields — document defaults in descriptions instead |
+
 ---
 
 ## Configuration
@@ -171,18 +254,39 @@ mcp-lint init --force  # overwrite existing
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/robert19001-cmyk/mcp-lint/main/config-schema.json",
   "rules": {
     "no-required-false": "error",
     "description-exists": "warning",
     "max-depth": "off",
     "claude/no-type-array": "error"
   },
-  "clients": ["claude", "cursor", "gemini", "vscode"],
+  "clients": ["claude", "cursor", "gemini", "vscode", "windsurf", "cline", "openai", "continue"],
   "ignore": ["internal-debug-tool"],
   "maxDepth": 5
 }
 ```
+
+### Presets
+
+Use `"extends"` to start from a built-in preset:
+
+```json
+{ "extends": "recommended" }
+```
+
+```json
+{
+  "extends": "strict",
+  "rules": {
+    "description-exists": "warning"
+  }
+}
+```
+
+| Preset | Description |
+|--------|-------------|
+| `recommended` | All 8 clients enabled, default severities |
+| `strict` | All rules set to `error`, `maxDepth: 3` |
 
 Rule severities: `"error"` | `"warning"` | `"info"` | `"off"`
 
@@ -205,8 +309,8 @@ jobs:
       # Fail the build on errors
       - run: npx mcp-lint check ./src/tools.json
 
-      # Post a summary to the PR
-      - run: npx mcp-lint check ./src/tools.json --format markdown >> $GITHUB_STEP_SUMMARY
+      # Post compatibility matrix to PR summary
+      - run: npx mcp-lint compat ./src/tools.json --format markdown >> $GITHUB_STEP_SUMMARY
         if: always()
 
       # Save JSON results as artifact
@@ -231,7 +335,7 @@ import { applyFixes } from 'mcp-lint/fixer';
 // Check
 const tools = await loadFile('tools.json');
 const engine = new LintEngine(allRules, {
-  clients: ['claude', 'cursor'],
+  clients: ['claude', 'cursor', 'openai'],
   ignore: ['debug-tool'],
 });
 const diagnostics = engine.lint(tools);
@@ -239,42 +343,6 @@ const diagnostics = engine.lint(tools);
 // Fix
 const fixed = applyFixes(tools, diagnostics);
 ```
-
----
-
-## Adding a Custom Rule
-
-Create `src/rules/my-rule.ts`:
-
-```typescript
-import type { Rule } from 'mcp-lint/core/rule';
-
-export const myRule: Rule = {
-  id: 'my-rule',
-  severity: 'warning',
-  description: 'What this rule checks',
-  clients: ['claude', 'cursor', 'gemini', 'vscode'],
-
-  check(tool, context) {
-    const diagnostics = [];
-
-    if (someCondition(tool.inputSchema)) {
-      diagnostics.push({
-        ruleId: 'my-rule',
-        severity: 'warning',
-        message: 'Human-readable explanation',
-        toolName: tool.name,
-        path: 'inputSchema.properties.something',
-        clients: this.clients,
-      });
-    }
-
-    return diagnostics;
-  },
-};
-```
-
-Register it in `src/rules/index.ts` and add tests in `tests/rules/my-rule.test.ts`.
 
 ---
 
