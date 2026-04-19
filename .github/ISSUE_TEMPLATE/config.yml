@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Discussions
+    url: https://github.com/robert19001-cmyk/mcp-lint/discussions
+    about: Questions, ideas, showcase your MCP server
+  - name: npm package
+    url: https://www.npmjs.com/package/mcp-lint
+    about: Install via npm
