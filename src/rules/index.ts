@@ -8,6 +8,7 @@ import { noRecursiveRefs } from './no-recursive-refs.js';
 import { validJsonSchemaSubset } from './valid-json-schema-subset.js';
 import { noUnsupportedFormats } from './no-unsupported-formats.js';
 import { claudeNoTypeArray } from './client-specific/claude.js';
+import { continueNoDefaultValues } from './client-specific/continue.js';
 import { cursorNoDefaultWithoutType } from './client-specific/cursor.js';
 import { geminiNoOptionalWithoutDefault, geminiNoNestedObjects } from './client-specific/gemini.js';
 import { vscodeMaxParams } from './client-specific/vscode.js';
@@ -25,6 +26,7 @@ export const allRules: Rule[] = [
   validJsonSchemaSubset,
   noUnsupportedFormats,
   claudeNoTypeArray,
+  continueNoDefaultValues,
   cursorNoDefaultWithoutType,
   geminiNoOptionalWithoutDefault,
   geminiNoNestedObjects,
