@@ -13,6 +13,7 @@ import { geminiNoOptionalWithoutDefault, geminiNoNestedObjects } from './client-
 import { vscodeMaxParams } from './client-specific/vscode.js';
 import { windsurfNoUnionTypes } from './client-specific/windsurf.js';
 import { clineDescriptionMaxLength } from './client-specific/cline.js';
+import { openaiNoAdditionalProperties, openaiStrictTypes } from './client-specific/openai.js';
 
 export const allRules: Rule[] = [
   noRequiredFalse,
@@ -30,4 +31,6 @@ export const allRules: Rule[] = [
   vscodeMaxParams,
   windsurfNoUnionTypes,
   clineDescriptionMaxLength,
+  openaiNoAdditionalProperties,
+  openaiStrictTypes,
 ];
