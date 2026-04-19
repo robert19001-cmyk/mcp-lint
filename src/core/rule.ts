@@ -2,7 +2,9 @@ import type { Severity } from './severity.js';
 export type { Severity } from './severity.js';
 import type { Diagnostic } from './diagnostic.js';
 
-export type ClientId = 'claude' | 'cursor' | 'gemini' | 'vscode';
+export type ClientId =
+  | 'claude' | 'cursor' | 'gemini' | 'vscode'
+  | 'windsurf' | 'cline' | 'openai' | 'continue';
 
 export interface JSONSchema {
   type?: string | string[];
@@ -22,6 +24,7 @@ export interface JSONSchema {
   not?: JSONSchema;
   patternProperties?: Record<string, JSONSchema>;
   additionalItems?: JSONSchema | boolean;
+  additionalProperties?: JSONSchema | boolean;
   dependencies?: Record<string, JSONSchema | string[]>;
   $dynamicRef?: string;
   contentEncoding?: string;
@@ -38,6 +41,7 @@ export interface MCPTool {
 }
 
 export interface Config {
+  extends?: string;
   rules?: Record<string, Severity | 'off'>;
   clients?: ClientId[];
   ignore?: string[];
@@ -48,11 +52,19 @@ export interface RuleContext {
   config: Config;
 }
 
+export interface RuleDocs {
+  why: string;
+  badExample: object;
+  goodExample: object;
+  fixNote?: string;
+}
+
 export interface Rule {
   id: string;
   severity: Severity;
   description: string;
   url?: string;
   clients: ClientId[];
+  docs?: RuleDocs;
   check: (tool: MCPTool, context: RuleContext) => Diagnostic[];
 }

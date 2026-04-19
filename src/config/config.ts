@@ -35,7 +35,7 @@ export async function loadConfig(configPath?: string): Promise<Config> {
   return {};
 }
 
-export const DEFAULT_CONFIG: Required<Omit<Config, 'rules'>> = {
+export const DEFAULT_CONFIG: Required<Omit<Config, 'rules' | 'extends'>> = {
   clients: ['claude', 'cursor', 'gemini', 'vscode'],
   ignore: [],
   maxDepth: 5,
