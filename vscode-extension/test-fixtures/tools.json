@@ -1,0 +1,43 @@
+[
+  {
+    "name": "search-database",
+    "description": "Search the database",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "required": false
+        },
+        "limit": {
+          "type": "integer",
+          "default": 10
+        },
+        "fields": {
+          "anyOf": [
+            { "type": "string" },
+            { "type": "array" },
+            { "type": "object" },
+            { "type": "null" }
+          ]
+        },
+        "filter": {
+          "description": "A very long description that exceeds 200 characters to trigger the Cline rule about description truncation which happens at the 200 char mark and we need enough text here to actually trip the rule, so I'm padding it out.",
+          "type": "string"
+        }
+      }
+    }
+  },
+  {
+    "name": "read-file",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "contentEncoding": "base64"
+        }
+      }
+    }
+  }
+]

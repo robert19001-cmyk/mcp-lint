@@ -1,0 +1,97 @@
+{
+  "name": "mcp-lint-vscode",
+  "displayName": "MCP Lint",
+  "description": "Real-time linting for MCP (Model Context Protocol) server tool schemas. Catch cross-client compatibility issues as you type.",
+  "version": "0.1.0",
+  "publisher": "robert19001",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/robert19001-cmyk/mcp-lint.git",
+    "directory": "vscode-extension"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Linters",
+    "Programming Languages"
+  ],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "lint",
+    "claude",
+    "cursor",
+    "json-schema"
+  ],
+  "activationEvents": [
+    "onLanguage:json",
+    "onLanguage:jsonc"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "mcpLint.fixAll",
+        "title": "MCP Lint: Fix all auto-fixable issues in current file"
+      },
+      {
+        "command": "mcpLint.showCompat",
+        "title": "MCP Lint: Show compatibility matrix for current file"
+      },
+      {
+        "command": "mcpLint.toggle",
+        "title": "MCP Lint: Toggle linting for current file"
+      }
+    ],
+    "configuration": {
+      "title": "MCP Lint",
+      "properties": {
+        "mcpLint.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable MCP Lint globally."
+        },
+        "mcpLint.clients": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["claude", "cursor", "gemini", "vscode", "windsurf", "cline", "openai", "continue"]
+          },
+          "default": ["claude", "cursor", "gemini", "vscode", "windsurf", "cline", "openai", "continue"],
+          "description": "Which MCP clients to check compatibility against."
+        },
+        "mcpLint.autoDetect": {
+          "type": "boolean",
+          "default": true,
+          "description": "Auto-detect MCP tool files by content shape."
+        },
+        "mcpLint.filePatterns": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["**/tools.json", "**/mcp-tools.json", "**/.mcp/tools.json"],
+          "description": "Glob patterns for files to lint as MCP schemas."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.config.mjs",
+    "watch": "node esbuild.config.mjs --watch",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "dependencies": {
+    "mcp-lint": "file:..",
+    "jsonc-parser": "^3.3.1",
+    "minimatch": "^10.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.2.1",
+    "esbuild": "^0.24.0",
+    "typescript": "^6.0.2"
+  }
+}
