@@ -1,0 +1,8 @@
+{
+  "actor_id": "agent:claude-code",
+  "workspace_id": "team-alpha",
+  "tool_type": "shell",
+  "tool_name": "bash",
+  "action": "rm -rf ./tmp",
+  "target": "./tmp"
+}

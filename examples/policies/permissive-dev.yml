@@ -1,0 +1,33 @@
+version: 1
+
+defaults:
+  approval_threshold: 0.85
+  block_threshold: 0.98
+
+rules:
+  - id: block-prod-paths
+    when:
+      target_matches: ["/prod/**", "/production/**"]
+    effect: deny
+    reason: Never touch production paths from dev
+
+  - id: allow-all-reads
+    when:
+      tool_type: file_read
+    effect: allow
+
+  - id: allow-workspace
+    when:
+      tool_type: file_write
+      target_matches: ["./**"]
+    effect: allow
+
+  - id: rewrite-destructive-delete
+    when:
+      tool_type: shell
+      action_matches: ["rm -rf"]
+    effect: allow_with_rewrite
+    rewrite:
+      tool_type: file_delete
+      action: move_to_trash
+    reason: Use trash instead of hard delete even in dev

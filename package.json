@@ -1,22 +1,41 @@
 {
   "name": "mcp-lint",
-  "version": "0.3.0",
-  "description": "Lint MCP server tool schemas for cross-client compatibility",
+  "version": "0.4.0",
+  "description": "Lint MCP server tool schemas for cross-client compatibility + runtime preflight for agent tool calls",
   "type": "module",
   "bin": {
     "mcp-lint": "./dist/index.js"
   },
   "main": "./dist/core/engine.js",
   "types": "./dist/core/engine.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/core/engine.d.ts",
+      "default": "./dist/core/engine.js"
+    },
+    "./preflight": {
+      "types": "./dist/preflight/index.d.ts",
+      "default": "./dist/preflight/index.js"
+    },
+    "./rules": {
+      "types": "./dist/rules/index.d.ts",
+      "default": "./dist/rules/index.js"
+    }
+  },
   "files": [
-    "dist/"
+    "dist/",
+    "examples/"
   ],
   "keywords": [
     "mcp",
     "model-context-protocol",
     "lint",
     "schema",
-    "validation"
+    "validation",
+    "preflight",
+    "agent-safety",
+    "policy",
+    "guardrails"
   ],
   "license": "MIT",
   "engines": {

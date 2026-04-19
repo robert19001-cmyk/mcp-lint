@@ -1,0 +1,59 @@
+version: 1
+
+defaults:
+  approval_threshold: 0.70
+  block_threshold: 0.92
+
+budgets:
+  max_http_cost_usd_per_action: 2
+  max_model_cost_usd_per_action: 1
+
+rules:
+  - id: block-destructive-prod
+    when:
+      tool_type: shell
+      action_matches: ["rm -rf", "rmdir /s", "del /s"]
+      target_matches: ["/prod", "/etc", "/app/data", "C:\\Windows"]
+    effect: deny
+    reason: Destructive operations on production paths are forbidden
+
+  - id: approval-sensitive-write
+    when:
+      tool_type: file_write
+      target_matches: ["**/.env*", "**/secrets*", "**/credentials*"]
+    effect: require_approval
+    reason: Writing to sensitive files requires approval
+
+  - id: rewrite-tmp-delete
+    when:
+      tool_type: shell
+      action_matches: ["rm -rf ./tmp", "rm -rf ./cache", "rm -rf ./build"]
+    effect: allow_with_rewrite
+    rewrite:
+      tool_type: file_delete
+      action: move_to_trash
+      target: ./tmp
+    reason: Prefer moving to trash over hard delete
+
+  - id: allow-workspace-writes
+    when:
+      tool_type: file_write
+      target_matches: ["./workspace/**", "./src/**", "./tests/**"]
+    effect: allow
+
+  - id: allow-local-reads
+    when:
+      tool_type: file_read
+    effect: allow
+
+  - id: approval-payments
+    when:
+      tool_type: payment
+    effect: require_approval
+    reason: All payments require human approval
+
+  - id: approval-external-email
+    when:
+      tool_type: email
+    effect: require_approval
+    reason: Outgoing email requires approval

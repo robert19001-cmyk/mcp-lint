@@ -1,0 +1,42 @@
+version: 1
+
+defaults:
+  approval_threshold: 0.40
+  block_threshold: 0.80
+
+rules:
+  - id: approval-all-shell
+    when:
+      tool_type: shell
+    effect: require_approval
+    reason: All shell commands require approval under strict policy
+
+  - id: approval-all-http
+    when:
+      tool_type: http
+      domain_not_in_allowlist: true
+      allowlist:
+        - api.github.com
+        - api.anthropic.com
+        - api.openai.com
+    effect: require_approval
+    reason: HTTP calls outside the allowlist require approval
+
+  - id: block-destructive
+    when:
+      tool_type: shell
+      action_matches: ["rm -rf", "drop table", "truncate"]
+    effect: deny
+    reason: Destructive commands are never allowed
+
+  - id: block-secrets
+    when:
+      action_matches: [".env", "secrets", "credentials", "id_rsa"]
+    effect: deny
+    reason: Secrets must never be touched by an agent
+
+  - id: approval-payment
+    when:
+      tool_type: payment
+    effect: deny
+    reason: Agents cannot make payments in strict mode

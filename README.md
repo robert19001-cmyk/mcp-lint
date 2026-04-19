@@ -440,6 +440,116 @@ const fixed = applyFixes(tools, diagnostics);
 
 ---
 
+## `mcp-lint preflight` — Runtime Decision Firewall
+
+**Lint catches bad schemas. Preflight catches bad actions.**
+
+At runtime, your agent is about to call a tool — delete a file, send a request, charge a card. Preflight sits between the agent and the action and answers:
+
+- Is it allowed?
+- How risky is it? (0.0–1.0 deterministic score)
+- Is it reversible?
+- Does it need human approval?
+- Is there a safer alternative?
+
+```bash
+$ mcp-lint preflight action.json --policy preflight.yml
+
+Preflight Decision
+────────────────────────────────────────
+Decision:      DENY
+Risk score:    1.00
+Reversibility: irreversible
+Policies:      block-destructive-prod
+Reasons:       base_shell, destructive_pattern, sensitive_target, irreversible_operation
+```
+
+### Action format
+
+```json
+{
+  "tool_type": "shell",
+  "tool_name": "bash",
+  "action": "rm -rf /prod/data",
+  "target": "/prod/data",
+  "context": { "environment": "prod" }
+}
+```
+
+### Policy file (YAML)
+
+```yaml
+version: 1
+defaults:
+  approval_threshold: 0.70
+  block_threshold: 0.92
+
+rules:
+  - id: block-prod-delete
+    when:
+      tool_type: shell
+      action_matches: ["rm -rf"]
+      target_matches: ["/prod", "/etc"]
+    effect: deny
+
+  - id: rewrite-tmp-delete
+    when:
+      tool_type: shell
+      action_matches: ["rm -rf ./tmp"]
+    effect: allow_with_rewrite
+    rewrite:
+      tool_type: file_delete
+      action: move_to_trash
+      target: ./tmp
+
+  - id: approval-payments
+    when:
+      tool_type: payment
+    effect: require_approval
+```
+
+Sample policies in `examples/policies/`: `default.yml`, `strict.yml`, `permissive-dev.yml`.
+
+### SDK — embed in your MCP server or agent runtime
+
+```typescript
+import { preflight, loadPolicy } from 'mcp-lint/preflight';
+
+const policy = await loadPolicy('./preflight.yml');
+
+const decision = preflight(
+  {
+    tool_type: 'shell',
+    tool_name: 'bash',
+    action: 'rm -rf /tmp',
+    target: '/tmp',
+  },
+  policy,
+);
+
+if (decision.decision === 'deny') {
+  throw new Error(`Blocked: ${decision.reasons.join(', ')}`);
+}
+if (decision.decision === 'require_approval') {
+  await askUser(decision);
+}
+if (decision.decision === 'allow_with_rewrite') {
+  return executeSafer(decision.safe_alternative);
+}
+```
+
+### Exit codes
+
+| Code | Meaning |
+|------|---------|
+| `0`  | allow / allow_with_rewrite |
+| `1`  | require_approval |
+| `2`  | deny / error |
+
+Use them directly in shell wrappers or CI gates.
+
+---
+
 ## License
 
 MIT © Robert

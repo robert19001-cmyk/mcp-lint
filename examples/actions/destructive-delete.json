@@ -1,0 +1,11 @@
+{
+  "actor_id": "agent:claude-code",
+  "workspace_id": "team-alpha",
+  "tool_type": "shell",
+  "tool_name": "bash",
+  "action": "rm -rf /prod/data",
+  "target": "/prod/data",
+  "context": {
+    "environment": "prod"
+  }
+}
