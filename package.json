@@ -1,6 +1,6 @@
 {
   "name": "mcp-lint",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Lint MCP server tool schemas for cross-client compatibility",
   "type": "module",
   "bin": {
