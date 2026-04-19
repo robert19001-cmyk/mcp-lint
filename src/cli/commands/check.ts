@@ -1,4 +1,5 @@
 import type { Command } from 'commander';
+import { watch } from 'node:fs';
 import { loadFile } from '../../loaders/file-loader.js';
 import { loadStdio } from '../../loaders/stdio-loader.js';
 import { loadSSE } from '../../loaders/sse-loader.js';
@@ -8,10 +9,14 @@ import { formatTerminal } from '../formatters/terminal.js';
 import { formatJson } from '../formatters/json.js';
 import { formatMarkdown } from '../formatters/markdown.js';
 import { loadConfig } from '../../config/config.js';
+import { loadPluginRules } from '../../config/plugin-loader.js';
 import type { Config, Severity, ClientId } from '../../core/rule.js';
 import type { Diagnostic } from '../../core/diagnostic.js';
 import type { MCPTool } from '../../core/rule.js';
 import { writeFile } from 'fs/promises';
+import chalk from 'chalk';
+import { computeQualityReport } from '../../core/quality-score.js';
+
 const SEVERITY_ORDER: Record<Severity, number> = { error: 3, warning: 2, info: 1 };
 
 function filterBySeverity(diagnostics: Diagnostic[], min: Severity): Diagnostic[] {
@@ -32,6 +37,8 @@ export function registerCheckCommand(program: Command): void {
     .option('--server <type>', 'Server transport: stdio|sse')
     .option('--url <url>', 'SSE server URL (use with --server sse)')
     .option('--output-file <path>', 'Write results to a file instead of stdout')
+    .option('--watch', 'Re-lint on file change (only works with file input)')
+    .option('--score', 'Show quality score (0–100) per tool')
     .allowExcessArguments(true)
     .action(async (
       input: string | undefined,
@@ -46,9 +53,12 @@ export function registerCheckCommand(program: Command): void {
         server?: string;
         url?: string;
         outputFile?: string;
+        watch?: boolean;
+        score?: boolean;
       },
     ) => {
-      try {
+      async function runLint(): Promise<boolean> {
+        try {
         const fileConfig = await loadConfig(options.config);
 
         const cliClients = options.clients
@@ -83,7 +93,8 @@ export function registerCheckCommand(program: Command): void {
           tools = await loadFile(input);
         }
 
-        const engine = new LintEngine(allRules, config);
+        const pluginRules = await loadPluginRules(fileConfig);
+        const engine = new LintEngine([...allRules, ...pluginRules], config);
         let diagnostics = engine.lint(tools);
 
         const minSeverity: Severity = options.quiet
@@ -107,11 +118,48 @@ export function registerCheckCommand(program: Command): void {
           process.stdout.write(output);
         }
 
-        const hasErrors = diagnostics.some((d) => d.severity === 'error');
+        if (options.score) {
+          const report = computeQualityReport(tools, diagnostics);
+          const gradeColor = (g: string) =>
+            g === 'A' ? chalk.green(g) : g === 'B' ? chalk.cyan(g) : g === 'C' ? chalk.yellow(g) : chalk.red(g);
+          process.stdout.write(chalk.bold('\nQuality Score\n'));
+          for (const t of report.tools) {
+            process.stdout.write(
+              `  ${t.toolName.padEnd(30)} ${String(t.score).padStart(3)}/100  ${gradeColor(t.grade)}  (${t.errors} errors, ${t.warnings} warnings)\n`,
+            );
+          }
+          process.stdout.write(
+            `\n  Overall: ${chalk.bold(String(report.overall))}/100  ${gradeColor(report.grade)}\n\n`,
+          );
+        }
+
+          const hasErrors = diagnostics.some((d) => d.severity === 'error');
+          return hasErrors;
+        } catch (err) {
+          process.stderr.write(`Error: ${(err as Error).message}\n`);
+          return true;
+        }
+      }
+
+      if (options.watch) {
+        if (!input || options.server) {
+          process.stderr.write('Error: --watch only works with file input\n');
+          process.exit(2);
+        }
+        process.stdout.write(chalk.dim(`Watching ${input} for changes...\n\n`));
+        await runLint();
+
+        let debounce: ReturnType<typeof setTimeout> | null = null;
+        watch(input, () => {
+          if (debounce) clearTimeout(debounce);
+          debounce = setTimeout(async () => {
+            process.stdout.write(chalk.dim(`\n[${new Date().toLocaleTimeString()}] File changed — re-linting...\n\n`));
+            await runLint();
+          }, 100);
+        });
+      } else {
+        const hasErrors = await runLint();
         process.exit(hasErrors ? 1 : 0);
-      } catch (err) {
-        process.stderr.write(`Error: ${(err as Error).message}\n`);
-        process.exit(2);
       }
     });
 }

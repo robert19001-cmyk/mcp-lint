@@ -1,0 +1,23 @@
+name: MCP Schema Lint (example)
+
+# Example workflow showing how to use mcp-lint in CI.
+# Copy this to your own repo and adjust the `input` path.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lint MCP tool schemas
+        uses: robert19001-cmyk/mcp-lint@v0.3.0
+        with:
+          input: tools.json
+          severity: warning
+          score: 'true'
+          fail_on: error

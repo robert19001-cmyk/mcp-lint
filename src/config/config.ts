@@ -13,7 +13,7 @@ export async function loadConfig(configPath?: string): Promise<Config> {
   if (configPath) {
     try {
       const raw = await readConfigFile(configPath);
-      return applyExtends(raw);
+      return await applyExtends(raw);
     } catch (err) {
       throw new Error(`Cannot load config from "${configPath}": ${(err as Error).message}`);
     }
@@ -25,7 +25,7 @@ export async function loadConfig(configPath?: string): Promise<Config> {
   while (true) {
     try {
       const raw = await readConfigFile(resolve(dir, '.mcplintrc.json'));
-      return applyExtends(raw);
+      return await applyExtends(raw);
     } catch {
       // not found here, try parent
     }
@@ -38,7 +38,7 @@ export async function loadConfig(configPath?: string): Promise<Config> {
   return {};
 }
 
-export const DEFAULT_CONFIG: Required<Omit<Config, 'rules' | 'extends'>> = {
+export const DEFAULT_CONFIG: Required<Omit<Config, 'rules' | 'extends' | 'plugins'>> = {
   clients: ['claude', 'cursor', 'gemini', 'vscode', 'windsurf', 'cline', 'openai', 'continue'],
   ignore: [],
   maxDepth: 5,

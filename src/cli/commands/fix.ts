@@ -5,6 +5,7 @@ import { LintEngine } from '../../core/engine.js';
 import { allRules } from '../../rules/index.js';
 import { applyFixes } from '../../core/fixer.js';
 import { loadConfig } from '../../config/config.js';
+import { loadPluginRules } from '../../config/plugin-loader.js';
 
 export function registerFixCommand(program: Command): void {
   program
@@ -27,8 +28,9 @@ export function registerFixCommand(program: Command): void {
     ) => {
       try {
         const fileConfig = await loadConfig(options.config);
+        const pluginRules = await loadPluginRules(fileConfig);
         const tools = await loadFile(input);
-        const engine = new LintEngine(allRules, fileConfig);
+        const engine = new LintEngine([...allRules, ...pluginRules], fileConfig);
         const diagnostics = engine.lint(tools);
 
         const onlyRules = options.rules

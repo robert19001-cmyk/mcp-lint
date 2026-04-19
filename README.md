@@ -75,8 +75,9 @@ database-query      ✓         ✓         ✓         ✓         ✓         
 ```
 
 ```bash
-mcp-lint compat tools.json --format markdown   # for PRs and GitHub Step Summary
-mcp-lint compat tools.json --format json       # machine-readable
+mcp-lint compat tools.json --format markdown         # for PRs and GitHub Step Summary
+mcp-lint compat tools.json --format json             # machine-readable
+mcp-lint compat tools.json --client openai           # single client column
 mcp-lint compat --server stdio -- node server.js
 ```
 
@@ -140,6 +141,12 @@ mcp-lint check tools.json --ignore "debug-tool,internal-tool"
 mcp-lint check tools.json --config path/to/.mcplintrc.json
 mcp-lint check tools.json --no-color
 
+# Quality score (0–100 per tool with A-F grades)
+mcp-lint check tools.json --score
+
+# Watch mode (re-lints on file change)
+mcp-lint check tools.json --watch
+
 # Live servers
 mcp-lint check --server stdio -- node my-server.js
 mcp-lint check --server stdio -- python my_server.py arg1 arg2
@@ -153,6 +160,20 @@ mcp-lint check --server sse --url http://localhost:3000/sse
 | `0` | No errors (warnings don't count) |
 | `1` | One or more errors found |
 | `2` | Invalid input or configuration error |
+
+---
+
+### `mcp-lint diff <before> <after>`
+
+Compare lint results between two versions of your schema — useful in CI to catch regressions.
+
+```bash
+mcp-lint diff tools-v1.json tools-v2.json
+mcp-lint diff tools-v1.json tools-v2.json --format markdown >> $GITHUB_STEP_SUMMARY
+mcp-lint diff tools-v1.json tools-v2.json --format json
+```
+
+**Exit codes:** `0` = no new errors introduced, `1` = new errors found, `2` = error
 
 ---
 
@@ -294,10 +315,39 @@ Rule severities: `"error"` | `"warning"` | `"info"` | `"off"`
 
 ## CI/CD — GitHub Actions
 
+### Using the official Action
+
 ```yaml
 name: MCP Schema Lint
 on: [push, pull_request]
 
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: robert19001-cmyk/mcp-lint@v0.3.0
+        with:
+          input: tools.json
+          severity: warning
+          score: 'true'
+          fail_on: error
+```
+
+**Action inputs:**
+
+| Input | Default | Description |
+|-------|---------|-------------|
+| `input` | _(required)_ | Path to MCP tools JSON file |
+| `format` | `terminal` | `terminal\|json\|markdown` |
+| `severity` | `info` | Minimum severity to report |
+| `clients` | all | Comma-separated client filter |
+| `fail_on` | `error` | Fail CI when issues at this severity found |
+| `score` | `false` | Show quality score |
+
+### Manual workflow
+
+```yaml
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -313,13 +363,57 @@ jobs:
       - run: npx mcp-lint compat ./src/tools.json --format markdown >> $GITHUB_STEP_SUMMARY
         if: always()
 
-      # Save JSON results as artifact
-      - run: npx mcp-lint check ./src/tools.json --format json > lint-results.json || true
-      - uses: actions/upload-artifact@v4
+      # Diff against previous version
+      - run: npx mcp-lint diff tools-before.json tools-after.json --format markdown >> $GITHUB_STEP_SUMMARY
         if: always()
-        with:
-          name: mcp-lint-results
-          path: lint-results.json
+```
+
+---
+
+## Plugin API
+
+Share and reuse rule sets via npm packages.
+
+### Using a plugin
+
+```bash
+npm install mcp-lint-config-nextjs
+```
+
+```json
+{
+  "plugins": ["mcp-lint-config-nextjs"],
+  "extends": "recommended"
+}
+```
+
+### Writing a plugin
+
+A plugin is an npm package that exports a `rules` array of `Rule` objects:
+
+```typescript
+// mcp-lint-config-myserver/index.ts
+import type { Rule } from 'mcp-lint';
+
+const myRule: Rule = {
+  id: 'myserver/no-large-params',
+  severity: 'warning',
+  description: 'My server limits param count to 10',
+  clients: ['claude', 'cursor'],
+  check(tool) {
+    const count = Object.keys(tool.inputSchema.properties ?? {}).length;
+    if (count > 10) return [{
+      toolName: tool.name,
+      ruleId: 'myserver/no-large-params',
+      severity: 'warning',
+      message: `Too many params (${count})`,
+      path: 'inputSchema.properties',
+    }];
+    return [];
+  },
+};
+
+export const rules = [myRule];
 ```
 
 ---

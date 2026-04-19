@@ -1,0 +1,45 @@
+[
+  {
+    "name": "search-files",
+    "description": "Search through files in the repository",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": { "type": "string", "description": "Search query", "required": false },
+        "limit": { "type": "integer", "default": 10 },
+        "format": {
+          "anyOf": [
+            { "type": "string" },
+            { "type": "number" },
+            { "type": "boolean" }
+          ]
+        }
+      },
+      "required": ["query"]
+    }
+  },
+  {
+    "name": "read-file",
+    "description": "Read the contents of a file",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": { "type": "string", "description": "Path to the file" },
+        "encoding": { "type": "string", "contentEncoding": "base64", "default": "utf-8" }
+      },
+      "required": ["path"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "run-query",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "sql": { "type": "string" },
+        "timeout": { "type": "number", "default": 30 },
+        "mode": { "type": "string", "enum": [] }
+      }
+    }
+  }
+]

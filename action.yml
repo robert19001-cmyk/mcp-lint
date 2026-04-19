@@ -1,0 +1,65 @@
+name: mcp-lint
+description: Lint MCP server tool schemas for cross-client compatibility
+author: robert19001-cmyk
+
+inputs:
+  input:
+    description: Path to MCP tools JSON file
+    required: true
+  format:
+    description: Output format (terminal|json|markdown)
+    required: false
+    default: terminal
+  severity:
+    description: Minimum severity to report (error|warning|info)
+    required: false
+    default: info
+  clients:
+    description: Comma-separated client filter (claude,cursor,gemini,vscode,windsurf,cline,openai,continue)
+    required: false
+  fail_on:
+    description: Exit with error code when issues at this severity or above are found (error|warning|info)
+    required: false
+    default: error
+  score:
+    description: Show quality score (true|false)
+    required: false
+    default: 'false'
+
+outputs:
+  exit_code:
+    description: Exit code from mcp-lint (0 = no errors, 1 = errors found)
+    value: ${{ steps.lint.outputs.exit_code }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install mcp-lint
+      shell: bash
+      run: npm install -g mcp-lint@latest
+
+    - name: Run mcp-lint
+      id: lint
+      shell: bash
+      run: |
+        ARGS="${{ inputs.input }}"
+        ARGS="$ARGS --format ${{ inputs.format }}"
+        ARGS="$ARGS --severity ${{ inputs.severity }}"
+        [ -n "${{ inputs.clients }}" ] && ARGS="$ARGS --clients ${{ inputs.clients }}"
+        [ "${{ inputs.score }}" = "true" ] && ARGS="$ARGS --score"
+
+        set +e
+        mcp-lint check $ARGS
+        EXIT_CODE=$?
+        set -e
+
+        echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+        FAIL_SEVERITY="${{ inputs.fail_on }}"
+        if [ "$FAIL_SEVERITY" = "error" ] && [ $EXIT_CODE -eq 1 ]; then
+          exit 1
+        elif [ "$FAIL_SEVERITY" = "warning" ] && [ $EXIT_CODE -ge 1 ]; then
+          exit 1
+        elif [ "$FAIL_SEVERITY" = "info" ] && [ $EXIT_CODE -ge 1 ]; then
+          exit 1
+        fi

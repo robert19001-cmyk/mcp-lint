@@ -42,6 +42,7 @@ export interface MCPTool {
 
 export interface Config {
   extends?: string;
+  plugins?: string[];
   rules?: Record<string, Severity | 'off'>;
   clients?: ClientId[];
   ignore?: string[];

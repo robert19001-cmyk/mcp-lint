@@ -34,13 +34,20 @@ const strict: Config = {
 
 const PRESETS: Record<string, Config> = { recommended, strict };
 
-export function applyExtends(userConfig: Config): Config {
+export async function applyExtends(userConfig: Config): Promise<Config> {
   const presetName = userConfig.extends;
   if (!presetName) return userConfig;
 
-  const preset = PRESETS[presetName];
-  if (!preset) {
-    throw new Error(`Unknown preset "${presetName}". Available: ${Object.keys(PRESETS).join(', ')}`);
+  let preset: Config;
+  if (PRESETS[presetName]) {
+    preset = PRESETS[presetName];
+  } else {
+    try {
+      const mod = await import(presetName);
+      preset = ((mod as { default?: Config }).default ?? mod) as Config;
+    } catch {
+      throw new Error(`Unknown preset "${presetName}". Builtin presets: ${Object.keys(PRESETS).join(', ')}`);
+    }
   }
 
   const { extends: _removed, ...restUser } = userConfig;

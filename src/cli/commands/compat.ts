@@ -7,6 +7,7 @@ import { buildCompatMatrix } from '../../core/compat-matrix.js';
 import type { CompatMatrix } from '../../core/compat-matrix.js';
 import { allRules } from '../../rules/index.js';
 import { loadConfig, DEFAULT_CONFIG } from '../../config/config.js';
+import { loadPluginRules } from '../../config/plugin-loader.js';
 import type { ClientId, MCPTool } from '../../core/rule.js';
 import chalk from 'chalk';
 
@@ -95,12 +96,13 @@ export function registerCompatCommand(program: Command): void {
     .option('--format <format>', 'Output format: terminal|json|markdown', 'terminal')
     .option('--no-color', 'Disable terminal colors')
     .option('--config <path>', 'Path to .mcplintrc.json config file')
+    .option('--client <client>', 'Show only one client column')
     .option('--server <type>', 'Server transport: stdio|sse')
     .option('--url <url>', 'SSE server URL (use with --server sse)')
     .allowExcessArguments(true)
     .action(async (
       input: string | undefined,
-      options: { format: string; color: boolean; config?: string; server?: string; url?: string },
+      options: { format: string; color: boolean; config?: string; client?: string; server?: string; url?: string },
     ) => {
       try {
         const fileConfig = await loadConfig(options.config);
@@ -127,9 +129,18 @@ export function registerCompatCommand(program: Command): void {
           tools = await loadFile(input);
         }
 
-        const engine = new LintEngine(allRules, config);
+        const pluginRules = await loadPluginRules(config);
+        const engine = new LintEngine([...allRules, ...pluginRules], config);
         const diagnostics = engine.lint(tools);
-        const matrix = buildCompatMatrix(tools, diagnostics);
+        let matrix = buildCompatMatrix(tools, diagnostics);
+
+        if (options.client) {
+          const clientId = options.client as ClientId;
+          if (!matrix.clients.includes(clientId)) {
+            throw new Error(`Unknown client "${options.client}". Available: ${matrix.clients.join(', ')}`);
+          }
+          matrix = { ...matrix, clients: [clientId] };
+        }
 
         let output: string;
         if (options.format === 'json') {

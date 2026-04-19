@@ -1,3 +1,14 @@
+## [0.3.0] — 2026-04-19
+
+### Added
+- **`mcp-lint diff <before> <after>`** — compare lint results between two schema versions, exits 1 if new errors introduced
+- **`--watch` flag** on `check` command — re-lints on file change with 100ms debounce
+- **`--score` flag** on `check` command — shows quality score (0–100) per tool with A-F grades
+- **`compat --client <id>`** — filter compatibility matrix to a single client column
+- **Demo fixture** (`demo/tools.json`) — realistic example schema for testing and GIF recording
+
+---
+
 ## [0.2.0] — 2026-04-19
 
 ### Added
