@@ -1,0 +1,9 @@
+node_modules
+dist
+.git
+.github
+coverage
+*.tgz
+npm-debug.log
+vscode-extension/node_modules
+vscode-extension/dist

@@ -1,3 +1,14 @@
+## [0.5.0] — 2026-05-03
+
+### Added
+- Public SDK subpath exports for `mcp-lint/loaders` and `mcp-lint/fixer`, matching the documented programmatic API examples.
+- Stdio MCP server entry point via `mcp-lint-server` with tools for schema linting, fixes, rule explanations, and runtime preflight decisions.
+- Dockerfile, `.dockerignore`, and `glama.json` for MCP registry scanning and Glama listing preparation.
+
+### Changed
+- GitHub Action documentation now references `v0.5.0`.
+- Refreshed the lockfile to clear current npm audit advisories.
+
 ## [0.4.0] — 2026-04-19
 
 ### Added

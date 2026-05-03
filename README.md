@@ -4,6 +4,7 @@
 [![npm downloads](https://img.shields.io/npm/dm/mcp-lint)](https://www.npmjs.com/package/mcp-lint)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Node.js ≥20](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org)
+[![MCP server ready](https://img.shields.io/badge/MCP-server_ready-6f42c1)](#mcp-server)
 
 **Lint MCP server tool schemas for cross-client compatibility.**
 
@@ -55,6 +56,9 @@ mcp-lint fix tools.json --in-place
 
 # Generate a config file
 mcp-lint init
+
+# Run as an MCP server
+mcp-lint-server
 ```
 
 ---
@@ -326,7 +330,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: robert19001-cmyk/mcp-lint@v0.3.0
+      - uses: robert19001-cmyk/mcp-lint@v0.5.0
         with:
           input: tools.json
           severity: warning
@@ -547,6 +551,50 @@ if (decision.decision === 'allow_with_rewrite') {
 | `2`  | deny / error |
 
 Use them directly in shell wrappers or CI gates.
+
+---
+
+## MCP Server
+
+`mcp-lint` also ships as a stdio MCP server for Claude Desktop, Claude Code, Cursor, VS Code, and registry scanners such as Glama.
+
+```bash
+npx -y mcp-lint@latest mcp-lint-server
+```
+
+Client config:
+
+```json
+{
+  "mcpServers": {
+    "mcp-lint": {
+      "command": "npx",
+      "args": ["-y", "mcp-lint@latest", "mcp-lint-server"]
+    }
+  }
+}
+```
+
+Available MCP tools:
+
+| Tool | Purpose |
+|------|---------|
+| `mcp_lint_list_rules` | List built-in rules, clients, severities, and fixability |
+| `mcp_lint_explain_rule` | Explain one rule with examples and auto-fix notes |
+| `mcp_lint_check_tools` | Lint MCP tool schemas passed as JSON |
+| `mcp_lint_fix_tools` | Return safely auto-fixed tool schemas without writing files |
+| `mcp_lint_preflight_action` | Score a proposed agent action and return allow/deny/approval/rewrite |
+
+All server tools are read-only from the host perspective: they return diagnostics, fixed JSON, or policy decisions and never execute the action being evaluated.
+
+### Docker
+
+```bash
+docker build -t mcp-lint-server .
+docker run --rm -i mcp-lint-server
+```
+
+The repository includes `glama.json` and a production Dockerfile so MCP directories can build, start, and introspect the server.
 
 ---
 

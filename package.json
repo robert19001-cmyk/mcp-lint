@@ -1,10 +1,11 @@
 {
   "name": "mcp-lint",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Lint MCP server tool schemas for cross-client compatibility + runtime preflight for agent tool calls",
   "type": "module",
   "bin": {
-    "mcp-lint": "./dist/index.js"
+    "mcp-lint": "./dist/index.js",
+    "mcp-lint-server": "./dist/mcp-server.js"
   },
   "main": "./dist/core/engine.js",
   "types": "./dist/core/engine.d.ts",
@@ -20,6 +21,18 @@
     "./rules": {
       "types": "./dist/rules/index.d.ts",
       "default": "./dist/rules/index.js"
+    },
+    "./loaders": {
+      "types": "./dist/loaders/index.d.ts",
+      "default": "./dist/loaders/index.js"
+    },
+    "./fixer": {
+      "types": "./dist/core/fixer.d.ts",
+      "default": "./dist/core/fixer.js"
+    },
+    "./mcp-server": {
+      "types": "./dist/mcp-server.d.ts",
+      "default": "./dist/mcp-server.js"
     }
   },
   "files": [
@@ -53,7 +66,8 @@
     "@modelcontextprotocol/sdk": "^1.28.0",
     "chalk": "^5.6.2",
     "commander": "^14.0.3",
-    "yaml": "^2.8.3"
+    "yaml": "^2.8.3",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/node": "^25.5.0",

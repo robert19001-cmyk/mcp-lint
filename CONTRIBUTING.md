@@ -16,7 +16,7 @@ Requires Node.js ≥20.
 git clone https://github.com/robert19001-cmyk/mcp-lint.git
 cd mcp-lint
 npm install
-npm test          # 277 tests
+npm test          # 148 tests
 npm run build     # compile to dist/
 node dist/index.js check demo/tools.json
 ```
