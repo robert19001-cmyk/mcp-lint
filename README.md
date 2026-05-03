@@ -5,6 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Node.js ≥20](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org)
 [![MCP server ready](https://img.shields.io/badge/MCP-server_ready-6f42c1)](#mcp-server)
+[![robert19001-cmyk/mcp-lint MCP server](https://glama.ai/mcp/servers/robert19001-cmyk/mcp-lint/badges/score.svg)](https://glama.ai/mcp/servers/robert19001-cmyk/mcp-lint)
 
 **Lint MCP server tool schemas for cross-client compatibility.**
 
@@ -232,6 +233,7 @@ mcp-lint init --force  # overwrite existing
 | Rule | Severity | Fixable | Description |
 |------|----------|---------|-------------|
 | `cursor/no-default-without-type` | 🔴 error | ✅ | Cursor requires explicit `type` when a `default` value is present |
+| `cursor/no-missing-title` | 🟡 warning | ❌ | Cursor displays tool and parameter titles in the tool picker |
 
 ### Gemini-specific
 
@@ -330,7 +332,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: robert19001-cmyk/mcp-lint@v0.5.1
+      - uses: robert19001-cmyk/mcp-lint@v0.5.2
         with:
           input: tools.json
           severity: warning

@@ -1,6 +1,6 @@
 {
   "name": "mcp-lint",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Lint MCP server tool schemas for cross-client compatibility + runtime preflight for agent tool calls",
   "type": "module",
   "bin": {

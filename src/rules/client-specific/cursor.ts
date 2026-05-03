@@ -48,3 +48,66 @@ export const cursorNoDefaultWithoutType: Rule = {
     return diagnostics;
   },
 };
+
+export const cursorNoMissingTitle: Rule = {
+  id: 'cursor/no-missing-title',
+  severity: 'warning',
+  description: 'Cursor displays tool and parameter titles in the tool picker; missing titles can expose raw snake_case names.',
+  clients: ['cursor'],
+  docs: {
+    why: 'Cursor uses titles to present tools and arguments more clearly. Without titles, users may see internal identifiers such as snake_case tool names or parameter names.',
+    badExample: {
+      name: 'search_docs',
+      description: 'Search documentation',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          query_text: { type: 'string', description: 'Search query' },
+        },
+      },
+    },
+    goodExample: {
+      name: 'search_docs',
+      title: 'Search Docs',
+      description: 'Search documentation',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          query_text: { title: 'Query Text', type: 'string', description: 'Search query' },
+        },
+      },
+    },
+  },
+
+  check(tool: MCPTool, _context: RuleContext): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
+
+    if (!tool.title || tool.title.trim() === '') {
+      diagnostics.push({
+        ruleId: 'cursor/no-missing-title',
+        severity: 'warning',
+        message: `Tool "${tool.name}" is missing a \`title\`. Cursor can display raw tool names without it.`,
+        toolName: tool.name,
+        path: 'title',
+        clients: ['cursor'],
+      });
+    }
+
+    if (tool.inputSchema.properties) {
+      for (const [propName, propSchema] of Object.entries(tool.inputSchema.properties)) {
+        if (!propSchema.title || propSchema.title.trim() === '') {
+          diagnostics.push({
+            ruleId: 'cursor/no-missing-title',
+            severity: 'warning',
+            message: `Parameter "${propName}" in tool "${tool.name}" is missing a \`title\`. Cursor can display raw parameter names without it.`,
+            toolName: tool.name,
+            path: `inputSchema.properties.${propName}.title`,
+            clients: ['cursor'],
+          });
+        }
+      }
+    }
+
+    return diagnostics;
+  },
+};

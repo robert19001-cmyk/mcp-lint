@@ -8,6 +8,7 @@ export type ClientId =
 
 export interface JSONSchema {
   type?: string | string[];
+  title?: string;
   properties?: Record<string, JSONSchema>;
   required?: string[] | boolean;
   items?: JSONSchema | JSONSchema[];
@@ -36,6 +37,7 @@ export interface JSONSchema {
 
 export interface MCPTool {
   name: string;
+  title?: string;
   description?: string;
   inputSchema: JSONSchema;
 }

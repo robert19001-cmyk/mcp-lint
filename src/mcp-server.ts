@@ -14,7 +14,7 @@ import { preflight } from './preflight/engine.js';
 import { parsePolicy } from './preflight/policy.js';
 import type { Action } from './preflight/types.js';
 
-const VERSION = '0.5.1';
+const VERSION = '0.5.2';
 
 const ClientIdSchema = z.enum([
   'claude',
@@ -34,6 +34,7 @@ const JsonObjectSchema = z.object({}).passthrough();
 
 const MCPToolInputSchema = z.object({
   name: z.string().min(1).describe('MCP tool name to lint.'),
+  title: z.string().optional().describe('Optional human-readable MCP tool title.'),
   description: z.string().optional().describe('Optional MCP tool description.'),
   inputSchema: JsonObjectSchema.describe('JSON Schema object exposed by the MCP tool.'),
 });

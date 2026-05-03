@@ -1,3 +1,12 @@
+## [0.5.2] — 2026-05-03
+
+### Added
+- Added `cursor/no-missing-title` to flag MCP tools and top-level parameters that are missing human-readable titles for Cursor's tool picker.
+- Added the Glama MCP server badge to the README.
+
+### Changed
+- GitHub Action documentation now references `v0.5.2`.
+
 ## [0.5.1] — 2026-05-03
 
 ### Fixed

@@ -13,7 +13,7 @@ const program = new Command();
 program
   .name('mcp-lint')
   .description('Lint MCP server tool schemas for cross-client compatibility')
-  .version('0.5.1');
+  .version('0.5.2');
 
 registerCheckCommand(program);
 registerFixCommand(program);

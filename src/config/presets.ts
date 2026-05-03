@@ -21,6 +21,7 @@ const strict: Config = {
     'no-unsupported-formats': 'error',
     'claude/no-type-array': 'error',
     'cursor/no-default-without-type': 'error',
+    'cursor/no-missing-title': 'error',
     'gemini/no-optional-without-default': 'error',
     'gemini/no-nested-objects': 'error',
     'vscode/max-params': 'error',

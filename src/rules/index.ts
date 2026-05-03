@@ -9,7 +9,7 @@ import { validJsonSchemaSubset } from './valid-json-schema-subset.js';
 import { noUnsupportedFormats } from './no-unsupported-formats.js';
 import { claudeNoTypeArray } from './client-specific/claude.js';
 import { continueNoDefaultValues } from './client-specific/continue.js';
-import { cursorNoDefaultWithoutType } from './client-specific/cursor.js';
+import { cursorNoDefaultWithoutType, cursorNoMissingTitle } from './client-specific/cursor.js';
 import { geminiNoOptionalWithoutDefault, geminiNoNestedObjects } from './client-specific/gemini.js';
 import { vscodeMaxParams } from './client-specific/vscode.js';
 import { windsurfNoUnionTypes } from './client-specific/windsurf.js';
@@ -28,6 +28,7 @@ export const allRules: Rule[] = [
   claudeNoTypeArray,
   continueNoDefaultValues,
   cursorNoDefaultWithoutType,
+  cursorNoMissingTitle,
   geminiNoOptionalWithoutDefault,
   geminiNoNestedObjects,
   vscodeMaxParams,
