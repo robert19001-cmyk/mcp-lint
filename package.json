@@ -4,8 +4,8 @@
   "description": "Lint MCP server tool schemas for cross-client compatibility + runtime preflight for agent tool calls",
   "type": "module",
   "bin": {
-    "mcp-lint": "./dist/index.js",
-    "mcp-lint-server": "./dist/mcp-server.js"
+    "mcp-lint": "dist/index.js",
+    "mcp-lint-server": "dist/mcp-server.js"
   },
   "main": "./dist/core/engine.js",
   "types": "./dist/core/engine.d.ts",
