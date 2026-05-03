@@ -1,0 +1,21 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.robert19001-cmyk/mcp-lint",
+  "title": "mcp-lint",
+  "description": "Lint MCP tool schemas for cross-client compatibility and agent preflight safety.",
+  "repository": {
+    "url": "https://github.com/robert19001-cmyk/mcp-lint",
+    "source": "github"
+  },
+  "version": "0.5.3",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "mcp-lint",
+      "version": "0.5.3",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

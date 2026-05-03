@@ -1,8 +1,17 @@
 {
   "name": "mcp-lint",
-  "version": "0.5.2",
+  "version": "0.5.3",
+  "mcpName": "io.github.robert19001-cmyk/mcp-lint",
   "description": "Lint MCP server tool schemas for cross-client compatibility + runtime preflight for agent tool calls",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robert19001-cmyk/mcp-lint.git"
+  },
+  "bugs": {
+    "url": "https://github.com/robert19001-cmyk/mcp-lint/issues"
+  },
+  "homepage": "https://github.com/robert19001-cmyk/mcp-lint#readme",
   "bin": {
     "mcp-lint": "dist/index.js",
     "mcp-lint-server": "dist/mcp-server.js"

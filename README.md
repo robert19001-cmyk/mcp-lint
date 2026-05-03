@@ -332,7 +332,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: robert19001-cmyk/mcp-lint@v0.5.2
+      - uses: robert19001-cmyk/mcp-lint@v0.5.3
         with:
           input: tools.json
           severity: warning

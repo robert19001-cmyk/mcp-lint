@@ -1,3 +1,13 @@
+## [0.5.3] — 2026-05-03
+
+### Added
+- Added official MCP Registry metadata through `mcpName` and `server.json`.
+- Added npm repository, bugs, and homepage metadata.
+- Added the MCP Registry OCI ownership label to the Docker image.
+
+### Changed
+- GitHub Action documentation now references `v0.5.3`.
+
 ## [0.5.2] — 2026-05-03
 
 ### Added

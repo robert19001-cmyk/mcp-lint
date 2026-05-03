@@ -14,7 +14,7 @@ import { preflight } from './preflight/engine.js';
 import { parsePolicy } from './preflight/policy.js';
 import type { Action } from './preflight/types.js';
 
-const VERSION = '0.5.2';
+const VERSION = '0.5.3';
 
 const ClientIdSchema = z.enum([
   'claude',
