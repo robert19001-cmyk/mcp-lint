@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { realpathSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
 import { LintEngine } from './core/engine.js';
@@ -13,7 +14,7 @@ import { preflight } from './preflight/engine.js';
 import { parsePolicy } from './preflight/policy.js';
 import type { Action } from './preflight/types.js';
 
-const VERSION = '0.5.0';
+const VERSION = '0.5.1';
 
 const ClientIdSchema = z.enum([
   'claude',
@@ -274,7 +275,7 @@ async function main(): Promise<void> {
   await server.connect(new StdioServerTransport());
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
   main().catch((error) => {
     process.stderr.write(`mcp-lint MCP server failed: ${(error as Error).message}\n`);
     process.exit(1);

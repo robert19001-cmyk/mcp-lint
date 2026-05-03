@@ -330,7 +330,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: robert19001-cmyk/mcp-lint@v0.5.0
+      - uses: robert19001-cmyk/mcp-lint@v0.5.1
         with:
           input: tools.json
           severity: warning
@@ -568,8 +568,8 @@ Client config:
 {
   "mcpServers": {
     "mcp-lint": {
-      "command": "npx",
-      "args": ["-y", "mcp-lint@latest", "mcp-lint-server"]
+      "command": "npm",
+      "args": ["exec", "--yes", "--package", "mcp-lint@latest", "--", "mcp-lint-server"]
     }
   }
 }

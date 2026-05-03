@@ -1,3 +1,9 @@
+## [0.5.1] — 2026-05-03
+
+### Fixed
+- Fixed npm `.bin` execution for `mcp-lint-server` when launched through the package manager symlink.
+- Updated MCP client config docs to use `npm exec --package mcp-lint@latest -- mcp-lint-server`.
+
 ## [0.5.0] — 2026-05-03
 
 ### Added
@@ -6,7 +12,7 @@
 - Dockerfile, `.dockerignore`, and `glama.json` for MCP registry scanning and Glama listing preparation.
 
 ### Changed
-- GitHub Action documentation now references `v0.5.0`.
+- GitHub Action documentation now references `v0.5.1`.
 - Refreshed the lockfile to clear current npm audit advisories.
 
 ## [0.4.0] — 2026-04-19
