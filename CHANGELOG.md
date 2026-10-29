@@ -1,3 +1,12 @@
+## [0.6.1] — 2026-10-29
+
+### Added
+- Public proof page at https://robert19001-cmyk.github.io/mcp-lint/. The bench uses the same recovery scorer as the CLI.
+
+### Changed
+- Package homepage points at the proof page.
+- GitHub Action documentation and `examples/github-action.yml` now reference `v0.6.1`.
+
 ## [0.6.0] — 2026-10-29
 
 ### Added

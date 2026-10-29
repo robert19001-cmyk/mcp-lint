@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://robert19001-cmyk.github.io/mcp-lint/sitemap.xml

@@ -85,7 +85,7 @@ export async function probeStdio(
   options: { hangMs?: number } = {},
 ): Promise<{ report: RecoveryReport; samples: RecoverySampleInput[]; skipped: string[] }> {
   const transport = new StdioClientTransport({ command, args });
-  const client = new Client({ name: 'mcp-lint-recover', version: '0.6.0' }, { capabilities: {} });
+  const client = new Client({ name: 'mcp-lint-recover', version: '0.6.1' }, { capabilities: {} });
   await client.connect(transport);
   try {
     return await probeClient(client as unknown as ProbeClient, options);

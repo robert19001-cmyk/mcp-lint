@@ -335,7 +335,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: robert19001-cmyk/mcp-lint@v0.6.0
+      - uses: robert19001-cmyk/mcp-lint@v0.6.1
         with:
           input: tools.json
           severity: warning
@@ -674,7 +674,13 @@ The proof page is in `site/`. It runs the same recovery scorer as the CLI.
 npm run site
 ```
 
-Open http://127.0.0.1:4731. The source ships in this repository. The built page is not in the npm package, and there is no hosted copy.
+The public page is https://robert19001-cmyk.github.io/mcp-lint/. The same page runs locally:
+
+```bash
+npm run site
+```
+
+Open http://127.0.0.1:4731. The built page is not part of the npm package.
 
 ---
 
