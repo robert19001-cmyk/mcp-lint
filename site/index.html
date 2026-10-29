@@ -27,7 +27,7 @@
         "name": "mcp-lint",
         "applicationCategory": "DeveloperApplication",
         "operatingSystem": "Cross-platform",
-        "softwareVersion": "0.6.2",
+        "softwareVersion": "0.7.0",
         "license": "https://spdx.org/licenses/MIT.html",
         "url": "https://mcp-lint-alpha.vercel.app/",
         "downloadUrl": "https://www.npmjs.com/package/mcp-lint",
@@ -49,6 +49,7 @@
       <a class="wordmark" href="#top">mcp-lint</a>
       <nav aria-label="On this page">
         <a href="#bench">Bench</a>
+        <a href="#names">Names</a>
         <a href="#commands">Commands</a>
         <a href="#clients">Clients</a>
         <a href="#install">Install</a>
@@ -68,7 +69,7 @@
             before a user does.
           </p>
         </div>
-        <p class="index" aria-hidden="true">0.6</p>
+        <p class="index" aria-hidden="true">0.7</p>
       </section>
 
       <section class="path" aria-label="What the scorer looks at">
@@ -166,12 +167,23 @@
         </ol>
       </section>
 
+      <section class="names" id="names" aria-labelledby="names-title">
+        <h2 id="names-title">The name has to survive the client.</h2>
+        <p>OpenAI rejects anything outside letters, digits, underscore, and hyphen, and it caps the name at 64 characters. Gemini also refuses a name that starts with a digit.</p>
+        <ul>
+          <li><code>search files</code><span>space</span></li>
+          <li><code>repo/read</code><span>slash</span></li>
+          <li><code>9tools</code><span>leading digit</span></li>
+          <li><code>search_files</code><span class="ok">ok</span></li>
+        </ul>
+      </section>
+
       <section class="commands" id="commands" aria-labelledby="commands-title">
         <h2 id="commands-title">One CLI. The whole check.</h2>
         <dl>
           <div>
             <dt>check</dt>
-            <dd>Lint a tools file or a live MCP server. Exit 1 on errors.</dd>
+            <dd>Lint a tools file, a live server, or the stdio servers already configured on this machine. Exit 1 on errors.</dd>
             <code>npx mcp-lint check tools.json</code>
           </div>
           <div>
@@ -198,6 +210,11 @@
             <dt>recover</dt>
             <dd>Score a recorded failure. The bench on this page uses that same function.</dd>
             <code>npx mcp-lint recover errors.json</code>
+          </div>
+          <div>
+            <dt>snapshot</dt>
+            <dd>Save a live tool list. Commit it, then let diff fail the build when a later list gets worse.</dd>
+            <code>npx mcp-lint snapshot -o tools.json --server stdio -- node server.js</code>
           </div>
           <div>
             <dt>diff</dt>
@@ -231,7 +248,7 @@
         <h2 id="install-title">Run it on the schema you already have</h2>
         <ul>
           <li>
-            <code id="cmd-check">npx mcp-lint check tools.json</code>
+            <code id="cmd-check">npx mcp-lint check --installed</code>
             <button type="button" data-copy="cmd-check">Copy</button>
           </li>
           <li>
@@ -244,7 +261,7 @@
           </li>
         </ul>
         <p class="action-note">
-          In GitHub Actions, <code>robert19001-cmyk/mcp-lint@v0.6.2</code> runs the same checks.
+          In GitHub Actions, <code>robert19001-cmyk/mcp-lint@v0.7.0</code> runs the same checks.
           Pass <code>recover</code> when you have a failure file. The package is MIT and stays free.
         </p>
       </section>

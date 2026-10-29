@@ -17,6 +17,7 @@ import { clineDescriptionMaxLength } from './client-specific/cline.js';
 import { openaiNoAdditionalProperties, openaiStrictTypes } from './client-specific/openai.js';
 import { noUnreachableInstruction } from './agent-unreachable.js';
 import { destructiveUnmarked, readonlyConflict } from './destructive-hint.js';
+import { toolNameClientSafe } from './tool-name.js';
 
 export const allRules: Rule[] = [
   noRequiredFalse,
@@ -41,4 +42,5 @@ export const allRules: Rule[] = [
   noUnreachableInstruction,
   destructiveUnmarked,
   readonlyConflict,
+  toolNameClientSafe,
 ];

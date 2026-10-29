@@ -225,7 +225,33 @@ textarea { resize: vertical; min-height: 8rem; }
 .path svg { width: 3.25rem; height: 3.25rem; color: var(--ink); }
 .path p { margin: 0.35rem 0 0; max-width: 28ch; color: var(--ink-soft); }
 
-.commands, .clients, .proofs, .install { padding: 4.5rem 0; }
+.commands, .clients, .proofs, .install, .names { padding: 4.5rem 0; }
+
+.names p { max-width: 62ch; }
+.names ul {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 3rem;
+}
+.names li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: baseline;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--line);
+  font-family: var(--mono);
+}
+.names li span {
+  color: var(--red-ink);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.names li span.ok { color: var(--ink); }
 
 .commands dl {
   margin: 0;
@@ -352,7 +378,7 @@ footer {
 }
 
 @media (max-width: 800px) {
-  .hero, .bench-grid, .proofs li, .path ol, .commands dl, .clients ul { grid-template-columns: 1fr; }
+  .hero, .bench-grid, .proofs li, .path ol, .commands dl, .clients ul, .names ul { grid-template-columns: 1fr; }
   .bar { flex-wrap: wrap; gap: 0.8rem; }
   nav { flex-wrap: wrap; gap: 0.8rem 1rem; }
   .index { display: none; }

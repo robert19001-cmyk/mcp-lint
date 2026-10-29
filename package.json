@@ -1,6 +1,6 @@
 {
   "name": "mcp-lint",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "mcpName": "io.github.robert19001-cmyk/mcp-lint",
   "description": "Lint MCP server tool schemas for cross-client compatibility, runtime preflight, and agent recovery from tool failures",
   "type": "module",

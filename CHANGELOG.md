@@ -1,3 +1,16 @@
+## [0.7.0] — 2026-10-29
+
+### Added
+- **`tool-name/client-safe`** — errors when a tool name is outside `^[A-Za-z0-9_-]{1,64}$`, and warns when it starts with a digit.
+- **`mcp-lint check --installed`** and **`--from <mcp.json>`** — lint the stdio servers declared in local Cursor, Claude, and VS Code configs. Remote URLs stay untouched unless `--remote` is set.
+- **`mcp-lint snapshot`** — write a stable `tools/list` JSON file from a live server, then gate it with `diff`.
+- Sample file `examples/names/unsafe.json`.
+
+### Changed
+- Live `tools/list` loads keep `title` and `annotations`.
+- `--server http` talks to a streamable HTTP MCP endpoint.
+- GitHub Action documentation and `examples/github-action.yml` now reference `v0.7.0`.
+
 ## [0.6.2] — 2026-10-29
 
 ### Changed

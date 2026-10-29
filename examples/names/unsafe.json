@@ -1,0 +1,22 @@
+[
+  {
+    "name": "search files",
+    "description": "Search the workspace.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "q": { "type": "string", "description": "Text to find" }
+      }
+    }
+  },
+  {
+    "name": "repo/read",
+    "description": "Read one file.",
+    "inputSchema": { "type": "object", "properties": {} }
+  },
+  {
+    "name": "9tools",
+    "description": "List tools.",
+    "inputSchema": { "type": "object", "properties": {} }
+  }
+]

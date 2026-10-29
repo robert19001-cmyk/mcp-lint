@@ -1,8 +1,13 @@
 import type { Command } from 'commander';
 import { watch } from 'node:fs';
+import { homedir } from 'node:os';
 import { loadFile } from '../../loaders/file-loader.js';
 import { loadStdio } from '../../loaders/stdio-loader.js';
+import { loadRemote } from '../../loaders/remote-loader.js';
 import { loadSSE } from '../../loaders/sse-loader.js';
+import { collectInstalledServers } from '../../installed/config.js';
+import { formatInstalled } from '../../installed/format.js';
+import { lintInstalledServers, type ServerReport } from '../../installed/lint.js';
 import { LintEngine } from '../../core/engine.js';
 import { allRules } from '../../rules/index.js';
 import { formatTerminal } from '../formatters/terminal.js';
@@ -34,8 +39,13 @@ export function registerCheckCommand(program: Command): void {
     .option('--clients <clients>', 'Comma-separated client filter: claude,cursor,gemini,vscode')
     .option('--ignore <tools>', 'Comma-separated tool names to skip')
     .option('--quiet', 'Only output errors (no warnings/info)')
-    .option('--server <type>', 'Server transport: stdio|sse')
-    .option('--url <url>', 'SSE server URL (use with --server sse)')
+    .option('--server <type>', 'Server transport: stdio|sse|http')
+    .option('--url <url>', 'Remote server URL (use with --server sse|http)')
+    .option('--installed', 'Lint stdio servers declared in local Cursor, Claude, and VS Code configs')
+    .option('--from <path>', 'Lint servers declared in this MCP config. Repeatable.', collectPath, [] as string[])
+    .option('--remote', 'Also connect to URL servers. Off by default, so a scan stays on this machine.')
+    .option('--timeout <ms>', 'Per-server timeout in milliseconds for --installed, --from, and --server')
+    .option('--strict', 'With --installed or --from, exit 1 when a server fails to start')
     .option('--output-file <path>', 'Write results to a file instead of stdout')
     .option('--watch', 'Re-lint on file change (only works with file input)')
     .option('--score', 'Show quality score (0–100) per tool')
@@ -52,6 +62,11 @@ export function registerCheckCommand(program: Command): void {
         quiet?: boolean;
         server?: string;
         url?: string;
+        installed?: boolean;
+        from?: string[];
+        remote?: boolean;
+        timeout?: string;
+        strict?: boolean;
         outputFile?: string;
         watch?: boolean;
         score?: boolean;
@@ -74,36 +89,71 @@ export function registerCheckCommand(program: Command): void {
           ],
         };
 
-        let tools: MCPTool[];
+        const from = options.from ?? [];
+        const scanning = Boolean(options.installed) || from.length > 0;
+        if (scanning && (input || options.server || options.watch)) {
+          throw new Error('Use --installed or --from on their own, without a tools file, --server, or --watch.');
+        }
 
-        if (options.server === 'stdio') {
-          // Get everything after '--' in process.argv
+        const floor = severityFloor(options);
+        let tools: MCPTool[];
+        let diagnostics: Diagnostic[];
+        let output: string;
+
+        if (scanning) {
+          const timeoutMs = parseTimeout(options.timeout, 20_000);
+          const collected = await collectInstalledServers({
+            scanInstalled: Boolean(options.installed),
+            from,
+            home: homedir(),
+            platform: process.platform,
+            cwd: process.cwd(),
+          });
+          if (collected.servers.length === 0 && collected.errors.length === 0) {
+            const where = options.installed
+              ? 'the Cursor, Claude, and VS Code configs on this machine'
+              : from.join(', ');
+            throw new Error(`No MCP servers found in ${where}.`);
+          }
+          const pluginRules = await loadPluginRules(fileConfig);
+          const engine = new LintEngine([...allRules, ...pluginRules], config);
+          const reports = await lintInstalledServers(collected.servers, {
+            remote: Boolean(options.remote),
+            timeoutMs,
+            lint: (found) => filterBySeverity(engine.lint(found), floor),
+          });
+          for (const problem of collected.errors) {
+            reports.unshift(configFailure(problem.path, problem.message));
+          }
+          tools = reports.flatMap((report) => report.tools);
+          diagnostics = reports.flatMap((report) => report.diagnostics);
+          output = formatInstalled(reports, options.format, !options.color);
+          const failedStart = reports.some((report) => report.status === 'failed');
+          await emit(output, options, tools, diagnostics);
+          return diagnostics.some((item) => item.severity === 'error') || (Boolean(options.strict) && failedStart);
+        } else if (options.server === 'stdio') {
           const rawArgv = process.argv;
           const sepIdx = rawArgv.indexOf('--');
           if (sepIdx === -1 || sepIdx >= rawArgv.length - 1) {
             throw new Error('--server stdio requires a command after --, e.g.: mcp-lint check --server stdio -- node server.js');
           }
           const [cmd, ...cmdArgs] = rawArgv.slice(sepIdx + 1);
-          tools = await loadStdio(cmd, cmdArgs);
+          tools = await loadStdio(cmd, cmdArgs, { timeoutMs: optionalTimeout(options.timeout) });
         } else if (options.server === 'sse') {
           if (!options.url) throw new Error('--server sse requires --url <url>');
-          tools = await loadSSE(options.url);
+          tools = await loadSSE(options.url, optionalTimeout(options.timeout));
+        } else if (options.server === 'http') {
+          if (!options.url) throw new Error('--server http requires --url <url>');
+          tools = await loadRemote(options.url, 'http', optionalTimeout(options.timeout));
         } else {
-          if (!input) throw new Error('Specify an input file or use --server stdio|sse');
+          if (!input) throw new Error('Specify an input file, --server stdio|sse|http, --installed, or --from <mcp.json>');
           tools = await loadFile(input);
         }
 
         const pluginRules = await loadPluginRules(fileConfig);
         const engine = new LintEngine([...allRules, ...pluginRules], config);
-        let diagnostics = engine.lint(tools);
+        diagnostics = filterBySeverity(engine.lint(tools), floor);
 
-        const minSeverity: Severity = options.quiet
-          ? 'error'
-          : (options.severity as Severity | undefined) ?? 'info';
-
-        diagnostics = filterBySeverity(diagnostics, minSeverity);
-
-        let output: string;
         if (options.format === 'json') {
           output = formatJson(diagnostics);
         } else if (options.format === 'markdown') {
@@ -112,29 +162,8 @@ export function registerCheckCommand(program: Command): void {
           output = formatTerminal(diagnostics, !options.color);
         }
 
-        if (options.outputFile) {
-          await writeFile(options.outputFile, output, 'utf8');
-        } else {
-          process.stdout.write(output);
-        }
-
-        if (options.score) {
-          const report = computeQualityReport(tools, diagnostics);
-          const gradeColor = (g: string) =>
-            g === 'A' ? chalk.green(g) : g === 'B' ? chalk.cyan(g) : g === 'C' ? chalk.yellow(g) : chalk.red(g);
-          process.stdout.write(chalk.bold('\nQuality Score\n'));
-          for (const t of report.tools) {
-            process.stdout.write(
-              `  ${t.toolName.padEnd(30)} ${String(t.score).padStart(3)}/100  ${gradeColor(t.grade)}  (${t.errors} errors, ${t.warnings} warnings)\n`,
-            );
-          }
-          process.stdout.write(
-            `\n  Overall: ${chalk.bold(String(report.overall))}/100  ${gradeColor(report.grade)}\n\n`,
-          );
-        }
-
-          const hasErrors = diagnostics.some((d) => d.severity === 'error');
-          return hasErrors;
+        await emit(output, options, tools, diagnostics);
+        return diagnostics.some((item) => item.severity === 'error');
         } catch (err) {
           process.stderr.write(`Error: ${(err as Error).message}\n`);
           return true;
@@ -142,7 +171,7 @@ export function registerCheckCommand(program: Command): void {
       }
 
       if (options.watch) {
-        if (!input || options.server) {
+        if (!input || options.server || options.installed || (options.from?.length ?? 0) > 0) {
           process.stderr.write('Error: --watch only works with file input\n');
           process.exit(2);
         }
@@ -162,4 +191,72 @@ export function registerCheckCommand(program: Command): void {
         process.exit(hasErrors ? 1 : 0);
       }
     });
+}
+
+function collectPath(value: string, previous: string[]): string[] {
+  previous.push(value);
+  return previous;
+}
+
+function severityFloor(options: { quiet?: boolean; severity?: string }): Severity {
+  if (options.quiet) return 'error';
+  if (options.severity === 'error' || options.severity === 'warning' || options.severity === 'info') {
+    return options.severity;
+  }
+  return 'info';
+}
+
+function parseTimeout(value: string | undefined, fallback: number): number {
+  if (value === undefined) return fallback;
+  const timeoutMs = Number(value);
+  if (!Number.isFinite(timeoutMs) || timeoutMs < 1) {
+    throw new Error('--timeout must be a positive number of milliseconds');
+  }
+  return timeoutMs;
+}
+
+function optionalTimeout(value: string | undefined): number | undefined {
+  if (value === undefined) return undefined;
+  return parseTimeout(value, 20_000);
+}
+
+function configFailure(path: string, message: string): ServerReport {
+  return {
+    server: {
+      sourceLabel: 'config',
+      sourcePath: path,
+      name: '(config)',
+      kind: 'invalid',
+      args: [],
+    },
+    status: 'failed',
+    tools: [],
+    diagnostics: [],
+    error: message,
+  };
+}
+
+async function emit(
+  output: string,
+  options: { outputFile?: string; score?: boolean },
+  tools: MCPTool[],
+  diagnostics: Diagnostic[],
+): Promise<void> {
+  if (options.outputFile) {
+    await writeFile(options.outputFile, output, 'utf8');
+  } else {
+    process.stdout.write(output);
+  }
+
+  if (!options.score) return;
+  const report = computeQualityReport(tools, diagnostics);
+  const gradeColor = (grade: string) =>
+    grade === 'A' ? chalk.green(grade) : grade === 'B' ? chalk.cyan(grade) : grade === 'C' ? chalk.yellow(grade) : chalk.red(grade);
+  process.stdout.write(chalk.bold('\nQuality Score\n'));
+  for (const tool of report.tools) {
+    process.stdout.write(
+      `  ${tool.toolName.padEnd(30)} ${String(tool.score).padStart(3)}/100  ${gradeColor(tool.grade)}  (${tool.errors} errors, ${tool.warnings} warnings)\n`,
+    );
+  }
+  process.stdout.write(`\n  Overall: ${chalk.bold(String(report.overall))}/100  ${gradeColor(report.grade)}\n\n`);
 }

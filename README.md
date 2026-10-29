@@ -65,6 +65,13 @@ mcp-lint-server
 
 # Score whether a tool failure tells the agent which tool to call next
 mcp-lint recover examples/recover/bad-credential.json
+
+# Lint the stdio servers already configured for Cursor, Claude, and VS Code
+mcp-lint check --installed
+
+# Save a live tool list, then fail CI when a later snapshot gets worse
+mcp-lint snapshot -o tools.json --server stdio -- node server.js
+mcp-lint diff tools.json tools.next.json
 ```
 
 ---
@@ -187,6 +194,41 @@ mcp-lint diff tools-v1.json tools-v2.json --format json
 
 ---
 
+### `mcp-lint check --installed`
+
+Reads the MCP configs already on this machine and lints each local stdio server. Nothing is uploaded. Remote URLs are skipped unless you pass `--remote`.
+
+```bash
+mcp-lint check --installed
+mcp-lint check --from .cursor/mcp.json
+mcp-lint check --from .mcp.json --timeout 10000 --strict
+```
+
+Looked-up files:
+
+| Client | Path |
+|--------|------|
+| Cursor | `~/.cursor/mcp.json` and `./.cursor/mcp.json` |
+| Claude Desktop | `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) |
+| Claude Code | `~/.claude.json`, `~/.claude/settings.json`, and `./.mcp.json` |
+| VS Code | `~/Library/Application Support/Code/User/mcp.json` and `./.vscode/mcp.json` |
+
+`--strict` also exits 1 when a configured server fails to start. Without it, a start failure is printed and the exit code follows the schema errors.
+
+---
+
+### `mcp-lint snapshot`
+
+Writes the live `tools/list` as a stable JSON file. Commit that file and compare it with `diff` when the server changes. `diff` exits 1 when the new file introduces an error the old file did not have.
+
+```bash
+mcp-lint snapshot -o tools.json --server stdio -- node server.js
+mcp-lint snapshot -o tools.json --server http --url http://127.0.0.1:3000/mcp
+mcp-lint diff tools.json tools.next.json
+```
+
+---
+
 ### `mcp-lint fix [input]`
 
 Auto-fixes issues that are safe to fix automatically (no semantic changes).
@@ -226,6 +268,14 @@ mcp-lint init --force  # overwrite existing
 | `description-exists` | 🟡 warning | ❌ | Tools and parameters should have descriptions |
 | `max-depth` | 🟡 warning | ❌ | Schema nesting deeper than 5 levels hurts LLM comprehension |
 | `no-unsupported-formats` | 🟡 warning | ✅ | Obscure `format` values (`iri`, `json-pointer`, `regex`…) not widely supported |
+
+### Tool names
+
+| Rule | Severity | Fixable | Description |
+|------|----------|---------|-------------|
+| `tool-name/client-safe` | 🔴 error, 🟡 warning | ❌ | Names must match `^[A-Za-z0-9_-]{1,64}$`. A leading digit is a warning because Gemini rejects it. |
+
+OpenAI and Azure use that pattern. A space, slash, or dot makes the tool disappear. See `examples/names/unsafe.json`.
 
 ### Claude-specific
 
@@ -337,7 +387,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: robert19001-cmyk/mcp-lint@v0.6.2
+      - uses: robert19001-cmyk/mcp-lint@v0.7.0
         with:
           input: tools.json
           severity: warning
