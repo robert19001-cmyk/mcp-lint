@@ -211,7 +211,62 @@ textarea { resize: vertical; min-height: 8rem; }
 
 .finding.warning strong { color: var(--ink-soft); }
 
-.proofs, .install { padding: 4.5rem 0; }
+.path { padding: 0 0 1rem; }
+.path ol {
+  list-style: none;
+  margin: 0;
+  padding: 2.5rem 0 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem 2rem;
+  border-top: 1px solid var(--line);
+}
+.path li { display: grid; gap: 0.8rem; align-content: start; }
+.path svg { width: 3.25rem; height: 3.25rem; color: var(--ink); }
+.path p { margin: 0.35rem 0 0; max-width: 28ch; color: var(--ink-soft); }
+
+.commands, .clients, .proofs, .install { padding: 4.5rem 0; }
+
+.commands dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 3rem;
+}
+.commands div {
+  padding: 1.15rem 0;
+  border-top: 1px solid var(--line);
+}
+.commands dt {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--red-ink);
+}
+.commands dd { margin: 0.35rem 0 0.55rem; max-width: 42ch; }
+.commands code { font-size: 0.92rem; }
+
+.clients ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--ink);
+}
+.clients li {
+  margin: 0;
+  padding: 1.1rem 0.8rem 1.1rem 0;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--serif);
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.clients p { max-width: 46rem; margin: 1.5rem 0 0; }
+
+.action-note { max-width: 46rem; margin: 1.4rem 0 0; color: var(--ink-soft); }
 
 h2 {
   margin: 0 0 2rem;
@@ -222,6 +277,16 @@ h2 {
   letter-spacing: -0.03em;
   line-height: 0.95;
   text-wrap: balance;
+}
+
+.path h2 {
+  margin: 0;
+  max-width: none;
+  font-family: var(--sans);
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.2;
 }
 
 .proofs ol {
@@ -287,7 +352,9 @@ footer {
 }
 
 @media (max-width: 800px) {
-  .hero, .bench-grid, .proofs li { grid-template-columns: 1fr; }
+  .hero, .bench-grid, .proofs li, .path ol, .commands dl, .clients ul { grid-template-columns: 1fr; }
+  .bar { flex-wrap: wrap; gap: 0.8rem; }
+  nav { flex-wrap: wrap; gap: 0.8rem 1rem; }
   .index { display: none; }
   .verdict { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 1.25rem; }
   .install li { align-items: stretch; flex-direction: column; }

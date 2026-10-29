@@ -9,6 +9,8 @@
 
 **Lint MCP server tool schemas, then check whether an agent can recover when a tool fails.**
 
+Proof page, with a live bench: [mcp-lint-alpha.vercel.app](https://mcp-lint-alpha.vercel.app/)
+
 MCP servers expose tool schemas consumed by **Claude**, **Cursor**, **Gemini**, **VS Code Copilot**, **Windsurf**, **Cline**, **OpenAI Agents SDK**, and **Continue.dev**. Each client has different JSON Schema support and quirks — a schema that works in Claude may silently break in Cursor or OpenAI. `mcp-lint` catches these issues before your users do.
 
 ```
@@ -335,7 +337,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: robert19001-cmyk/mcp-lint@v0.6.1
+      - uses: robert19001-cmyk/mcp-lint@v0.6.2
         with:
           input: tools.json
           severity: warning
@@ -674,7 +676,7 @@ The proof page is in `site/`. It runs the same recovery scorer as the CLI.
 npm run site
 ```
 
-The public page is https://robert19001-cmyk.github.io/mcp-lint/. The same page runs locally:
+The public page is https://mcp-lint-alpha.vercel.app/. The same page runs locally:
 
 ```bash
 npm run site

@@ -1,6 +1,6 @@
 {
   "name": "mcp-lint",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "mcpName": "io.github.robert19001-cmyk/mcp-lint",
   "description": "Lint MCP server tool schemas for cross-client compatibility, runtime preflight, and agent recovery from tool failures",
   "type": "module",
@@ -11,7 +11,7 @@
   "bugs": {
     "url": "https://github.com/robert19001-cmyk/mcp-lint/issues"
   },
-  "homepage": "https://robert19001-cmyk.github.io/mcp-lint/",
+  "homepage": "https://mcp-lint-alpha.vercel.app/",
   "bin": {
     "mcp-lint": "dist/index.js",
     "mcp-lint-server": "dist/mcp-server.js"

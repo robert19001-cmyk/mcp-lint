@@ -14,7 +14,7 @@ const program = new Command();
 program
   .name('mcp-lint')
   .description('Lint MCP tool schemas and score whether an agent can recover from tool failures')
-  .version('0.6.1');
+  .version('0.6.2');
 
 registerCheckCommand(program);
 registerFixCommand(program);

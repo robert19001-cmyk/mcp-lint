@@ -1,3 +1,10 @@
+## [0.6.2] — 2026-10-29
+
+### Changed
+- The public proof page now includes the command sheet and the eight-client list.
+- Canonical site is https://mcp-lint-alpha.vercel.app/.
+- GitHub Action documentation and `examples/github-action.yml` now reference `v0.6.2`.
+
 ## [0.6.1] — 2026-10-29
 
 ### Added

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://robert19001-cmyk.github.io/mcp-lint/sitemap.xml
+Sitemap: https://mcp-lint-alpha.vercel.app/sitemap.xml

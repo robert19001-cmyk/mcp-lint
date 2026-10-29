@@ -8,7 +8,7 @@
       name="description"
       content="mcp-lint checks MCP tool schemas and scores whether an agent can recover when a tool fails."
     />
-    <link rel="canonical" href="https://robert19001-cmyk.github.io/mcp-lint/" />
+    <link rel="canonical" href="https://mcp-lint-alpha.vercel.app/" />
     <link rel="icon" href="%BASE_URL%favicon.svg" type="image/svg+xml" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="mcp-lint — the tool failed, the agent stopped" />
@@ -16,8 +16,8 @@
       property="og:description"
       content="mcp-lint checks MCP tool schemas and scores whether an agent can recover when a tool fails."
     />
-    <meta property="og:url" content="https://robert19001-cmyk.github.io/mcp-lint/" />
-    <meta property="og:image" content="https://robert19001-cmyk.github.io/mcp-lint/og.png" />
+    <meta property="og:url" content="https://mcp-lint-alpha.vercel.app/" />
+    <meta property="og:image" content="https://mcp-lint-alpha.vercel.app/og.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="theme-color" content="#f3efe4" />
     <script type="application/ld+json">
@@ -27,9 +27,9 @@
         "name": "mcp-lint",
         "applicationCategory": "DeveloperApplication",
         "operatingSystem": "Cross-platform",
-        "softwareVersion": "0.6.1",
+        "softwareVersion": "0.6.2",
         "license": "https://spdx.org/licenses/MIT.html",
-        "url": "https://robert19001-cmyk.github.io/mcp-lint/",
+        "url": "https://mcp-lint-alpha.vercel.app/",
         "downloadUrl": "https://www.npmjs.com/package/mcp-lint",
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
         "description": "Lint MCP tool schemas and score whether an agent can recover when a tool fails."
@@ -47,7 +47,11 @@
     <a class="skip" href="#bench">Skip to the bench</a>
     <header class="bar">
       <a class="wordmark" href="#top">mcp-lint</a>
-      <nav aria-label="Project">
+      <nav aria-label="On this page">
+        <a href="#bench">Bench</a>
+        <a href="#commands">Commands</a>
+        <a href="#clients">Clients</a>
+        <a href="#install">Install</a>
         <a href="https://www.npmjs.com/package/mcp-lint">npm</a>
         <a href="https://github.com/robert19001-cmyk/mcp-lint">GitHub</a>
       </nav>
@@ -65,6 +69,41 @@
           </p>
         </div>
         <p class="index" aria-hidden="true">0.6</p>
+      </section>
+
+      <section class="path" aria-label="What the scorer looks at">
+        <ol>
+          <li>
+            <svg viewBox="0 0 64 64" aria-hidden="true">
+              <rect x="8" y="10" width="48" height="44" fill="none" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M16 24h32M16 32h24M16 40h18" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            <div>
+              <h2>Schema valid</h2>
+              <p>The JSON parses. The types match. Eight clients can read the tool.</p>
+            </div>
+          </li>
+          <li>
+            <svg viewBox="0 0 64 64" aria-hidden="true">
+              <circle cx="32" cy="32" r="18" fill="none" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M32 20v14M32 42v2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            <div>
+              <h2>Tool fails</h2>
+              <p>Credential, permission, rate limit, timeout, or an empty payload.</p>
+            </div>
+          </li>
+          <li>
+            <svg viewBox="0 0 64 64" aria-hidden="true">
+              <rect x="8" y="10" width="48" height="44" fill="none" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M22 32h20" stroke="#c5362b" stroke-width="2.4"/>
+            </svg>
+            <div>
+              <h2>Agent stops</h2>
+              <p>The error says “run npm login” or “wait.” Nothing in the tool list can do that.</p>
+            </div>
+          </li>
+        </ol>
       </section>
 
       <section id="bench" class="bench" aria-labelledby="bench-title">
@@ -127,7 +166,68 @@
         </ol>
       </section>
 
-      <section class="install" aria-labelledby="install-title">
+      <section class="commands" id="commands" aria-labelledby="commands-title">
+        <h2 id="commands-title">One CLI. The whole check.</h2>
+        <dl>
+          <div>
+            <dt>check</dt>
+            <dd>Lint a tools file or a live MCP server. Exit 1 on errors.</dd>
+            <code>npx mcp-lint check tools.json</code>
+          </div>
+          <div>
+            <dt>compat</dt>
+            <dd>Show which tools survive Claude, Cursor, Gemini, VS Code, Windsurf, Cline, OpenAI, and Continue.</dd>
+            <code>npx mcp-lint compat tools.json</code>
+          </div>
+          <div>
+            <dt>fix</dt>
+            <dd>Apply the safe auto-fixes. Dry-run first if the file is already in git.</dd>
+            <code>npx mcp-lint fix tools.json --dry-run</code>
+          </div>
+          <div>
+            <dt>explain</dt>
+            <dd>Print one rule, why it exists, and whether it can be fixed.</dd>
+            <code>npx mcp-lint explain openai/no-additional-properties</code>
+          </div>
+          <div>
+            <dt>preflight</dt>
+            <dd>Score a proposed tool call before it runs. Allow, deny, approval, or rewrite.</dd>
+            <code>npx mcp-lint preflight action.json --policy preflight.yml</code>
+          </div>
+          <div>
+            <dt>recover</dt>
+            <dd>Score a recorded failure. The bench on this page uses that same function.</dd>
+            <code>npx mcp-lint recover errors.json</code>
+          </div>
+          <div>
+            <dt>diff</dt>
+            <dd>Fail CI when a new schema introduces errors the old one did not have.</dd>
+            <code>npx mcp-lint diff before.json after.json</code>
+          </div>
+          <div>
+            <dt>init</dt>
+            <dd>Write a starter config for all eight clients.</dd>
+            <code>npx mcp-lint init</code>
+          </div>
+        </dl>
+      </section>
+
+      <section class="clients" id="clients" aria-labelledby="clients-title">
+        <h2 id="clients-title">Eight clients, one schema.</h2>
+        <ul>
+          <li>Claude</li>
+          <li>Cursor</li>
+          <li>Gemini</li>
+          <li>VS Code</li>
+          <li>Windsurf</li>
+          <li>Cline</li>
+          <li>OpenAI</li>
+          <li>Continue</li>
+        </ul>
+        <p>A tool that is fine for one picker can be illegal for another. <code>check</code> runs the shared rules and the client rules together.</p>
+      </section>
+
+      <section class="install" id="install" aria-labelledby="install-title">
         <h2 id="install-title">Run it on the schema you already have</h2>
         <ul>
           <li>
@@ -138,7 +238,15 @@
             <code id="cmd-recover">npx mcp-lint recover errors.json</code>
             <button type="button" data-copy="cmd-recover">Copy</button>
           </li>
+          <li>
+            <code id="cmd-preflight">npx mcp-lint preflight action.json --policy preflight.yml</code>
+            <button type="button" data-copy="cmd-preflight">Copy</button>
+          </li>
         </ul>
+        <p class="action-note">
+          In GitHub Actions, <code>robert19001-cmyk/mcp-lint@v0.6.2</code> runs the same checks.
+          Pass <code>recover</code> when you have a failure file. The package is MIT and stays free.
+        </p>
       </section>
     </main>
 

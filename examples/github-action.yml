@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Lint MCP tool schemas
-        uses: robert19001-cmyk/mcp-lint@v0.6.1
+        uses: robert19001-cmyk/mcp-lint@v0.6.2
         with:
           input: tools.json
           severity: warning
