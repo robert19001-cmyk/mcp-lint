@@ -7,7 +7,7 @@
 [![MCP server ready](https://img.shields.io/badge/MCP-server_ready-6f42c1)](#mcp-server)
 [![robert19001-cmyk/mcp-lint MCP server](https://glama.ai/mcp/servers/robert19001-cmyk/mcp-lint/badges/score.svg)](https://glama.ai/mcp/servers/robert19001-cmyk/mcp-lint)
 
-**Lint MCP server tool schemas for cross-client compatibility.**
+**Lint MCP server tool schemas, then check whether an agent can recover when a tool fails.**
 
 MCP servers expose tool schemas consumed by **Claude**, **Cursor**, **Gemini**, **VS Code Copilot**, **Windsurf**, **Cline**, **OpenAI Agents SDK**, and **Continue.dev**. Each client has different JSON Schema support and quirks — a schema that works in Claude may silently break in Cursor or OpenAI. `mcp-lint` catches these issues before your users do.
 
@@ -60,6 +60,9 @@ mcp-lint init
 
 # Run as an MCP server
 mcp-lint-server
+
+# Score whether a tool failure tells the agent which tool to call next
+mcp-lint recover examples/recover/bad-credential.json
 ```
 
 ---
@@ -332,7 +335,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: robert19001-cmyk/mcp-lint@v0.5.3
+      - uses: robert19001-cmyk/mcp-lint@v0.6.0
         with:
           input: tools.json
           severity: warning
@@ -556,6 +559,68 @@ Use them directly in shell wrappers or CI gates.
 
 ---
 
+## `mcp-lint recover` — Can the agent get back up?
+
+Schema lint does not say what happens when a tool fails. `recover` reads the error text and checks four things an agent limited to MCP tools needs:
+
+- A credential or permission error names a tool on this server, such as `login`.
+- A rate limit or timeout names the call to repeat. "Wait and retry" is not enough.
+- The next step is not a terminal command, a config edit, or a web page.
+- The failure is not silent, and a hang is cut off at 15 seconds.
+
+```bash
+$ mcp-lint recover examples/recover/bad-credential.json
+
+search#1
+  ✖ Credential or permission error does not name a tool on this server. Say which tool to call, for example `login`, then retry.
+    [recover/names-tool]
+  ✖ Next step asks for a terminal command, which an agent limited to MCP tools cannot do. Name a tool from this server instead.
+    [recover/agent-reachable]
+
+search#2
+  ✖ Retry text does not name the call to repeat. Name `search` instead of "wait and retry".
+    [recover/names-retry]
+
+3 errors, 1 recoverable of 3
+```
+
+Exit `1` when any sample has an error. Exit `0` when every failure is recoverable.
+
+Probe a live server. Tools with no required arguments are skipped, so an empty call cannot fire a real action.
+
+```bash
+mcp-lint recover --server stdio -- node server.js
+mcp-lint recover errors.json --hang-ms 8000 --format json
+```
+
+File shape:
+
+```json
+{
+  "tools": ["login", "search"],
+  "samples": [
+    {
+      "tool": "search",
+      "kind": "credential",
+      "message": "Unauthorized. Call the login tool, then retry search."
+    }
+  ]
+}
+```
+
+`kind` is `credential`, `permission`, `rate_limit`, `explicit`, `silent`, `timeout`, or `malformed`.
+
+```typescript
+import { scoreRecovery } from 'mcp-lint/recover';
+
+const report = scoreRecovery(
+  [{ tool: 'search', kind: 'rate_limit', message: 'Wait before retrying.' }],
+  { tools: ['login', 'search'] },
+);
+```
+
+---
+
 ## MCP Server
 
 `mcp-lint` also ships as a stdio MCP server for Claude Desktop, Claude Code, Cursor, VS Code, and registry scanners such as Glama.
@@ -586,6 +651,7 @@ Available MCP tools:
 | `mcp_lint_check_tools` | Lint MCP tool schemas passed as JSON |
 | `mcp_lint_fix_tools` | Return safely auto-fixed tool schemas without writing files |
 | `mcp_lint_preflight_action` | Score a proposed agent action and return allow/deny/approval/rewrite |
+| `mcp_lint_score_recovery` | Score a recorded tool failure for whether an agent can recover |
 
 All server tools are read-only from the host perspective: they return diagnostics, fixed JSON, or policy decisions and never execute the action being evaluated.
 
@@ -597,6 +663,18 @@ docker run --rm -i mcp-lint-server
 ```
 
 The repository includes `glama.json` and a production Dockerfile so MCP directories can build, start, and introspect the server.
+
+---
+
+## Site
+
+The proof page is in `site/`. It runs the same recovery scorer as the CLI.
+
+```bash
+npm run site
+```
+
+Open http://127.0.0.1:4731. The source ships in this repository. The built page is not in the npm package, and there is no hosted copy.
 
 ---
 

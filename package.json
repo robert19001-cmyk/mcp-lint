@@ -1,8 +1,8 @@
 {
   "name": "mcp-lint",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "mcpName": "io.github.robert19001-cmyk/mcp-lint",
-  "description": "Lint MCP server tool schemas for cross-client compatibility + runtime preflight for agent tool calls",
+  "description": "Lint MCP server tool schemas for cross-client compatibility, runtime preflight, and agent recovery from tool failures",
   "type": "module",
   "repository": {
     "type": "git",
@@ -26,6 +26,10 @@
     "./preflight": {
       "types": "./dist/preflight/index.d.ts",
       "default": "./dist/preflight/index.js"
+    },
+    "./recover": {
+      "types": "./dist/recover/index.d.ts",
+      "default": "./dist/recover/index.js"
     },
     "./rules": {
       "types": "./dist/rules/index.d.ts",
@@ -55,6 +59,7 @@
     "schema",
     "validation",
     "preflight",
+    "recover",
     "agent-safety",
     "policy",
     "guardrails"
@@ -69,6 +74,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "site": "vite --config site/vite.config.ts",
+    "site:build": "vite build --config site/vite.config.ts",
     "prepublishOnly": "npm run build && npm run test"
   },
   "dependencies": {
@@ -81,6 +88,7 @@
   "devDependencies": {
     "@types/node": "^25.5.0",
     "typescript": "^6.0.2",
+    "vite": "^8.3.5",
     "vitest": "^4.1.1"
   }
 }

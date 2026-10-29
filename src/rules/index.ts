@@ -15,6 +15,8 @@ import { vscodeMaxParams } from './client-specific/vscode.js';
 import { windsurfNoUnionTypes } from './client-specific/windsurf.js';
 import { clineDescriptionMaxLength } from './client-specific/cline.js';
 import { openaiNoAdditionalProperties, openaiStrictTypes } from './client-specific/openai.js';
+import { noUnreachableInstruction } from './agent-unreachable.js';
+import { destructiveUnmarked, readonlyConflict } from './destructive-hint.js';
 
 export const allRules: Rule[] = [
   noRequiredFalse,
@@ -36,4 +38,7 @@ export const allRules: Rule[] = [
   clineDescriptionMaxLength,
   openaiNoAdditionalProperties,
   openaiStrictTypes,
+  noUnreachableInstruction,
+  destructiveUnmarked,
+  readonlyConflict,
 ];

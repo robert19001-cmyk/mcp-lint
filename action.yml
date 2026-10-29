@@ -1,5 +1,5 @@
 name: mcp-lint
-description: Lint MCP server tool schemas for cross-client compatibility
+description: Lint MCP server tool schemas and score whether tool failures are recoverable
 author: robert19001-cmyk
 
 inputs:
@@ -25,6 +25,10 @@ inputs:
     description: Show quality score (true|false)
     required: false
     default: 'false'
+  recover:
+    description: Optional path to a recovery JSON file ({ tools, samples })
+    required: false
+    default: ''
 
 outputs:
   exit_code:
@@ -51,6 +55,13 @@ runs:
         set +e
         mcp-lint check $ARGS
         EXIT_CODE=$?
+        if [ -n "${{ inputs.recover }}" ]; then
+          mcp-lint recover "${{ inputs.recover }}"
+          RECOVER_CODE=$?
+          if [ $RECOVER_CODE -gt $EXIT_CODE ]; then
+            EXIT_CODE=$RECOVER_CODE
+          fi
+        fi
         set -e
 
         echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT

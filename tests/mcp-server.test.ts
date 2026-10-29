@@ -41,6 +41,7 @@ describe('mcp-lint MCP server', () => {
         'mcp_lint_fix_tools',
         'mcp_lint_explain_rule',
         'mcp_lint_preflight_action',
+        'mcp_lint_score_recovery',
       ]));
     } finally {
       await client.close();
@@ -109,6 +110,36 @@ rules:
         decision: {
           decision: 'deny',
           matched_policies: ['block-prod-delete'],
+        },
+      });
+    } finally {
+      await client.close();
+      await server.close();
+    }
+  });
+
+  it('scores a tool failure without calling the failing tool', async () => {
+    const { client, server } = await connectClient();
+
+    try {
+      const response = await client.callTool({
+        name: 'mcp_lint_score_recovery',
+        arguments: {
+          tools: ['login', 'search'],
+          samples: [
+            {
+              tool: 'search',
+              kind: 'credential',
+              message: 'Unauthorized. Run npm login in your terminal.',
+            },
+          ],
+        },
+      });
+
+      expect(response.structuredContent).toMatchObject({
+        report: {
+          errors: 2,
+          recoverable: 0,
         },
       });
     } finally {

@@ -7,13 +7,14 @@ import { registerCompatCommand } from './cli/commands/compat.js';
 import { registerExplainCommand } from './cli/commands/explain.js';
 import { registerDiffCommand } from './cli/commands/diff.js';
 import { registerPreflightCommand } from './cli/commands/preflight.js';
+import { registerRecoverCommand } from './cli/commands/recover.js';
 
 const program = new Command();
 
 program
   .name('mcp-lint')
-  .description('Lint MCP server tool schemas for cross-client compatibility')
-  .version('0.5.3');
+  .description('Lint MCP tool schemas and score whether an agent can recover from tool failures')
+  .version('0.6.0');
 
 registerCheckCommand(program);
 registerFixCommand(program);
@@ -22,5 +23,6 @@ registerCompatCommand(program);
 registerExplainCommand(program);
 registerDiffCommand(program);
 registerPreflightCommand(program);
+registerRecoverCommand(program);
 
 program.parse();

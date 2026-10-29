@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>mcp-lint — the tool failed, the agent stopped</title>
+    <meta
+      name="description"
+      content="mcp-lint checks MCP tool schemas and scores whether an agent can recover when a tool fails."
+    />
+    <meta name="theme-color" content="#f3efe4" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,650&family=IBM+Plex+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <a class="skip" href="#bench">Skip to the bench</a>
+    <header class="bar">
+      <a class="wordmark" href="#top">mcp-lint</a>
+      <nav aria-label="Project">
+        <a href="https://www.npmjs.com/package/mcp-lint">npm</a>
+        <a href="https://github.com/robert19001-cmyk/mcp-lint">GitHub</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div>
+          <p class="kicker">01 — Proof</p>
+          <h1>The tool failed.<br />The agent stopped.</h1>
+          <p class="lede">
+            A schema can be valid and still hand the agent a terminal command, a
+            silent payload, or “wait and retry.” mcp-lint marks that on the page
+            before a user does.
+          </p>
+        </div>
+        <p class="index" aria-hidden="true">0.6</p>
+      </section>
+
+      <section id="bench" class="bench" aria-labelledby="bench-title">
+        <div class="bench-head">
+          <p class="kicker" id="bench-title">02 — Bench</p>
+          <p class="stamp" id="stamp" aria-hidden="true">Fail</p>
+        </div>
+        <div class="bench-grid">
+          <form class="sheet" id="sheet">
+            <div class="presets" role="group" aria-label="Sample failures">
+              <button type="button" data-preset="terminal" aria-pressed="true">Terminal</button>
+              <button type="button" data-preset="wait">Wait</button>
+              <button type="button" data-preset="named">Named tool</button>
+            </div>
+            <label class="field">
+              <span>Kind</span>
+              <select id="kind" name="kind">
+                <option value="credential">credential</option>
+                <option value="permission">permission</option>
+                <option value="rate_limit">rate_limit</option>
+                <option value="explicit">explicit</option>
+                <option value="silent">silent</option>
+                <option value="timeout">timeout</option>
+                <option value="malformed">malformed</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Error text the agent sees</span>
+              <textarea id="message" name="message" rows="5" spellcheck="false"></textarea>
+            </label>
+          </form>
+          <div class="verdict" aria-live="polite" id="verdict"></div>
+        </div>
+      </section>
+
+      <section class="proofs" aria-labelledby="proofs-title">
+        <h2 id="proofs-title">What the red mark means</h2>
+        <ol>
+          <li>
+            <span>03</span>
+            <div>
+              <h3>Name the tool</h3>
+              <p>A credential error has to say <code>login</code>, not “run npm login.” A rate limit has to name the call to repeat.</p>
+            </div>
+          </li>
+          <li>
+            <span>04</span>
+            <div>
+              <h3>Stay inside the protocol</h3>
+              <p>Terminal, config file, browser page. An agent limited to MCP tools cannot do those, and it will try anyway.</p>
+            </div>
+          </li>
+          <li>
+            <span>05</span>
+            <div>
+              <h3>Mark the destructive ones</h3>
+              <p><code>check</code> now warns when a delete, send, payment, or deploy tool has no <code>destructiveHint</code>, and errors when a read-only hint is a lie.</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section class="install" aria-labelledby="install-title">
+        <h2 id="install-title">Run it on the schema you already have</h2>
+        <ul>
+          <li>
+            <code id="cmd-check">npx mcp-lint check tools.json</code>
+            <button type="button" data-copy="cmd-check">Copy</button>
+          </li>
+          <li>
+            <code id="cmd-recover">npx mcp-lint recover errors.json</code>
+            <button type="button" data-copy="cmd-recover">Copy</button>
+          </li>
+        </ul>
+      </section>
+    </main>
+
+    <footer>
+      <p>MIT. Built by Robert. The bench on this page uses the same scorer as the CLI.</p>
+    </footer>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

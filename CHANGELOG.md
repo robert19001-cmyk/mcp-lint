@@ -1,3 +1,20 @@
+## [0.6.0] — 2026-10-29
+
+### Added
+- **`mcp-lint recover <file>`** — scores recorded MCP tool failures for whether an agent that can only call tools can recover.
+- **`mcp-lint recover --server stdio -- <command>`** — calls each tool that requires arguments with an empty payload, cuts off hangs, and scores the error text.
+- Rules: `recover/names-tool`, `recover/names-retry`, `recover/agent-reachable`, `recover/not-silent`, `recover/bounded-hang`.
+- SDK export `mcp-lint/recover` and MCP tool `mcp_lint_score_recovery`.
+- Sample file `examples/recover/bad-credential.json`.
+- **`agent/no-unreachable-instruction`** — warns when tool text sends an agent to a terminal, a config file, or a web page.
+- **`annotations/destructive-unmarked`** — warns when a delete, send, payment, or deploy tool has no `destructiveHint`, and errors when the hint is explicitly false.
+- **`annotations/readonly-conflict`** — errors when `readOnlyHint` is set on a destructive tool name.
+- GitHub Action input `recover` runs `mcp-lint recover` on a failure file and fails the job on errors.
+- Proof-sheet site in `site/`. Run `npm run site`. The built page is not part of the npm package.
+
+### Changed
+- GitHub Action documentation and `examples/github-action.yml` now reference `v0.6.0`.
+
 ## [0.5.3] — 2026-05-03
 
 ### Added

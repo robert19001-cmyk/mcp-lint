@@ -13,8 +13,10 @@ import { allRules } from './rules/index.js';
 import { preflight } from './preflight/engine.js';
 import { parsePolicy } from './preflight/policy.js';
 import type { Action } from './preflight/types.js';
+import { scoreRecovery } from './recover/score.js';
+import { FAILURE_KINDS } from './recover/types.js';
 
-const VERSION = '0.5.3';
+const VERSION = '0.6.0';
 
 const ClientIdSchema = z.enum([
   'claude',
@@ -265,6 +267,40 @@ export function createMcpLintServer(): McpServer {
     async ({ action, policyYaml }) => {
       const policy = policyYaml ? parsePolicy(policyYaml) : undefined;
       return result({ decision: preflight(action as Action, policy) });
+    },
+  );
+
+  server.registerTool(
+    'mcp_lint_score_recovery',
+    {
+      title: 'Score MCP Failure Recovery',
+      description: 'Score MCP tool failure text for whether an agent that can only call tools can recover. Does not call the failing tool.',
+      inputSchema: {
+        tools: z.array(z.string().min(1)).min(1).describe('Tool names the agent is allowed to call.'),
+        hangMs: z.number().int().positive().optional().describe('Hang budget in milliseconds. Defaults to 15000.'),
+        samples: z.array(z.object({
+          id: z.string().optional(),
+          tool: z.string().min(1).describe('Tool that failed.'),
+          kind: z.enum(FAILURE_KINDS).describe('Failure kind: credential, permission, rate_limit, explicit, silent, timeout, or malformed.'),
+          message: z.string().optional().describe('Error text shown to the agent.'),
+          isError: z.boolean().optional(),
+          durationMs: z.number().int().nonnegative().optional(),
+        })).describe('Recorded tool failures to score.'),
+      },
+      outputSchema: {
+        report: JsonObjectSchema,
+      },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
+    },
+    async ({ tools, hangMs, samples }) => {
+      return result({
+        report: scoreRecovery(samples, { tools, hangMs }),
+      });
     },
   );
 

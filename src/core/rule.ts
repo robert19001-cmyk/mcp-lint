@@ -35,11 +35,20 @@ export interface JSONSchema {
   [key: string]: unknown;
 }
 
+export interface ToolAnnotations {
+  title?: string;
+  readOnlyHint?: boolean;
+  destructiveHint?: boolean;
+  idempotentHint?: boolean;
+  openWorldHint?: boolean;
+}
+
 export interface MCPTool {
   name: string;
   title?: string;
   description?: string;
   inputSchema: JSONSchema;
+  annotations?: ToolAnnotations;
 }
 
 export interface Config {
