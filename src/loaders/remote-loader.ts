@@ -9,7 +9,7 @@ export async function loadRemote(url: string, remoteType = 'http', timeoutMs?: n
   const transport = remoteType === 'sse'
     ? new SSEClientTransport(target)
     : new StreamableHTTPClientTransport(target);
-  const client = new Client({ name: 'mcp-lint', version: '0.7.0' }, { capabilities: {} });
+  const client = new Client({ name: 'mcp-lint', version: '0.8.0' }, { capabilities: {} });
 
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {

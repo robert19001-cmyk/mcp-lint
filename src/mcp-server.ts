@@ -16,7 +16,7 @@ import type { Action } from './preflight/types.js';
 import { scoreRecovery } from './recover/score.js';
 import { FAILURE_KINDS } from './recover/types.js';
 
-const VERSION = '0.7.0';
+const VERSION = '0.8.0';
 
 const ClientIdSchema = z.enum([
   'claude',

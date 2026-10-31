@@ -25,7 +25,7 @@ export async function loadStdio(
     cwd: options.cwd,
   });
   drain(transport.stderr);
-  const client = new Client({ name: 'mcp-lint', version: '0.7.0' }, { capabilities: {} });
+  const client = new Client({ name: 'mcp-lint', version: '0.8.0' }, { capabilities: {} });
 
   try {
     return await withTimeout(options.timeoutMs, command, async () => {

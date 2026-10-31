@@ -1,6 +1,10 @@
 import type { Command } from 'commander';
 import { watch } from 'node:fs';
+import { stat } from 'node:fs/promises';
 import { homedir } from 'node:os';
+import { resolve } from 'node:path';
+import { discoverToolFiles, missingToolsMessage } from '../../discover/files.js';
+import { formatDiscovered } from '../../discover/format.js';
 import { loadFile } from '../../loaders/file-loader.js';
 import { loadStdio } from '../../loaders/stdio-loader.js';
 import { loadRemote } from '../../loaders/remote-loader.js';
@@ -30,7 +34,7 @@ function filterBySeverity(diagnostics: Diagnostic[], min: Severity): Diagnostic[
 
 export function registerCheckCommand(program: Command): void {
   program
-    .command('check [input]')
+    .command('check [input]', { isDefault: true })
     .description('Check MCP tool schemas for compatibility issues')
     .option('--format <format>', 'Output format: terminal|json|markdown', 'terminal')
     .option('--no-color', 'Disable terminal colors')
@@ -145,6 +149,29 @@ export function registerCheckCommand(program: Command): void {
         } else if (options.server === 'http') {
           if (!options.url) throw new Error('--server http requires --url <url>');
           tools = await loadRemote(options.url, 'http', optionalTimeout(options.timeout));
+        } else if (await shouldDiscover(input)) {
+          const dir = input ? resolve(input) : process.cwd();
+          const files = await discoverToolFiles(dir);
+          if (files.length === 0) throw new Error(missingToolsMessage(dir));
+          const pluginRules = await loadPluginRules(fileConfig);
+          const engine = new LintEngine([...allRules, ...pluginRules], config);
+          const groups = [];
+          const discoveredTools: MCPTool[] = [];
+          const discoveredDiagnostics: Diagnostic[] = [];
+          for (const file of files) {
+            const found = await loadFile(file);
+            const foundDiagnostics = filterBySeverity(engine.lint(found), floor);
+            discoveredTools.push(...found);
+            discoveredDiagnostics.push(...foundDiagnostics);
+            groups.push({ file, diagnostics: foundDiagnostics });
+          }
+          await emit(
+            formatDiscovered(groups, options.format, !options.color),
+            options,
+            discoveredTools,
+            discoveredDiagnostics,
+          );
+          return discoveredDiagnostics.some((item) => item.severity === 'error');
         } else {
           if (!input) throw new Error('Specify an input file, --server stdio|sse|http, --installed, or --from <mcp.json>');
           tools = await loadFile(input);
@@ -191,6 +218,16 @@ export function registerCheckCommand(program: Command): void {
         process.exit(hasErrors ? 1 : 0);
       }
     });
+}
+
+async function shouldDiscover(input: string | undefined): Promise<boolean> {
+  if (!input) return true;
+  try {
+    return (await stat(input)).isDirectory();
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT') return false;
+    throw err;
+  }
 }
 
 function collectPath(value: string, previous: string[]): string[] {

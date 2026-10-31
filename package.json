@@ -1,8 +1,8 @@
 {
   "name": "mcp-lint",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "mcpName": "io.github.robert19001-cmyk/mcp-lint",
-  "description": "Lint MCP server tool schemas for cross-client compatibility, runtime preflight, and agent recovery from tool failures",
+  "description": "Lint MCP tool schemas before they break Claude, Cursor, Gemini, or OpenAI. Run npx mcp-lint.",
   "type": "module",
   "repository": {
     "type": "git",
@@ -62,7 +62,11 @@
     "recover",
     "agent-safety",
     "policy",
-    "guardrails"
+    "guardrails",
+    "claude",
+    "cursor",
+    "openai",
+    "gemini"
   ],
   "license": "MIT",
   "engines": {

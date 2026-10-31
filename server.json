@@ -8,12 +8,12 @@
     "url": "https://github.com/robert19001-cmyk/mcp-lint",
     "source": "github"
   },
-  "version": "0.7.0",
+  "version": "0.8.0",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "mcp-lint",
-      "version": "0.7.0",
+      "version": "0.8.0",
       "transport": {
         "type": "stdio"
       }

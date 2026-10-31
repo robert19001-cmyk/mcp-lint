@@ -4,8 +4,9 @@ author: robert19001-cmyk
 
 inputs:
   input:
-    description: Path to MCP tools JSON file
-    required: true
+    description: Path to an MCP tools file. When omitted, the action uses the first tools.json, tools.yaml, tools.yml, or mcp-tools.json it finds.
+    required: false
+    default: ''
   format:
     description: Output format (terminal|json|markdown)
     required: false
@@ -46,14 +47,30 @@ runs:
       id: lint
       shell: bash
       run: |
-        ARGS="${{ inputs.input }}"
-        ARGS="$ARGS --format ${{ inputs.format }}"
-        ARGS="$ARGS --severity ${{ inputs.severity }}"
-        [ -n "${{ inputs.clients }}" ] && ARGS="$ARGS --clients ${{ inputs.clients }}"
-        [ "${{ inputs.score }}" = "true" ] && ARGS="$ARGS --score"
+        INPUT="${{ inputs.input }}"
+        if [ -z "$INPUT" ]; then
+          for candidate in tools.json tools.yaml tools.yml mcp-tools.json mcp-tools.yaml mcp-tools.yml; do
+            if [ -f "$candidate" ]; then
+              INPUT="$candidate"
+              break
+            fi
+          done
+        fi
+        if [ -z "$INPUT" ]; then
+          echo "No tool schema found. Add tools.json or set the input path."
+          exit 1
+        fi
+
+        set -- "$INPUT" --format "${{ inputs.format }}" --severity "${{ inputs.severity }}"
+        if [ -n "${{ inputs.clients }}" ]; then
+          set -- "$@" --clients "${{ inputs.clients }}"
+        fi
+        if [ "${{ inputs.score }}" = "true" ]; then
+          set -- "$@" --score
+        fi
 
         set +e
-        mcp-lint check $ARGS
+        mcp-lint check "$@"
         EXIT_CODE=$?
         if [ -n "${{ inputs.recover }}" ]; then
           mcp-lint recover "${{ inputs.recover }}"

@@ -3,7 +3,6 @@ import { writeFile, access } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 const DEFAULT_CONFIG = {
-  $schema: 'https://raw.githubusercontent.com/robertmcp/mcp-lint/main/config-schema.json',
   rules: {
     'no-required-false': 'error',
     'no-content-encoding': 'error',
@@ -14,7 +13,7 @@ const DEFAULT_CONFIG = {
     'valid-json-schema-subset': 'error',
     'no-unsupported-formats': 'warning',
   },
-  clients: ['claude', 'cursor', 'gemini', 'vscode'],
+  clients: ['claude', 'cursor', 'gemini', 'vscode', 'windsurf', 'cline', 'openai', 'continue'],
   ignore: [],
   maxDepth: 5,
 };

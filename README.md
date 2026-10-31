@@ -30,7 +30,10 @@ search-tool
 ## Installation
 
 ```bash
-# One-time use (no install)
+# In a repo that already has tools.json
+npx mcp-lint
+
+# Or point at a file
 npx mcp-lint check tools.json
 
 # Global
@@ -45,6 +48,9 @@ npm install --save-dev mcp-lint
 ## Quick Start
 
 ```bash
+# Look for tools.json, tools.yaml, or mcp-tools.json in this directory
+npx mcp-lint
+
 # Check a JSON or YAML file
 mcp-lint check tools.json
 
@@ -387,7 +393,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: robert19001-cmyk/mcp-lint@v0.7.0
+      - uses: robert19001-cmyk/mcp-lint@v0.8.0
         with:
           input: tools.json
           severity: warning
@@ -399,7 +405,7 @@ jobs:
 
 | Input | Default | Description |
 |-------|---------|-------------|
-| `input` | _(required)_ | Path to MCP tools JSON file |
+| `input` | first `tools.json` in the repo | Path to an MCP tools JSON or YAML file |
 | `format` | `terminal` | `terminal\|json\|markdown` |
 | `severity` | `info` | Minimum severity to report |
 | `clients` | all | Comma-separated client filter |

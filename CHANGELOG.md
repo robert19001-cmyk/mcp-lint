@@ -1,3 +1,12 @@
+## [0.8.0] — 2026-10-31
+
+### Added
+- **`npx mcp-lint`** with no arguments lints `tools.json`, `tools.yaml`, `tools.yml`, or `mcp-tools.json` in the current directory. `check <directory>` does the same inside that directory.
+- The GitHub Action finds that file when `input` is omitted.
+
+### Fixed
+- `mcp-lint init` enables all eight clients. The generated config no longer points at a missing schema URL.
+
 ## [0.7.0] — 2026-10-29
 
 ### Added
