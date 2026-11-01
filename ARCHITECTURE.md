@@ -16,7 +16,7 @@ mcp-lint is a Node.js 20+ TypeScript package. Source lives in `src/`. `tsc` writ
 | `preflight` | `src/cli/commands/preflight.ts` | Policy decision for one action. |
 | `recover` | `src/cli/commands/recover.ts` | Scores recorded failures or probes stdio `tools/list`. |
 
-There is no `inspect`, `benchmark`, `tokens`, `rules`, or `report` command yet. Those names are reserved for the roadmap and must not collide with the commands above.
+`report` writes `MCPAuditReport` as terminal, JSON, Markdown, SARIF 2.1.0, or HTML. `check --format json` still prints diagnostics. There is no `inspect`, `benchmark`, `tokens`, or `rules` command yet.
 
 ## Pipeline
 

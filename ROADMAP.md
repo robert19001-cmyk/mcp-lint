@@ -12,7 +12,7 @@ Schema lint, eight client rule groups, fix with `--dry-run`, compat, explain, in
 
 1. **Audit report model.** One versioned `MCPAuditReport` for later terminal, JSON, Markdown, SARIF, and HTML formatters. Sections that did not run stay `not_run`. The v1 quality function is not replaced.
 2. **Token budget.** Local `chars / 4` estimate, labeled as an estimate, with configurable warn and over thresholds. Rank tools, flag repeated descriptions, and compare two budgets. No tokenizer dependency until one is justified.
-3. **Report formatters.** Terminal, JSON, Markdown, SARIF 2.1.0, and offline HTML. HTML escapes text and ships no script. Existing `--format json` for `check` stays stable. New formats are opt-in.
+3. **Report formatters.** Done as `mcp-lint report`: terminal, JSON, Markdown, SARIF 2.1.0, and offline HTML. HTML escapes text and ships no script. `check --format json` stays the diagnostic array. Uploading SARIF from the GitHub Action is still later.
 4. **Quality score 2.0.** Extend `computeQualityReport` with named weights, coverage, and confidence. Do not add a second scorer. Missing data does not add points.
 5. **Compatibility evidence.** Keep the eight clients. New client rules need a captured failing schema and a source. Zed and OpenCode stay off the matrix until that evidence exists. Profiles select existing client ids. They do not invent support.
 6. **Fix classes.** Mark fixes `safe`, `review`, or `manual`. Keep `--dry-run`. Do not invent `readOnlyHint` or `destructiveHint` from a name, and do not invent descriptions.

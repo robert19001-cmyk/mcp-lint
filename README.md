@@ -186,6 +186,19 @@ mcp-lint check --server sse --url http://localhost:3000/sse
 | `1` | One or more errors found |
 | `2` | Invalid input or configuration error |
 
+### `mcp-lint report <file>`
+
+Writes the versioned audit report for one tools file. `check --format json` still prints the diagnostic array. `report --format json` prints `MCPAuditReport`.
+
+```bash
+mcp-lint report tools.json
+mcp-lint report tools.json --format sarif --output results.sarif
+mcp-lint report tools.json --format html --output report.html
+mcp-lint report tools.json --format markdown
+```
+
+Formats are `terminal`, `json`, `markdown`, `sarif`, and `html`. The HTML file has inline CSS and no script. Token totals are a local `chars / 4` estimate. Recovery, preflight, and live inspection stay marked as not run. Exit `1` when the report contains an error, or when the file cannot be read.
+
 ---
 
 ### `mcp-lint diff <before> <after>`

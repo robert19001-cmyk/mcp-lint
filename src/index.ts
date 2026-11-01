@@ -9,6 +9,7 @@ import { registerDiffCommand } from './cli/commands/diff.js';
 import { registerPreflightCommand } from './cli/commands/preflight.js';
 import { registerRecoverCommand } from './cli/commands/recover.js';
 import { registerSnapshotCommand } from './cli/commands/snapshot.js';
+import { registerReportCommand } from './cli/commands/report.js';
 
 const program = new Command();
 
@@ -26,5 +27,6 @@ registerDiffCommand(program);
 registerPreflightCommand(program);
 registerRecoverCommand(program);
 registerSnapshotCommand(program);
+registerReportCommand(program);
 
 program.parse();
