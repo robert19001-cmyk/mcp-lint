@@ -747,7 +747,7 @@ The repository includes `glama.json` and a production Dockerfile so MCP director
 
 ## Site
 
-The proof page is in `site/`. Version 0.9.0. It runs the same recovery scorer as the CLI and explains every command in plain language. The pictures are generated stills, not screenshots of the tool.
+The proof page is in `site/`. Version 0.9.0. It runs the same recovery scorer, schema linter, and preflight function as the CLI.
 
 ```bash
 npm run site

@@ -17,7 +17,7 @@
 
 ### Changed
 - The repository version is 0.9.0. npm `latest` is 0.9.0.
-- The proof page describes 0.9.0 in plain language and adds a live wireframe beside generated stills.
+- The proof page runs the recovery scorer, the schema linter, and preflight in the browser.
 
 The CLI JSON shape, commands, and MCP tool names are unchanged.
 

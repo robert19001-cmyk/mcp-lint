@@ -21,7 +21,7 @@ Schema lint, eight client rule groups, fix with `--dry-run`, compat, explain, in
 9. **Recovery and preflight.** Unknown `tool_type` now fails closed with `deny`. Still open: classify transient and permanent recovery failures, and keep probes free of side effects unless a sandbox and a flag both say otherwise. The score stays a heuristic.
 10. **Regression guard.** Snapshot the audit report, diff breaking changes, and let CI fail on a baseline. Updating the baseline is an explicit flag.
 11. **GitHub Action.** Findings become `::error`, `::warning`, and `::notice` annotations. `sarif: true` uploads SARIF when the installed CLI has `report`, and warns when it does not. The action still installs `mcp-lint@latest`.
-12. **Site.** Extend `site/`. Do not add a second site. Playground stays in the browser and does not post schemas to an API.
+12. **Site.** Extend `site/`. Do not add a second site. The page runs recover, check, and preflight in the browser and does not post schemas to an API.
 13. **1.0 gate.** Full test, typecheck, build, packed-install smoke, formatter tests, and doc review. No release until the maintainer asks.
 
 ## Explicitly out of this repository for now

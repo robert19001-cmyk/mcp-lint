@@ -6,6 +6,11 @@ const base = process.env.SITE_BASE ?? '/';
 export default defineConfig({
   root: fileURLToPath(new URL('.', import.meta.url)),
   base,
+  resolve: {
+    alias: {
+      'node:fs/promises': fileURLToPath(new URL('./src/node-stub.ts', import.meta.url)),
+    },
+  },
   server: {
     host: '127.0.0.1',
     port: 4731,

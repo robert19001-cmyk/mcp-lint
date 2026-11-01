@@ -1,5 +1,15 @@
+import '@fontsource/schibsted-grotesk/latin-400.css';
+import '@fontsource/schibsted-grotesk/latin-600.css';
+import '@fontsource/ibm-plex-mono/latin-400.css';
+import '@fontsource/ibm-plex-mono/latin-500.css';
 import { scoreRecovery } from '../../src/recover/score.ts';
 import type { FailureKind } from '../../src/recover/types.ts';
+import { LintEngine } from '../../src/core/engine.ts';
+import type { MCPTool } from '../../src/core/rule.ts';
+import type { Diagnostic } from '../../src/core/diagnostic.ts';
+import { allRules } from '../../src/rules/index.ts';
+import { preflight } from '../../src/preflight/engine.ts';
+import type { Action, Decision } from '../../src/preflight/types.ts';
 
 const tools = ['login', 'search'];
 
@@ -18,13 +28,128 @@ const presets: Record<string, { kind: FailureKind; message: string }> = {
   },
 };
 
+const schemaSamples: Record<string, { command: string; tools: MCPTool[] }> = {
+  names: {
+    command: 'npx mcp-lint check examples/names/unsafe.json',
+    tools: [
+      {
+        name: 'search files',
+        description: 'Search the workspace.',
+        inputSchema: {
+          type: 'object',
+          properties: { q: { type: 'string', description: 'Text to find' } },
+        },
+      },
+      {
+        name: 'repo/read',
+        description: 'Read one file.',
+        inputSchema: { type: 'object', properties: {} },
+      },
+      {
+        name: '9tools',
+        description: 'List tools.',
+        inputSchema: { type: 'object', properties: {} },
+      },
+    ],
+  },
+  drop: {
+    command: 'npx mcp-lint check tools.json',
+    tools: [
+      {
+        name: 'delete_file',
+        title: 'Delete file',
+        description: 'Delete one file.',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            path: { type: 'string', description: 'Path to delete' },
+          },
+          required: ['path'],
+        },
+      },
+    ],
+  },
+  clean: {
+    command: 'npx mcp-lint check tools.json',
+    tools: [
+      {
+        name: 'search_files',
+        title: 'Search files',
+        description: 'Search the workspace for a text query.',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            q: { type: 'string', description: 'Text to find' },
+          },
+          required: ['q'],
+        },
+      },
+    ],
+  },
+};
+
+const actions: Record<string, { command: string; action: Action }> = {
+  drop: {
+    command: 'npx mcp-lint preflight examples/actions/destructive-delete.json',
+    action: {
+      actor_id: 'agent:claude-code',
+      workspace_id: 'team-alpha',
+      tool_type: 'shell',
+      tool_name: 'bash',
+      action: 'rm -rf /prod/data',
+      target: '/prod/data',
+      context: { environment: 'prod' },
+    },
+  },
+  read: {
+    command: 'npx mcp-lint preflight examples/actions/safe-read.json',
+    action: {
+      actor_id: 'agent:claude-code',
+      workspace_id: 'team-alpha',
+      tool_type: 'file_read',
+      tool_name: 'read',
+      action: 'cat package.json',
+      target: './package.json',
+    },
+  },
+};
+
 const kindEl = document.querySelector<HTMLSelectElement>('#kind');
 const messageEl = document.querySelector<HTMLTextAreaElement>('#message');
 const verdictEl = document.querySelector<HTMLElement>('#verdict');
 const stampEl = document.querySelector<HTMLElement>('#stamp');
+const checkOut = document.querySelector<HTMLElement>('#check-out');
+const checkSource = document.querySelector<HTMLElement>('#check-source');
+const checkStamp = document.querySelector<HTMLElement>('#check-stamp');
+const checkTitle = document.querySelector<HTMLElement>('#check-title');
+const preflightOut = document.querySelector<HTMLElement>('#preflight-out');
+const preflightSource = document.querySelector<HTMLElement>('#preflight-source');
+const preflightStamp = document.querySelector<HTMLElement>('#preflight-stamp');
+const preflightTitle = document.querySelector<HTMLElement>('#preflight-title');
 
-if (!kindEl || !messageEl || !verdictEl || !stampEl) {
+if (!kindEl || !messageEl || !verdictEl || !stampEl || !checkOut || !checkSource || !checkStamp || !checkTitle || !preflightOut || !preflightSource || !preflightStamp || !preflightTitle) {
   throw new Error('Bench markup is missing');
+}
+
+const engine = new LintEngine(allRules, {
+  clients: ['claude', 'cursor', 'gemini', 'vscode', 'windsurf', 'cline', 'openai', 'continue'],
+  ignore: [],
+  maxDepth: 5,
+});
+
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;');
+}
+
+function pop(stamp: HTMLElement): void {
+  stamp.classList.remove('pop');
+  void stamp.offsetWidth;
+  stamp.classList.add('pop');
 }
 
 function render(): void {
@@ -36,27 +161,115 @@ function render(): void {
   const pass = report.errors === 0;
   stampEl.textContent = pass ? 'Pass' : 'Fail';
   stampEl.classList.toggle('pass', pass);
-  stampEl.classList.remove('pop');
-  void stampEl.offsetWidth;
-  stampEl.classList.add('pop');
+  pop(stampEl);
 
-  const findings = report.findings.length === 0
-    ? '<p>Recoverable. The agent has a tool it can call next.</p>'
-    : report.findings.map((finding) => `
-        <p class="finding ${finding.severity}">
-          <strong>${finding.ruleId}</strong>
-          ${escapeHtml(finding.message)}
-        </p>
-      `).join('');
+  const summary = `${report.errors} error${report.errors === 1 ? '' : 's'}, ${report.recoverable} recoverable of ${report.samples}`;
+  const clear = report.samples === 1
+    ? 'The failure is recoverable.'
+    : `All ${report.samples} failures are recoverable.`;
+  const body = report.findings.length === 0
+    ? `<p class="ok">${clear}</p>`
+    : `<p class="tool">search#1</p>${report.findings.map((finding) => `
+        <p class="hit ${finding.severity === 'warning' ? 'warn' : 'error'}">${finding.severity === 'warning' ? '⚠' : '✖'} ${escapeHtml(finding.message)}</p>
+        <p class="meta">[${escapeHtml(finding.ruleId)}]</p>
+      `).join('')}`;
 
-  verdictEl.innerHTML = `${findings}<p>${report.errors} error${report.errors === 1 ? '' : 's'} of ${report.samples}.</p>`;
+  verdictEl.innerHTML = `${body}<p class="sum ${pass ? 'ok' : 'error'}">${escapeHtml(summary)}</p>`;
 }
 
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;');
+function renderDiagnostics(target: HTMLElement, diagnostics: Diagnostic[]): void {
+  if (diagnostics.length === 0) {
+    target.innerHTML = '<p class="ok">✔ No issues found.</p>';
+    return;
+  }
+
+  const byTool = new Map<string, Diagnostic[]>();
+  for (const diagnostic of diagnostics) {
+    const list = byTool.get(diagnostic.toolName) ?? [];
+    list.push(diagnostic);
+    byTool.set(diagnostic.toolName, list);
+  }
+
+  const blocks = [...byTool].map(([name, list]) => {
+    const lines = list.map((diagnostic) => {
+      const tone = diagnostic.severity === 'warning' ? 'warn' : diagnostic.severity === 'info' ? 'info' : 'error';
+      const mark = diagnostic.severity === 'warning' ? '⚠' : diagnostic.severity === 'info' ? 'ℹ' : '✖';
+      return `<p class="hit ${tone}">${mark} ${escapeHtml(diagnostic.message)}</p><p class="meta">${escapeHtml(diagnostic.path)}  [${escapeHtml(diagnostic.ruleId)}]</p>`;
+    }).join('');
+    return `<p class="tool">${escapeHtml(name)}</p>${lines}`;
+  }).join('');
+
+  const errors = diagnostics.filter((item) => item.severity === 'error').length;
+  const warnings = diagnostics.filter((item) => item.severity === 'warning').length;
+  const infos = diagnostics.filter((item) => item.severity === 'info').length;
+  const parts: string[] = [];
+  if (errors > 0) parts.push(`<span class="error">${errors} error${errors === 1 ? '' : 's'}</span>`);
+  if (warnings > 0) parts.push(`<span class="warn">${warnings} warning${warnings === 1 ? '' : 's'}</span>`);
+  if (infos > 0) parts.push(`<span class="info">${infos} info</span>`);
+
+  target.innerHTML = `${blocks}<p class="sum">${parts.join(', ')}</p>`;
+}
+
+function applySchema(name: string): void {
+  const sample = schemaSamples[name];
+  if (!sample) return;
+  checkTitle.textContent = sample.command;
+  checkSource.textContent = JSON.stringify(sample.tools, null, 2);
+  const diagnostics = engine.lint(sample.tools);
+  const errors = diagnostics.filter((item) => item.severity === 'error').length;
+  checkStamp.textContent = errors === 0 ? 'Pass' : 'Fail';
+  checkStamp.classList.toggle('pass', errors === 0);
+  pop(checkStamp);
+  renderDiagnostics(checkOut, diagnostics);
+  document.querySelectorAll<HTMLButtonElement>('[data-schema]').forEach((button) => {
+    button.setAttribute('aria-pressed', button.dataset.schema === name ? 'true' : 'false');
+  });
+}
+
+function decisionTone(decision: Decision['decision']): string {
+  if (decision === 'deny') return 'error';
+  if (decision === 'require_approval' || decision === 'allow_with_rewrite') return 'warn';
+  return 'ok';
+}
+
+function renderDecision(decision: Decision): void {
+  const tone = decisionTone(decision.decision);
+  const riskTone = decision.risk_score >= 0.9 ? 'error' : decision.risk_score >= 0.7 ? 'warn' : decision.risk_score >= 0.4 ? 'info' : 'ok';
+  const rows = [
+    ['Decision:', decision.decision.toUpperCase(), tone],
+    ['Risk score:', decision.risk_score.toFixed(2), riskTone],
+    ['Reversibility:', decision.reversibility, ''],
+    ['Est. cost:', `$${decision.estimated_cost_usd.toFixed(2)}`, ''],
+  ];
+  const lines = rows.map(([label, value, rowTone]) =>
+    `<p class="row"><span>${label}</span><span class="${rowTone}">${escapeHtml(value)}</span></p>`,
+  ).join('');
+  const reasons = decision.reasons.length > 0
+    ? `<p class="row"><span>Reasons:</span><span>${escapeHtml(decision.reasons.join(', '))}</span></p>`
+    : '';
+  const rewrite = decision.safe_alternative
+    ? `<p class="tool">Safe alternative:</p><p class="hit">${escapeHtml(decision.safe_alternative.tool_type)} → ${escapeHtml(decision.safe_alternative.action)}</p>`
+    : '';
+  preflightOut.innerHTML = `<p class="tool">Preflight Decision</p>${lines}${reasons}${rewrite}`;
+}
+
+function applyAction(name: string): void {
+  const sample = actions[name];
+  if (!sample) return;
+  preflightTitle.textContent = sample.command;
+  preflightSource.textContent = JSON.stringify(sample.action, null, 2);
+  const decision = preflight(sample.action);
+  const label = decision.decision.toUpperCase();
+  preflightStamp.textContent = label;
+  preflightStamp.classList.remove('pass', 'warn', 'allow', 'approval', 'rewrite');
+  if (decision.decision === 'allow') preflightStamp.classList.add('pass', 'allow');
+  if (decision.decision === 'require_approval') preflightStamp.classList.add('warn', 'approval');
+  if (decision.decision === 'allow_with_rewrite') preflightStamp.classList.add('warn', 'rewrite');
+  pop(preflightStamp);
+  renderDecision(decision);
+  document.querySelectorAll<HTMLButtonElement>('[data-action]').forEach((button) => {
+    button.setAttribute('aria-pressed', button.dataset.action === name ? 'true' : 'false');
+  });
 }
 
 function applyPreset(name: string): void {
@@ -72,6 +285,12 @@ function applyPreset(name: string): void {
 
 document.querySelectorAll<HTMLButtonElement>('[data-preset]').forEach((button) => {
   button.addEventListener('click', () => applyPreset(button.dataset.preset ?? 'terminal'));
+});
+document.querySelectorAll<HTMLButtonElement>('[data-schema]').forEach((button) => {
+  button.addEventListener('click', () => applySchema(button.dataset.schema ?? 'names'));
+});
+document.querySelectorAll<HTMLButtonElement>('[data-action]').forEach((button) => {
+  button.addEventListener('click', () => applyAction(button.dataset.action ?? 'drop'));
 });
 
 kindEl.addEventListener('change', () => {
@@ -100,12 +319,5 @@ document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => 
 });
 
 applyPreset('terminal');
-
-const cube = document.querySelector<HTMLCanvasElement>('#cube');
-if (cube) {
-  void import('./scene.ts').then(({ mountCube }) => {
-    mountCube(cube);
-  }).catch(() => {
-    cube.dataset.state = 'off';
-  });
-}
+applySchema('names');
+applyAction('drop');
