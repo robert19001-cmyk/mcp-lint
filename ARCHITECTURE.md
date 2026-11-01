@@ -22,7 +22,7 @@ mcp-lint is a Node.js 20+ TypeScript package. Source lives in `src/`. `tsc` writ
 
 `LintEngine` in `src/core/engine.ts` runs `allRules` from `src/rules/index.ts`. A rule returns `Diagnostic` values (`ruleId`, `severity`, `message`, `toolName`, `path`, `clients`, optional `fix`). Severity is `error`, `warning`, or `info`.
 
-Client ids today are `claude`, `cursor`, `gemini`, `vscode`, `windsurf`, `cline`, `openai`, and `continue`. `MCPTool` stores `name`, `title`, `description`, `inputSchema`, and `annotations`. It does not store `outputSchema` yet, so output schemas are not linted.
+Client ids today are `claude`, `cursor`, `gemini`, `vscode`, `windsurf`, `cline`, `openai`, and `continue`. `MCPTool` stores `name`, `title`, `description`, `inputSchema`, optional `outputSchema`, and `annotations`. Schema rules run on `outputSchema` by rewriting `inputSchema` paths. A missing output schema is not a finding. `tool-name/duplicate` is emitted for the whole list. `tool-name/server-collision` is emitted only while linting installed servers.
 
 `computeQualityReport` in `src/core/quality-score.ts` is quality algorithm `quality-v1`. Empty input returns 100. Callers that need an honest audit must not treat that 100 as a measured pass. `buildAuditReport` withholds the score when there are no tools.
 

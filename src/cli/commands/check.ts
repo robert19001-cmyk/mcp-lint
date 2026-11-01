@@ -124,6 +124,7 @@ export function registerCheckCommand(program: Command): void {
           const reports = await lintInstalledServers(collected.servers, {
             remote: Boolean(options.remote),
             timeoutMs,
+            rules: config.rules,
             lint: (found) => filterBySeverity(engine.lint(found), floor),
           });
           for (const problem of collected.errors) {

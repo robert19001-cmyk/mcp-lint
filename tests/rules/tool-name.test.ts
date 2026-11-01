@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { MCPTool, RuleContext } from '../../src/core/rule.js';
-import { toolNameClientSafe } from '../../src/rules/tool-name.js';
+import { duplicateNameDiagnostics, serverCollisionDiagnostics, toolNameClientSafe } from '../../src/rules/tool-name.js';
 
 const ctx: RuleContext = { config: {} };
 const tool = (name: string): MCPTool => ({
@@ -29,5 +29,26 @@ describe('tool-name/client-safe', () => {
     expect(diagnostics).toHaveLength(1);
     expect(diagnostics[0]?.severity).toBe('warning');
     expect(diagnostics[0]?.clients).toEqual(['gemini']);
+  });
+
+  it('reports only names that occur more than once', () => {
+    const diagnostics = duplicateNameDiagnostics([
+      tool('search'),
+      tool('read'),
+      tool('search'),
+      tool('search'),
+    ]);
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0]?.toolName).toBe('search');
+    expect(diagnostics[0]?.message).toContain('3 times');
+  });
+
+  it('reports a name owned by two servers once', () => {
+    const diagnostics = serverCollisionDiagnostics([
+      { serverName: 'beta', toolNames: ['search', 'search'] },
+      { serverName: 'alpha', toolNames: ['search', 'read'] },
+    ]);
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0]?.message).toContain('beta, alpha');
   });
 });

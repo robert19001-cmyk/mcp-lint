@@ -234,7 +234,7 @@ Looked-up files:
 | Claude Code | `~/.claude.json`, `~/.claude/settings.json`, and `./.mcp.json` |
 | VS Code | `~/Library/Application Support/Code/User/mcp.json` and `./.vscode/mcp.json` |
 
-`--strict` also exits 1 when a configured server fails to start. Without it, a start failure is printed and the exit code follows the schema errors.
+`--strict` also exits 1 when a configured server fails to start. Without it, a start failure is printed and the exit code follows the schema errors. If two started servers expose the same tool name, both reports include `tool-name/server-collision`.
 
 ---
 
@@ -295,6 +295,8 @@ mcp-lint init --force  # overwrite existing
 | Rule | Severity | Fixable | Description |
 |------|----------|---------|-------------|
 | `tool-name/client-safe` | 🔴 error, 🟡 warning | ❌ | Names must match `^[A-Za-z0-9_-]{1,64}$`. A leading digit is a warning because Gemini rejects it. |
+| `tool-name/duplicate` | 🔴 error | ❌ | The same name appears twice in one tools list. |
+| `tool-name/server-collision` | 🔴 error | ❌ | The same name is exposed by two servers during `check --installed` or `--from`. |
 
 OpenAI and Azure use that pattern. A space, slash, or dot makes the tool disappear. See `examples/names/unsafe.json`.
 

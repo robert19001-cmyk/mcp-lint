@@ -68,4 +68,42 @@ describe('lint installed servers', () => {
     expect(text).toContain('search files');
     expect(text).not.toContain('secret-token');
   });
+
+  it('flags a tool name exposed by two linted servers', async () => {
+    const reports = await lintInstalledServers([
+      server({ name: 'alpha', args: ['a.js'] }),
+      server({ name: 'beta', args: ['b.js'] }),
+    ], {
+      remote: false,
+      timeoutMs: 1000,
+      lint: () => [],
+      loadStdio: async () => [{ ...tool, name: 'search' }],
+    });
+
+    expect(reports.map((report) => report.status)).toEqual(['linted', 'linted']);
+    for (const report of reports) {
+      expect(report.diagnostics).toHaveLength(1);
+      expect(report.diagnostics[0]).toMatchObject({
+        ruleId: 'tool-name/server-collision',
+        toolName: 'search',
+        path: 'name',
+      });
+      expect(report.diagnostics[0]?.message).toContain('alpha');
+      expect(report.diagnostics[0]?.message).toContain('beta');
+    }
+  });
+
+  it('skips the cross-server name check when the rule is off', async () => {
+    const reports = await lintInstalledServers([
+      server({ name: 'alpha', args: ['a.js'] }),
+      server({ name: 'beta', args: ['b.js'] }),
+    ], {
+      remote: false,
+      timeoutMs: 1000,
+      lint: () => [],
+      rules: { 'tool-name/server-collision': 'off' },
+      loadStdio: async () => [{ ...tool, name: 'search' }],
+    });
+    expect(reports.every((report) => report.diagnostics.length === 0)).toBe(true);
+  });
 });

@@ -1,6 +1,8 @@
 ## [Unreleased]
 
 ### Added
+- Schema rules now walk `outputSchema` the same way as `inputSchema`. A missing output schema is not an error. `tools/list` keeps `outputSchema`.
+- `tool-name/duplicate` flags a name repeated in one tools list. `tool-name/server-collision` flags the same name on two installed servers (`check --installed` and `--from`).
 - `mcp-lint report <file>` writes `MCPAuditReport` as terminal, JSON, Markdown, SARIF 2.1.0, or offline HTML. HTML escapes text and includes no script. `check --format json` is still the diagnostic array.
 - Versioned `MCPAuditReport` (`schemaVersion` 1) via `mcp-lint/audit`. Sections that did not run are `not_run`, not a pass. An empty tool list does not receive the v1 quality score of 100.
 - Local token estimate `chars / 4`, labeled approximate, with warn and over thresholds, per-tool rank, repeated-description detection, and a budget diff.

@@ -5,6 +5,7 @@ interface ListedTool {
   title?: string;
   description?: string;
   inputSchema?: object;
+  outputSchema?: object;
   annotations?: {
     title?: string;
     readOnlyHint?: boolean;
@@ -22,6 +23,7 @@ export function mapListedTools(tools: ListedTool[]): MCPTool[] {
     };
     if (tool.title) mapped.title = tool.title;
     if (tool.description) mapped.description = tool.description;
+    if (tool.outputSchema) mapped.outputSchema = tool.outputSchema as MCPTool['outputSchema'];
     const annotations = pickAnnotations(tool.annotations);
     if (annotations) mapped.annotations = annotations;
     return mapped;

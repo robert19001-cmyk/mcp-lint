@@ -1,7 +1,8 @@
 import type { Diagnostic } from '../core/diagnostic.js';
-import type { MCPTool } from '../core/rule.js';
+import type { MCPTool, Config } from '../core/rule.js';
 import { loadRemote } from '../loaders/remote-loader.js';
 import { loadStdio } from '../loaders/stdio-loader.js';
+import { serverCollisionDiagnostics } from '../rules/tool-name.js';
 import type { InstalledServer } from './config.js';
 
 export interface ServerReport {
@@ -18,6 +19,7 @@ export async function lintInstalledServers(
     remote: boolean;
     timeoutMs: number;
     lint: (tools: MCPTool[]) => Diagnostic[];
+    rules?: Config['rules'];
     loadStdio?: typeof loadStdio;
     loadRemote?: typeof loadRemote;
   },
@@ -61,6 +63,22 @@ export async function lintInstalledServers(
       reports.push({ server, status: 'linted', tools, diagnostics: options.lint(tools) });
     } catch (err) {
       reports.push(failed(server, (err as Error).message));
+    }
+  }
+
+  if (options.rules?.['tool-name/server-collision'] !== 'off') {
+    const collisions = serverCollisionDiagnostics(
+      reports
+        .filter((report) => report.status === 'linted')
+        .map((report) => ({
+          serverName: report.server.name,
+          toolNames: report.tools.map((tool) => tool.name),
+        })),
+    );
+    for (const report of reports) {
+      if (report.status !== 'linted') continue;
+      const names = new Set(report.tools.map((tool) => tool.name));
+      report.diagnostics.push(...collisions.filter((diagnostic) => names.has(diagnostic.toolName)));
     }
   }
 

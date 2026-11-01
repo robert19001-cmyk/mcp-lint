@@ -48,6 +48,7 @@ export interface MCPTool {
   title?: string;
   description?: string;
   inputSchema: JSONSchema;
+  outputSchema?: JSONSchema;
   annotations?: ToolAnnotations;
 }
 

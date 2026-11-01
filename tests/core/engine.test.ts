@@ -82,4 +82,64 @@ describe('LintEngine', () => {
     const engine = new LintEngine([mockRule], { clients: [] });
     expect(engine.lint([mockTool])).toHaveLength(1);
   });
+
+  it('copies schema diagnostics onto outputSchema and keeps the fix', () => {
+    const schemaRule: Rule = {
+      ...mockRule,
+      check: () => [{
+        ruleId: 'mock-rule',
+        severity: 'error',
+        message: 'Schema node at "inputSchema.properties.query" has required: false',
+        toolName: 'test-tool',
+        path: 'inputSchema.properties.query',
+        clients: ['claude'],
+        fix: { description: 'Remove required: false', apply: (schema) => schema },
+      }],
+    };
+    const engine = new LintEngine([schemaRule], {});
+    const result = engine.lint([{ ...mockTool, outputSchema: { type: 'object' } }]);
+    expect(result.map((item) => item.path)).toEqual([
+      'inputSchema.properties.query',
+      'outputSchema.properties.query',
+    ]);
+    expect(result[1]?.message).toBe('Schema node at "outputSchema.properties.query" has required: false');
+    expect(result[1]?.fix?.description).toBe('Remove required: false');
+  });
+
+  it('does not copy a non-schema diagnostic onto outputSchema', () => {
+    const descriptionRule: Rule = {
+      ...mockRule,
+      id: 'description-exists',
+      check: (tool) => [{
+        ruleId: 'description-exists',
+        severity: 'warning',
+        message: 'Tool is missing a description',
+        toolName: tool.name,
+        path: 'description',
+        clients: ['claude'],
+      }],
+    };
+    const engine = new LintEngine([descriptionRule], {});
+    expect(engine.lint([{ ...mockTool, outputSchema: { type: 'object' } }])).toHaveLength(1);
+  });
+
+  it('reports a tool name that appears twice', () => {
+    const engine = new LintEngine([], {});
+    const result = engine.lint([mockTool, { ...mockTool }]);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({
+      ruleId: 'tool-name/duplicate',
+      severity: 'error',
+      toolName: 'test-tool',
+      path: 'name',
+    });
+    expect(result[0]?.message).toContain('2 times');
+  });
+
+  it('lets config turn duplicate tool names off or down to a warning', () => {
+    const off = new LintEngine([], { rules: { 'tool-name/duplicate': 'off' } });
+    expect(off.lint([mockTool, { ...mockTool }])).toHaveLength(0);
+    const warning = new LintEngine([], { rules: { 'tool-name/duplicate': 'warning' } });
+    expect(warning.lint([mockTool, { ...mockTool }])[0]?.severity).toBe('warning');
+  });
 });
