@@ -24,6 +24,7 @@ export const claudeNoTypeArray: Rule = {
           path: diagnosticPath,
           clients: ['claude'],
           fix: {
+            class: 'review',
             description: `Convert to single type "${primaryType}"`,
             apply: (s) => ({ ...s, type: primaryType }),
           },

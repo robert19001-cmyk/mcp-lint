@@ -7,6 +7,8 @@ const DEFAULT_BLOCK_THRESHOLD = 0.92;
 
 export function preflight(action: Action, policy?: Policy): Decision {
   validateAction(action);
+  const closed = unknownToolType(action);
+  if (closed) return closed;
 
   const { score, reasons, reversibility } = scoreAction(action);
 
@@ -66,6 +68,19 @@ export function preflight(action: Action, policy?: Policy): Decision {
   };
 }
 
+const KNOWN_TOOL_TYPES = new Set([
+  'shell',
+  'file_read',
+  'file_write',
+  'file_delete',
+  'http',
+  'mcp_tool',
+  'email',
+  'payment',
+  'database',
+  'other',
+]);
+
 function validateAction(action: Action): void {
   if (!action || typeof action !== 'object') {
     throw new Error('Action must be an object');
@@ -73,4 +88,16 @@ function validateAction(action: Action): void {
   if (!action.tool_type) throw new Error('Action missing tool_type');
   if (!action.tool_name) throw new Error('Action missing tool_name');
   if (typeof action.action !== 'string') throw new Error('Action missing action string');
+}
+
+function unknownToolType(action: Action): Decision | undefined {
+  if (KNOWN_TOOL_TYPES.has(action.tool_type)) return undefined;
+  return {
+    decision: 'deny',
+    risk_score: 1,
+    reversibility: 'irreversible',
+    estimated_cost_usd: action.estimated_cost_usd ?? 0,
+    matched_policies: [],
+    reasons: ['unknown_tool_type'],
+  };
 }

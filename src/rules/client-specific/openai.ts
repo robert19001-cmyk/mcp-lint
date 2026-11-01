@@ -28,6 +28,7 @@ export const openaiNoAdditionalProperties: Rule = {
       path: 'inputSchema',
       clients: ['openai'],
       fix: {
+        class: 'review',
         description: 'Add `additionalProperties: false` to inputSchema',
         apply: (s) => ({ ...s, additionalProperties: false }),
       },

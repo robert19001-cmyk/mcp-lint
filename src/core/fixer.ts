@@ -14,7 +14,7 @@ export function applyFixes(
   onlyRules?: string[],
 ): MCPTool[] {
   const fixable = diagnostics.filter(
-    (d) => d.fix != null && (!onlyRules || onlyRules.includes(d.ruleId)),
+    (d) => d.fix?.class === 'safe' && d.fix.apply != null && (!onlyRules || onlyRules.includes(d.ruleId)),
   );
   if (fixable.length === 0) return tools;
 
@@ -41,8 +41,9 @@ export function applyFixes(
 
     const lastKey = parts[parts.length - 1];
     const node = parent[lastKey];
-    if (node != null && typeof node === 'object') {
-      parent[lastKey] = diag.fix!.apply(node as Record<string, unknown>);
+    const apply = diag.fix?.apply;
+    if (node != null && typeof node === 'object' && apply) {
+      parent[lastKey] = apply(node as Record<string, unknown>);
     }
   }
 

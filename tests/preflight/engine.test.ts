@@ -166,6 +166,16 @@ rules:
     expect(() => preflight({ tool_type: 'shell' } as Action)).toThrow();
   });
 
+  it('denies an unknown tool type instead of scoring it', () => {
+    const decision = preflight({
+      tool_type: 'browser' as Action['tool_type'],
+      tool_name: 'open',
+      action: 'navigate',
+    });
+    expect(decision.decision).toBe('deny');
+    expect(decision.reasons).toEqual(['unknown_tool_type']);
+  });
+
   it('denies when deny rule overrides lower-priority allow', () => {
     const policy = parsePolicy(`
 version: 1

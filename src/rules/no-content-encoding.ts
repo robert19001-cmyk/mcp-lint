@@ -22,6 +22,7 @@ export const noContentEncoding: Rule = {
           path: diagnosticPath,
           clients: ['claude', 'cursor', 'gemini', 'vscode'],
           fix: {
+            class: 'safe',
             description: 'Remove `contentEncoding` field',
             apply: (s) => {
               const copy = { ...s };

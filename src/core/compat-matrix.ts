@@ -4,6 +4,7 @@ import type { Diagnostic } from './diagnostic.js';
 export interface CompatCell {
   compatible: boolean;
   errorCount: number;
+  evidence: 'measured' | 'not_observed';
   issues: Diagnostic[];
 }
 
@@ -24,7 +25,7 @@ export function buildCompatMatrix(tools: MCPTool[], diagnostics: Diagnostic[]): 
   for (const tool of tools) {
     cells[tool.name] = {} as Record<ClientId, CompatCell>;
     for (const client of ALL_CLIENTS) {
-      cells[tool.name][client] = { compatible: true, errorCount: 0, issues: [] };
+      cells[tool.name][client] = { compatible: true, errorCount: 0, evidence: 'not_observed', issues: [] };
     }
   }
 
@@ -33,6 +34,7 @@ export function buildCompatMatrix(tools: MCPTool[], diagnostics: Diagnostic[]): 
       const cell = cells[diag.toolName]?.[client];
       if (!cell) continue;
       cell.issues.push(diag);
+      cell.evidence = 'measured';
       if (diag.severity === 'error') {
         cell.errorCount++;
         cell.compatible = false;

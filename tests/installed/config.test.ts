@@ -41,6 +41,29 @@ describe('installed config', () => {
     expect(servers.map((server) => server.kind)).toEqual(['invalid', 'invalid']);
   });
 
+  it('reads Claude Code project servers without dropping a repeated name', () => {
+    const servers = parseInstalledConfig({
+      mcpServers: { github: { command: 'top' } },
+      projects: {
+        '/work/a': { mcpServers: { github: { command: 'npx', args: ['srv'] } } },
+        '/work/b': {
+          mcpServers: {
+            gitlab: { command: 'node', args: ['s.js'] },
+            off: { command: 'nope', disabled: true },
+          },
+        },
+        '/work/c': { allowedTools: [] },
+      },
+    }, { label: 'Claude Code', path: '/Users/x/.claude.json' });
+
+    expect(servers.map((server) => [server.name, server.command, server.sourcePath])).toEqual([
+      ['github', 'top', '/Users/x/.claude.json'],
+      ['github', 'npx', '/work/a'],
+      ['gitlab', 'node', '/work/b'],
+    ]);
+    expect(servers[1]?.sourceLabel).toBe('Claude Code project');
+  });
+
   it('keeps a name once when it appears in two blocks', () => {
     const servers = parseInstalledConfig({
       mcpServers: { same: { command: 'a' } },

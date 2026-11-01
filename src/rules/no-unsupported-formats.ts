@@ -29,6 +29,7 @@ export const noUnsupportedFormats: Rule = {
           path: diagnosticPath,
           clients: ['claude', 'cursor', 'gemini', 'vscode'],
           fix: {
+            class: 'review',
             description: `Remove the \`format: "${schema.format}"\` field`,
             apply: (s) => {
               const copy = { ...s };

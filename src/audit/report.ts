@@ -10,7 +10,7 @@ import {
 } from './tokens.js';
 
 export const AUDIT_REPORT_SCHEMA_VERSION = 1 as const;
-export const QUALITY_ALGORITHM = 'quality-v1' as const;
+export const QUALITY_ALGORITHM = 'quality-v2' as const;
 
 export class AuditInputError extends Error {
   constructor(message: string) {
@@ -60,7 +60,21 @@ export interface QualitySectionData {
   algorithm: typeof QUALITY_ALGORITHM;
   overall: number;
   grade: 'A' | 'B' | 'C' | 'D' | 'F';
-  weights: { error: number; warning: number };
+  weights: {
+    description: number;
+    inputSchema: number;
+    outputSchema: number;
+    lintClean: number;
+    error: number;
+    warning: number;
+  };
+  coverage: {
+    toolCount: number;
+    withDescription: number;
+    withInputSchema: number;
+    withOutputSchema: number;
+  };
+  confidence: 'low' | 'medium';
   note: string;
 }
 
@@ -155,7 +169,21 @@ const qualitySchema = z.object({
   algorithm: z.literal(QUALITY_ALGORITHM),
   overall: z.number().int().min(0).max(100),
   grade: z.enum(['A', 'B', 'C', 'D', 'F']),
-  weights: z.object({ error: z.literal(15), warning: z.literal(5) }).strict(),
+  weights: z.object({
+    description: z.literal(25),
+    inputSchema: z.literal(25),
+    outputSchema: z.literal(10),
+    lintClean: z.literal(40),
+    error: z.literal(15),
+    warning: z.literal(5),
+  }).strict(),
+  coverage: z.object({
+    toolCount: z.number().int().nonnegative(),
+    withDescription: z.number().int().nonnegative(),
+    withInputSchema: z.number().int().nonnegative(),
+    withOutputSchema: z.number().int().nonnegative(),
+  }).strict(),
+  confidence: z.enum(['low', 'medium']),
   note: z.string().min(1),
 }).strict();
 
@@ -359,8 +387,10 @@ export function buildAuditReport(input: BuildAuditReportInput): MCPAuditReport {
         algorithm: QUALITY_ALGORITHM,
         overall: scored.overall,
         grade: scored.grade,
-        weights: { error: 15, warning: 5 },
-        note: 'Existing quality-v1 average. Category weights, coverage, and confidence land in score 2.0. This is not a security guarantee.',
+        weights: scored.weights,
+        coverage: scored.coverage,
+        confidence: scored.confidence,
+        note: 'quality-v2 adds points only for a description, an input schema, an output schema, and a clean lint. Missing fields add nothing. This is not a security guarantee.',
       },
     };
   }

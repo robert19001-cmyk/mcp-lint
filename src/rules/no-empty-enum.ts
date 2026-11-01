@@ -22,6 +22,7 @@ export const noEmptyEnum: Rule = {
           path: diagnosticPath,
           clients: ['claude', 'cursor', 'gemini', 'vscode'],
           fix: {
+            class: 'review',
             description: 'Remove the `enum` field',
             apply: (s) => {
               const copy = { ...s };

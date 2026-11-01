@@ -296,5 +296,11 @@ async function emit(
       `  ${tool.toolName.padEnd(30)} ${String(tool.score).padStart(3)}/100  ${gradeColor(tool.grade)}  (${tool.errors} errors, ${tool.warnings} warnings)\n`,
     );
   }
-  process.stdout.write(`\n  Overall: ${chalk.bold(String(report.overall))}/100  ${gradeColor(report.grade)}\n\n`);
+  const coverage = `${report.coverage.withDescription}/${report.coverage.toolCount} descriptions, ${report.coverage.withInputSchema}/${report.coverage.toolCount} input schemas, ${report.coverage.withOutputSchema}/${report.coverage.toolCount} output schemas`;
+  process.stdout.write(`\n  Overall: ${chalk.bold(String(report.overall))}/100  ${gradeColor(report.grade)}  confidence ${report.confidence}\n`);
+  process.stdout.write(`  ${coverage}\n`);
+  if (!report.measured) {
+    process.stdout.write('  No tools were scored. An empty list is not a pass.\n');
+  }
+  process.stdout.write('\n');
 }

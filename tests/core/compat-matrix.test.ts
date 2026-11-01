@@ -32,6 +32,8 @@ describe('buildCompatMatrix', () => {
     const matrix = buildCompatMatrix(tools, diagnostics);
     expect(matrix.cells['search-tool']['cursor'].compatible).toBe(false);
     expect(matrix.cells['search-tool']['cursor'].errorCount).toBe(1);
+    expect(matrix.cells['search-tool']['cursor'].evidence).toBe('measured');
+    expect(matrix.cells['file-reader']['cursor'].evidence).toBe('not_observed');
   });
 
   it('marks tool with only warning as compatible', () => {

@@ -36,6 +36,7 @@ export const cursorNoDefaultWithoutType: Rule = {
           ...(inferred
             ? {
                 fix: {
+                  class: 'review',
                   description: `Add \`"type": "${inferred}"\` inferred from the default value`,
                   apply: (s) => ({ ...s, type: inferred }),
                 },
@@ -90,6 +91,10 @@ export const cursorNoMissingTitle: Rule = {
         toolName: tool.name,
         path: 'title',
         clients: ['cursor'],
+        fix: {
+          class: 'manual',
+          description: 'Add a title yourself. mcp-lint does not invent one.',
+        },
       });
     }
 
@@ -103,6 +108,10 @@ export const cursorNoMissingTitle: Rule = {
             toolName: tool.name,
             path: `inputSchema.properties.${propName}.title`,
             clients: ['cursor'],
+            fix: {
+              class: 'manual',
+              description: 'Add a parameter title yourself. mcp-lint does not invent one.',
+            },
           });
         }
       }

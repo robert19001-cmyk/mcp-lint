@@ -1,9 +1,12 @@
 import type { Severity } from './severity.js';
 import type { ClientId } from './rule.js';
 
+export type FixClass = 'safe' | 'review' | 'manual';
+
 export interface Fix {
   description: string;
-  apply: (schema: Record<string, unknown>) => Record<string, unknown>;
+  class?: FixClass;
+  apply?: (schema: Record<string, unknown>) => Record<string, unknown>;
 }
 
 export interface Diagnostic {

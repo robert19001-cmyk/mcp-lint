@@ -30,11 +30,18 @@ inputs:
     description: Optional path to a recovery JSON file ({ tools, samples })
     required: false
     default: ''
+  sarif:
+    description: Upload SARIF when the installed mcp-lint supports report (true|false). The workflow needs security-events write.
+    required: false
+    default: 'false'
 
 outputs:
   exit_code:
     description: Exit code from mcp-lint (0 = no errors, 1 = errors found)
     value: ${{ steps.lint.outputs.exit_code }}
+  sarif_file:
+    description: SARIF path when upload was prepared
+    value: ${{ steps.lint.outputs.sarif_file }}
 
 runs:
   using: composite
@@ -57,9 +64,24 @@ runs:
           done
         fi
         if [ -z "$INPUT" ]; then
+          while IFS= read -r candidate; do
+            case "$candidate" in
+              ./node_modules/*|./.*) continue ;;
+            esac
+            INPUT="${candidate#./}"
+            break
+          done < <(find . -mindepth 2 -maxdepth 2 -type f \( -name tools.json -o -name tools.yaml -o -name tools.yml -o -name mcp-tools.json -o -name mcp-tools.yaml -o -name mcp-tools.yml \) ! -path './node_modules/*' ! -path './.*/*' | sort)
+        fi
+        if [ -z "$INPUT" ]; then
           echo "No tool schema found. Add tools.json or set the input path."
           exit 1
         fi
+
+        DIAGNOSTICS="${RUNNER_TEMP:-/tmp}/mcp-lint-diagnostics.json"
+        set +e
+        mcp-lint check "$INPUT" --format json --severity info > "$DIAGNOSTICS"
+        set -e
+        node "${{ github.action_path }}/scripts/github-annotations.mjs" "$INPUT" "$DIAGNOSTICS"
 
         set -- "$INPUT" --format "${{ inputs.format }}" --severity "${{ inputs.severity }}"
         if [ -n "${{ inputs.clients }}" ]; then
@@ -83,6 +105,16 @@ runs:
 
         echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
 
+        if [ "${{ inputs.sarif }}" = "true" ]; then
+          if mcp-lint report --help >/dev/null 2>&1; then
+            SARIF="${RUNNER_TEMP:-/tmp}/mcp-lint.sarif"
+            mcp-lint report "$INPUT" --format sarif --output "$SARIF"
+            echo "sarif_file=$SARIF" >> $GITHUB_OUTPUT
+          else
+            echo "::warning::Installed mcp-lint has no report command, so SARIF was not uploaded."
+          fi
+        fi
+
         FAIL_SEVERITY="${{ inputs.fail_on }}"
         if [ "$FAIL_SEVERITY" = "error" ] && [ $EXIT_CODE -eq 1 ]; then
           exit 1
@@ -91,3 +123,9 @@ runs:
         elif [ "$FAIL_SEVERITY" = "info" ] && [ $EXIT_CODE -ge 1 ]; then
           exit 1
         fi
+
+    - name: Upload SARIF
+      if: always() && inputs.sarif == 'true' && steps.lint.outputs.sarif_file != ''
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: ${{ steps.lint.outputs.sarif_file }}

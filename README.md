@@ -231,7 +231,7 @@ Looked-up files:
 |--------|------|
 | Cursor | `~/.cursor/mcp.json` and `./.cursor/mcp.json` |
 | Claude Desktop | `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) |
-| Claude Code | `~/.claude.json`, `~/.claude/settings.json`, and `./.mcp.json` |
+| Claude Code | `~/.claude.json`, `~/.claude/settings.json`, and `./.mcp.json`. `~/.claude.json` also contributes each `projects.<path>.mcpServers` entry. |
 | VS Code | `~/Library/Application Support/Code/User/mcp.json` and `./.vscode/mcp.json` |
 
 `--strict` also exits 1 when a configured server fails to start. Without it, a start failure is printed and the exit code follows the schema errors. If two started servers expose the same tool name, both reports include `tool-name/server-collision`.
@@ -252,7 +252,7 @@ mcp-lint diff tools.json tools.next.json
 
 ### `mcp-lint fix [input]`
 
-Auto-fixes issues that are safe to fix automatically (no semantic changes).
+Writes fixes marked `safe`. `review` and `manual` fixes are printed by `--dry-run` and left in the file. mcp-lint does not invent titles, descriptions, or hints.
 
 ```bash
 mcp-lint fix tools.json                            # fixed output to stdout
@@ -428,6 +428,9 @@ jobs:
 | `clients` | all | Comma-separated client filter |
 | `fail_on` | `error` | Fail CI when issues at this severity found |
 | `score` | `false` | Show quality score |
+| `sarif` | `false` | Upload SARIF when this `mcp-lint` release includes `report`. The workflow needs `security-events: write`. |
+
+The action always writes a `::error`, `::warning`, or `::notice` annotation from `check --format json`. With an empty `input` it also looks one directory down, skipping `node_modules` and dot directories. `sarif: true` on the published 0.8.0 CLI skips the upload and prints a warning, because that release has no `report` command.
 
 ### Manual workflow
 

@@ -37,17 +37,18 @@ export function registerFixCommand(program: Command): void {
           ? options.rules.split(',').map((r) => r.trim())
           : undefined;
 
-        const fixable = diagnostics.filter(
+        const listed = diagnostics.filter(
           (d) => d.fix != null && (!onlyRules || onlyRules.includes(d.ruleId)),
         );
+        const fixable = listed.filter((d) => d.fix?.class === 'safe' && d.fix.apply != null);
 
         if (options.dryRun) {
-          if (fixable.length === 0) {
+          if (listed.length === 0) {
             process.stdout.write('No fixable issues found.\n');
           } else {
-            process.stdout.write(`Would fix ${fixable.length} issue(s):\n`);
-            for (const d of fixable) {
-              process.stdout.write(`  [${d.ruleId}] ${d.path}: ${d.fix!.description}\n`);
+            process.stdout.write(`Would apply ${fixable.length} safe fix(es). Review and manual fixes stay unchanged:\n`);
+            for (const d of listed) {
+              process.stdout.write(`  [${d.fix?.class ?? 'review'}] [${d.ruleId}] ${d.path}: ${d.fix!.description}\n`);
             }
           }
           process.exit(0);

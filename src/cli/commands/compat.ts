@@ -39,11 +39,12 @@ function formatCompatTerminal(matrix: CompatMatrix, noColor: boolean): string {
   );
 
   const summary =
-    incompatible.length === 0
+    (incompatible.length === 0
       ? chalk.green('\nAll tools compatible across all clients.\n')
       : chalk.yellow(
           `\n${incompatible.length} tool${incompatible.length !== 1 ? 's' : ''} have compatibility issues. Run \`mcp-lint check\` for details.\n`,
-        );
+        ))
+    + chalk.dim('A check mark means no error fired for that client in this run. It is not proof the client accepts the schema.\n');
 
   return ['\n', header, ...rows, summary].join('\n');
 }
@@ -62,6 +63,7 @@ function formatCompatJson(matrix: CompatMatrix): string {
       ((result.matrix as Record<string, Record<string, unknown>>)[tool])[client] = {
         compatible: cell.compatible,
         errorCount: cell.errorCount,
+        evidence: cell.evidence,
       };
     }
   }

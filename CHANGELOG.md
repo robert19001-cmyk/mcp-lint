@@ -1,6 +1,13 @@
 ## [Unreleased]
 
 ### Added
+- `check --installed` reads `projects.<path>.mcpServers` inside `~/.claude.json`. A disabled entry is skipped. The same server name in two projects stays two servers.
+- Quality score `quality-v2` adds points for a description, an input schema, an output schema, and a clean lint. Missing fields add nothing. `--score` prints coverage and confidence. An empty tool list stays unmeasured.
+- Fixes are `safe`, `review`, or `manual`. `mcp-lint fix` writes only `safe` fixes. Removing `required: false` and `contentEncoding` are safe. The other rewrites stay review. Titles stay manual.
+- Bare `mcp-lint` and `mcp-lint <directory>` also look one directory down for a tools file. `node_modules` and dot directories are skipped.
+- `mcp-lint compat` marks each cell `measured` or `not_observed`. A check mark is not proof that a client accepts the schema.
+- Preflight denies an unknown `tool_type` instead of scoring it.
+- The GitHub Action annotates findings and can upload SARIF when `sarif` is `true` and the installed CLI has `report`.
 - Schema rules now walk `outputSchema` the same way as `inputSchema`. A missing output schema is not an error. `tools/list` keeps `outputSchema`.
 - `tool-name/duplicate` flags a name repeated in one tools list. `tool-name/server-collision` flags the same name on two installed servers (`check --installed` and `--from`).
 - `mcp-lint report <file>` writes `MCPAuditReport` as terminal, JSON, Markdown, SARIF 2.1.0, or offline HTML. HTML escapes text and includes no script. `check --format json` is still the diagnostic array.

@@ -76,6 +76,20 @@ export function parseInstalledConfig(raw: unknown, origin: ConfigOrigin): Instal
       servers.push(toServer(name, value, origin));
     }
   }
+
+  if (isRecord(raw.projects)) {
+    for (const [projectPath, project] of Object.entries(raw.projects)) {
+      if (!isRecord(project) || !isRecord(project.mcpServers)) continue;
+      const projectOrigin: ConfigOrigin = {
+        label: 'Claude Code project',
+        path: projectPath,
+      };
+      for (const [name, value] of Object.entries(project.mcpServers)) {
+        if (!isRecord(value) || value.disabled === true) continue;
+        servers.push(toServer(name, value, projectOrigin));
+      }
+    }
+  }
   return servers;
 }
 

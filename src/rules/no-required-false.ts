@@ -22,6 +22,7 @@ export const noRequiredFalse: Rule = {
           path: diagnosticPath,
           clients: ['claude', 'cursor', 'gemini', 'vscode'],
           fix: {
+            class: 'safe',
             description: 'Remove `required: false` from the property',
             apply: (s) => {
               const copy = { ...s };

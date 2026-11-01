@@ -23,6 +23,7 @@ const diagRequiredFalse: Diagnostic = {
   path: 'inputSchema.properties.query',
   clients: ['claude'],
   fix: {
+    class: 'safe',
     description: 'Remove required: false',
     apply: (s) => { const c = { ...s }; delete c['required']; return c; },
   },
@@ -36,6 +37,7 @@ const diagContentEncoding: Diagnostic = {
   path: 'inputSchema.properties.data',
   clients: ['claude'],
   fix: {
+    class: 'safe',
     description: 'Remove contentEncoding',
     apply: (s) => { const c = { ...s }; delete c['contentEncoding']; return c; },
   },
@@ -81,6 +83,16 @@ describe('applyFixes', () => {
     const data = result[0].inputSchema.properties!['data'] as Record<string, unknown>;
     expect(query).not.toHaveProperty('required');
     expect(data).toHaveProperty('contentEncoding'); // not fixed
+  });
+
+  it('does not apply a review fix', () => {
+    const review: Diagnostic = {
+      ...diagRequiredFalse,
+      fix: { ...diagRequiredFalse.fix!, class: 'review' },
+    };
+    const result = applyFixes([tool], [review]);
+    const prop = result[0].inputSchema.properties!['query'] as Record<string, unknown>;
+    expect(prop).toHaveProperty('required', false);
   });
 
   it('skips diagnostic when tool name not found', () => {

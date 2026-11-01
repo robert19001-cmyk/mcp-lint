@@ -24,9 +24,9 @@ mcp-lint is a Node.js 20+ TypeScript package. Source lives in `src/`. `tsc` writ
 
 Client ids today are `claude`, `cursor`, `gemini`, `vscode`, `windsurf`, `cline`, `openai`, and `continue`. `MCPTool` stores `name`, `title`, `description`, `inputSchema`, optional `outputSchema`, and `annotations`. Schema rules run on `outputSchema` by rewriting `inputSchema` paths. A missing output schema is not a finding. `tool-name/duplicate` is emitted for the whole list. `tool-name/server-collision` is emitted only while linting installed servers.
 
-`computeQualityReport` in `src/core/quality-score.ts` is quality algorithm `quality-v1`. Empty input returns 100. Callers that need an honest audit must not treat that 100 as a measured pass. `buildAuditReport` withholds the score when there are no tools.
+`computeQualityReport` in `src/core/quality-score.ts` is `quality-v2`. Points come from a description, an input schema, an output schema, and a clean lint. Missing fields add nothing. An empty tool list returns overall 100 with `measured: false`. `buildAuditReport` still withholds that score. `applyFixes` writes only fixes marked `safe`. Directory discovery looks at the directory and its immediate children, skipping `node_modules` and dot directories. Compat cells carry `measured` or `not_observed`.
 
-Loaders in `src/loaders/` map `tools/list` into `MCPTool`. They do not call tools. Installed-server discovery is `src/installed/`. It reads top-level `mcpServers` in `~/.claude.json` and does not walk the `projects` map.
+Loaders in `src/loaders/` map `tools/list` into `MCPTool`. They do not call tools. Installed-server discovery is `src/installed/`. It reads top-level `mcpServers` and each `projects.<path>.mcpServers` object in `~/.claude.json`.
 
 `src/recover/` and `src/preflight/` are separate engines with their own types. The audit report can point at their results later. It does not reimplement them.
 

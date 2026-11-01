@@ -28,6 +28,7 @@ export const clineDescriptionMaxLength: Rule = {
         path: 'description',
         clients: ['cline'],
         fix: {
+          class: 'review',
           description: `Trim description to ${MAX_LENGTH} characters`,
           apply: (s) => ({ ...s, description: (s.description as string).slice(0, MAX_LENGTH) }),
         },
@@ -45,6 +46,7 @@ export const clineDescriptionMaxLength: Rule = {
           path: `inputSchema.properties.${propName}`,
           clients: ['cline'],
           fix: {
+            class: 'review',
             description: `Trim description to ${MAX_LENGTH} characters`,
             apply: (s) => ({ ...s, description: (s.description as string).slice(0, MAX_LENGTH) }),
           },
