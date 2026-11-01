@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { classifyFailure, mentionedTool, scoreRecovery, unreachableStep } from '../../src/recover/score.js';
+import { classifyDurability, classifyFailure, mentionedTool, scoreRecovery, unreachableStep } from '../../src/recover/score.js';
 
 const tools = ['login', 'search', 'search_issues'];
 
@@ -15,6 +15,9 @@ describe('scoreRecovery', () => {
 
     expect(report.errors).toBe(0);
     expect(report.recoverable).toBe(1);
+    expect(report.permanent).toBe(1);
+    expect(report.transient).toBe(0);
+    expect(report.findings.every((finding) => finding.durability === 'permanent')).toBe(true);
   });
 
   it('rejects a terminal command the agent cannot run', () => {
@@ -56,6 +59,10 @@ describe('scoreRecovery', () => {
     ], { tools, hangMs: 15_000 });
 
     expect(report.errors).toBe(0);
+    expect(report.transient).toBe(1);
+    expect(report.permanent).toBe(0);
+    expect(classifyDurability('timeout')).toBe('transient');
+    expect(classifyDurability('credential')).toBe('permanent');
   });
 
   it('rejects silent content and a hang past the budget', () => {

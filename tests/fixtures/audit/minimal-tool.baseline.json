@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "1970-01-01T00:00:00.000Z",
+  "tool": {
+    "name": "mcp-lint",
+    "version": "1.0.0"
+  },
+  "scope": {
+    "source": "tests/fixtures/valid/minimal-tool.json",
+    "mode": "offline-tools",
+    "liveServer": false,
+    "toolsInvoked": false
+  },
+  "tools": [
+    {
+      "name": "search",
+      "hasDescription": true,
+      "hasInputSchema": true,
+      "hasOutputSchema": false
+    }
+  ],
+  "duplicateToolNames": [],
+  "findings": {
+    "status": "ran",
+    "data": [
+      {
+        "ruleId": "cursor/no-missing-title",
+        "severity": "warning",
+        "message": "Parameter \"query\" in tool \"search\" is missing a `title`. Cursor can display raw parameter names without it.",
+        "toolName": "search",
+        "path": "inputSchema.properties.query.title",
+        "clients": [
+          "cursor"
+        ],
+        "fixable": true
+      },
+      {
+        "ruleId": "cursor/no-missing-title",
+        "severity": "warning",
+        "message": "Tool \"search\" is missing a `title`. Cursor can display raw tool names without it.",
+        "toolName": "search",
+        "path": "title",
+        "clients": [
+          "cursor"
+        ],
+        "fixable": true
+      }
+    ]
+  },
+  "severity": {
+    "status": "ran",
+    "data": {
+      "error": 0,
+      "warning": 2,
+      "info": 0
+    }
+  },
+  "compatibility": {
+    "status": "not_run",
+    "reason": "Client compatibility was not re-checked for this report."
+  },
+  "tokenBudget": {
+    "status": "ran",
+    "data": {
+      "method": "chars-div-4",
+      "approximate": true,
+      "chars": 223,
+      "tokens": 56,
+      "toolCount": 1,
+      "thresholds": {
+        "warn": 4000,
+        "over": 8000,
+        "schemaWarn": 800
+      },
+      "level": "ok",
+      "tools": [
+        {
+          "name": "search",
+          "chars": 221,
+          "tokens": 56,
+          "schemaTokens": 35,
+          "oversizedSchema": false
+        }
+      ],
+      "repeatedDescriptions": [],
+      "note": "Estimate is ceil(JSON chars / 4) of name, description, inputSchema, and outputSchema. It is not a tokenizer count. Per-tool tokens do not sum to the total."
+    }
+  },
+  "quality": {
+    "status": "ran",
+    "data": {
+      "algorithm": "quality-v2",
+      "overall": 80,
+      "grade": "B",
+      "weights": {
+        "description": 25,
+        "inputSchema": 25,
+        "outputSchema": 10,
+        "lintClean": 40,
+        "error": 15,
+        "warning": 5
+      },
+      "coverage": {
+        "toolCount": 1,
+        "withDescription": 1,
+        "withInputSchema": 1,
+        "withOutputSchema": 0
+      },
+      "confidence": "medium",
+      "note": "quality-v2 adds points only for a description, an input schema, an output schema, and a clean lint. Missing fields add nothing. This is not a security guarantee."
+    }
+  },
+  "recovery": {
+    "status": "not_run",
+    "reason": "Recovery was not scored."
+  },
+  "preflight": {
+    "status": "not_run",
+    "reason": "Preflight was not evaluated."
+  },
+  "recommendations": [
+    "No schema errors in this run. Recovery, preflight, and live inspection were not measured."
+  ],
+  "coverage": {
+    "ran": [
+      "tools",
+      "tokenBudget",
+      "findings",
+      "severity",
+      "quality"
+    ],
+    "notRun": [
+      "compatibility",
+      "recovery",
+      "preflight"
+    ],
+    "confidence": "medium"
+  }
+}

@@ -10,6 +10,7 @@ import { registerPreflightCommand } from './cli/commands/preflight.js';
 import { registerRecoverCommand } from './cli/commands/recover.js';
 import { registerSnapshotCommand } from './cli/commands/snapshot.js';
 import { registerReportCommand } from './cli/commands/report.js';
+import { registerCatalogCommand } from './cli/commands/catalog.js';
 import { VERSION } from './version.js';
 
 const program = new Command();
@@ -29,5 +30,6 @@ registerPreflightCommand(program);
 registerRecoverCommand(program);
 registerSnapshotCommand(program);
 registerReportCommand(program);
+registerCatalogCommand(program);
 
 program.parse();

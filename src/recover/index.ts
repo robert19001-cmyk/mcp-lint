@@ -1,4 +1,4 @@
-export { scoreRecovery, mentionedTool, unreachableStep, instructionBlocker, classifyFailure, normalizeSample } from './score.js';
+export { scoreRecovery, mentionedTool, unreachableStep, instructionBlocker, classifyFailure, classifyDurability, normalizeSample } from './score.js';
 export { probeClient, probeStdio } from './probe.js';
 export type { ProbeClient, ProbeTool, ProbeCallResult } from './probe.js';
 export type {

@@ -26,13 +26,38 @@ export interface ProbeClient {
   ): Promise<ProbeCallResult>;
 }
 
+export interface ProbeOptions {
+  hangMs?: number;
+  sandbox?: boolean;
+  invoke?: boolean;
+}
+
+export interface ProbeResult {
+  report: RecoveryReport;
+  samples: RecoverySampleInput[];
+  skipped: string[];
+  listed: string[];
+  invoked: boolean;
+}
+
 export async function probeClient(
   client: ProbeClient,
-  options: { hangMs?: number } = {},
-): Promise<{ report: RecoveryReport; samples: RecoverySampleInput[]; skipped: string[] }> {
+  options: ProbeOptions = {},
+): Promise<ProbeResult> {
   const hangMs = options.hangMs ?? DEFAULT_HANG_MS;
   const listed = await client.listTools();
   const tools = listed.tools.map((tool) => tool.name);
+  const invoke = allowInvoke(options);
+  if (!invoke) {
+    return {
+      report: scoreRecovery([], { hangMs, tools }),
+      samples: [],
+      skipped: [],
+      listed: tools,
+      invoked: false,
+    };
+  }
+
   const samples: RecoverySampleInput[] = [];
   const skipped: string[] = [];
 
@@ -77,14 +102,24 @@ export async function probeClient(
     report: scoreRecovery(samples, { hangMs, tools }),
     samples,
     skipped,
+    listed: tools,
+    invoked: true,
   };
+}
+
+function allowInvoke(options: ProbeOptions): boolean {
+  if (!options.invoke) return false;
+  if (!options.sandbox) {
+    throw new Error('Refusing to call tools. A probe lists tools unless both --sandbox and --invoke are set.');
+  }
+  return true;
 }
 
 export async function probeStdio(
   command: string,
   args: string[],
-  options: { hangMs?: number } = {},
-): Promise<{ report: RecoveryReport; samples: RecoverySampleInput[]; skipped: string[] }> {
+  options: ProbeOptions = {},
+): Promise<ProbeResult> {
   const transport = new StdioClientTransport({ command, args });
   const client = new Client({ name: 'mcp-lint-recover', version: VERSION }, { capabilities: {} });
   await client.connect(transport);

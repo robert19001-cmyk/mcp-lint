@@ -40,12 +40,15 @@ export interface RecoveryFile {
   samples: RecoverySampleInput[];
 }
 
+export type FailureDurability = 'transient' | 'permanent';
+
 export interface RecoveryFinding {
   ruleId: RecoveryRuleId;
   severity: 'error' | 'warning';
   tool: string;
   sampleId: string;
   message: string;
+  durability: FailureDurability;
 }
 
 export interface RecoveryReport {
@@ -53,6 +56,8 @@ export interface RecoveryReport {
   errors: number;
   warnings: number;
   recoverable: number;
+  transient: number;
+  permanent: number;
   findings: RecoveryFinding[];
 }
 

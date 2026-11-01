@@ -1,4 +1,5 @@
 import type {
+  FailureDurability,
   FailureKind,
   RecoveryFinding,
   RecoveryReport,
@@ -19,9 +20,13 @@ export function scoreRecovery(
   const hangMs = options.hangMs ?? DEFAULT_HANG_MS;
   const findings: RecoveryFinding[] = [];
   let recoverable = 0;
+  let transient = 0;
+  let permanent = 0;
 
   samples.forEach((input, index) => {
     const sample = normalizeSample(input, options.tools, index);
+    if (classifyDurability(sample.kind) === 'transient') transient += 1;
+    else permanent += 1;
     const before = findings.length;
     findings.push(...scoreSample(sample, hangMs));
     const errors = findings.slice(before).filter((finding) => finding.severity === 'error');
@@ -33,8 +38,15 @@ export function scoreRecovery(
     errors: findings.filter((finding) => finding.severity === 'error').length,
     warnings: findings.filter((finding) => finding.severity === 'warning').length,
     recoverable,
+    transient,
+    permanent,
     findings,
   };
+}
+
+export function classifyDurability(kind: FailureKind): FailureDurability {
+  if (kind === 'rate_limit' || kind === 'timeout') return 'transient';
+  return 'permanent';
 }
 
 export function normalizeSample(
@@ -117,6 +129,7 @@ function finding(
     tool: sample.tool,
     sampleId: sample.id ?? sample.tool,
     message,
+    durability: classifyDurability(sample.kind),
   };
 }
 

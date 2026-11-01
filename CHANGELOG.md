@@ -1,3 +1,16 @@
+## [1.0.0] — 2026-11-01
+
+### Added
+- `mcp-lint catalog --server stdio|sse|http` lists `resources/list` and `prompts/list`. `--timeout`, `--max-items`, and `--max-bytes` bound the call. A missing method is `unsupported`. Any other failure exits 1. Usage errors exit 2. The command does not call a tool.
+- `recover` marks each sample `transient` (`rate_limit`, `timeout`) or `permanent`.
+- `report --baseline <path>` exits 1 when the stable audit JSON differs. `--update-baseline <path>` writes that snapshot. The snapshot pins `generatedAt` and keeps `tool.version`. CI checks `tests/fixtures/valid/minimal-tool.json` against `tests/fixtures/audit/minimal-tool.baseline.json`.
+
+### Changed
+- Breaking: `mcp-lint recover --server stdio` lists tools and does not call them. Calling a tool now requires both `--sandbox` and `--invoke`. Tools with no required arguments are still skipped when invoking.
+- The repository version is 1.0.0.
+
+Windsurf and Cline config files are still not scanned. Zed and OpenCode are still not claimed. The VS Code extension and the Docker image stay unpublished.
+
 ## [0.9.0] — 2026-11-01
 
 ### Added

@@ -13,7 +13,7 @@ Proof page, with a live bench: [mcp-lint-alpha.vercel.app](https://mcp-lint-alph
 
 MCP servers expose tool schemas consumed by **Claude**, **Cursor**, **Gemini**, **VS Code Copilot**, **Windsurf**, **Cline**, **OpenAI Agents SDK**, and **Continue.dev**. Each client has different JSON Schema support and quirks — a schema that works in Claude may silently break in Cursor or OpenAI. `mcp-lint` catches these issues before your users do.
 
-This repository is **0.9.0**. npm `latest` is 0.9.0, so `npx mcp-lint` includes `report`. Design notes: [PRODUCT.md](PRODUCT.md), [ROADMAP.md](ROADMAP.md), [ARCHITECTURE.md](ARCHITECTURE.md), [SECURITY.md](SECURITY.md), [RELEASE.md](RELEASE.md). Those files describe the current code and the 1.0 plan. They are not extra commands.
+This repository is **1.0.0**. npm `latest` is 1.0.0. Design notes: [PRODUCT.md](PRODUCT.md), [ROADMAP.md](ROADMAP.md), [ARCHITECTURE.md](ARCHITECTURE.md), [SECURITY.md](SECURITY.md), [RELEASE.md](RELEASE.md). Those files describe the current code. They are not extra commands.
 
 ```
 $ npx mcp-lint check tools.json
@@ -197,7 +197,25 @@ mcp-lint report tools.json --format html --output report.html
 mcp-lint report tools.json --format markdown
 ```
 
-Formats are `terminal`, `json`, `markdown`, `sarif`, and `html`. The HTML file has inline CSS and no script. Token totals are a local `chars / 4` estimate. Recovery, preflight, and live inspection stay marked as not run. Exit `1` when the report contains an error, or when the file cannot be read.
+Formats are `terminal`, `json`, `markdown`, `sarif`, and `html`. The HTML file has inline CSS and no script. Token totals are a local `chars / 4` estimate. Recovery, preflight, and live inspection stay marked as not run. When the run has no schema errors, the report says: "No schema errors in this run. Recovery, preflight, and live inspection were not measured."
+
+```bash
+mcp-lint report tools.json --baseline audit.baseline.json
+mcp-lint report tools.json --update-baseline audit.baseline.json
+```
+
+`--baseline` exits 1 when the stable snapshot differs. The snapshot pins `generatedAt` and keeps `tool.version`. Pass either `--baseline` or `--update-baseline`, not both. Exit `1` when the report contains an error, or when the file cannot be read.
+
+### `mcp-lint catalog`
+
+Lists resources and prompts from one live server. It does not read installed configs and it does not call a tool.
+
+```bash
+mcp-lint catalog --server stdio -- node server.js
+mcp-lint catalog --server http --url https://example.com/mcp --format json
+```
+
+`--server` is `stdio`, `sse`, or `http`. Remote transports need `--url`. `--timeout`, `--max-items`, and `--max-bytes` bound each list. A method the server does not implement is `unsupported` and exits 0. Any other list failure exits 1. Usage errors exit 2. `--format` is `terminal` or `json`.
 
 ---
 
@@ -410,8 +428,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: robert19001-cmyk/mcp-lint@v0.9.0
-        # Tag v0.9.0. The action installs npm latest.
+      - uses: robert19001-cmyk/mcp-lint@v1.0.0
+        # Tag v1.0.0. The action installs npm latest.
         with:
           input: tools.json
           severity: warning
@@ -431,7 +449,7 @@ jobs:
 | `score` | `false` | Show quality score |
 | `sarif` | `false` | Upload SARIF when this `mcp-lint` release includes `report`. The workflow needs `security-events: write`. |
 
-The action in this repository writes a `::error`, `::warning`, or `::notice` annotation from `check --format json`. With an empty `input` it also looks one directory down, skipping `node_modules` and dot directories. `sarif: true` uploads SARIF when the installed CLI has `report`. The action installs npm `latest`, which is 0.9.0. The workflow needs `security-events: write`.
+The action in this repository writes a `::error`, `::warning`, or `::notice` annotation from `check --format json`. With an empty `input` it also looks one directory down, skipping `node_modules` and dot directories. `sarif: true` uploads SARIF when the installed CLI has `report`. The action installs npm `latest`, which is 1.0.0. The workflow needs `security-events: write`.
 
 ### Manual workflow
 
@@ -652,23 +670,24 @@ $ mcp-lint recover examples/recover/bad-credential.json
 
 search#1
   ✖ Credential or permission error does not name a tool on this server. Say which tool to call, for example `login`, then retry.
-    [recover/names-tool]
+    [recover/names-tool] permanent
   ✖ Next step asks for a terminal command, which an agent limited to MCP tools cannot do. Name a tool from this server instead.
-    [recover/agent-reachable]
+    [recover/agent-reachable] permanent
 
 search#2
   ✖ Retry text does not name the call to repeat. Name `search` instead of "wait and retry".
-    [recover/names-retry]
+    [recover/names-retry] transient
 
-3 errors, 1 recoverable of 3
+3 errors, 1 recoverable of 3, 1 transient, 2 permanent
 ```
 
-Exit `1` when any sample has an error. Exit `0` when every failure is recoverable.
+`rate_limit` and `timeout` count as transient. Every other kind counts as permanent. Exit `1` when any sample has an error. Exit `0` when every scored failure is recoverable.
 
-Probe a live server. Tools with no required arguments are skipped, so an empty call cannot fire a real action.
+A live probe lists tools and does not call them. Calling tools requires both `--sandbox` and `--invoke`. Tools with no required arguments are still skipped, so an empty call cannot fire a tool that declares no inputs.
 
 ```bash
 mcp-lint recover --server stdio -- node server.js
+mcp-lint recover --server stdio --sandbox --invoke -- node server.js
 mcp-lint recover errors.json --hang-ms 8000 --format json
 ```
 
@@ -747,7 +766,7 @@ The repository includes `glama.json` and a production Dockerfile so MCP director
 
 ## Site
 
-The proof page is in `site/`. Version 0.9.0. It runs the same recovery scorer, schema linter, and preflight function as the CLI.
+The proof page is in `site/`. Version 1.0.0. It runs the same recovery scorer, schema linter, and preflight function as the CLI.
 
 ```bash
 npm run site

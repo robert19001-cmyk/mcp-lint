@@ -24,13 +24,34 @@ function client(handlers: Record<string, () => Promise<{ isError?: boolean; cont
 }
 
 describe('probeClient', () => {
+  it('lists tools and does not call them unless sandbox and invoke are both set', async () => {
+    let calls = 0;
+    const probed = await probeClient(client({
+      search: async () => {
+        calls += 1;
+        return { isError: true, content: [{ type: 'text', text: 'nope' }] };
+      },
+    }), { hangMs: 1000 });
+
+    expect(calls).toBe(0);
+    expect(probed.invoked).toBe(false);
+    expect(probed.samples).toEqual([]);
+    expect(probed.listed).toEqual(['search', 'ping']);
+  });
+
+  it('refuses to call tools when invoke is set without sandbox', async () => {
+    await expect(probeClient(client({
+      search: async () => ({ isError: true, content: [{ type: 'text', text: 'nope' }] }),
+    }), { invoke: true })).rejects.toThrow(/sandbox/);
+  });
+
   it('scores the error a required tool actually returns', async () => {
     const probed = await probeClient(client({
       search: async () => ({
         isError: true,
         content: [{ type: 'text', text: 'Unauthorized. Run npm login in your terminal.' }],
       }),
-    }), { hangMs: 1000 });
+    }), { hangMs: 1000, sandbox: true, invoke: true });
 
     expect(probed.skipped).toEqual(['ping']);
     expect(probed.report.errors).toBeGreaterThan(0);
@@ -43,7 +64,7 @@ describe('probeClient', () => {
   it('cuts off a tool that does not return', async () => {
     const probed = await probeClient(client({
       search: () => new Promise(() => {}),
-    }), { hangMs: 30 });
+    }), { hangMs: 30, sandbox: true, invoke: true });
 
     expect(probed.samples[0]?.kind).toBe('timeout');
     expect(probed.report.findings.map((finding) => finding.ruleId)).toContain('recover/bounded-hang');
@@ -55,7 +76,7 @@ describe('probeClient', () => {
         isError: true,
         content: [{ type: 'text', text: 'Invalid arguments: query is required.' }],
       }),
-    }), { hangMs: 1000 });
+    }), { hangMs: 1000, sandbox: true, invoke: true });
 
     expect(probed.report.errors).toBe(0);
     expect(probed.report.recoverable).toBe(1);

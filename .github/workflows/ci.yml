@@ -56,6 +56,9 @@ jobs:
       - name: Check valid fixtures (expect 0 errors)
         run: node dist/index.js check tests/fixtures/valid/minimal-tool.json --format terminal
 
+      - name: Audit report baseline
+        run: node dist/index.js report tests/fixtures/valid/minimal-tool.json --baseline tests/fixtures/audit/minimal-tool.baseline.json
+
       - name: Check invalid fixtures (expect errors, exit 1 is OK)
         run: node dist/index.js check tests/fixtures/invalid/mixed-issues.json --format terminal || true
 

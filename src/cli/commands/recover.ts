@@ -14,10 +14,12 @@ export function registerRecoverCommand(program: Command): void {
     .option('--no-color', 'Disable terminal colors')
     .option('--server <type>', 'Probe a live server: stdio')
     .option('--hang-ms <ms>', 'Hang budget in milliseconds', String(DEFAULT_HANG_MS))
+    .option('--sandbox', 'Allow --invoke to call tools inside a sandbox you control')
+    .option('--invoke', 'Call tools that declare required arguments. Requires --sandbox. Off by default.')
     .allowExcessArguments(true)
     .action(async (
       file: string | undefined,
-      options: { format: string; color: boolean; server?: string; hangMs: string },
+      options: { format: string; color: boolean; server?: string; hangMs: string; sandbox?: boolean; invoke?: boolean },
     ) => {
       if (!options.color) chalk.level = 0;
       const hangMs = Number(options.hangMs);
@@ -29,6 +31,8 @@ export function registerRecoverCommand(program: Command): void {
       try {
         let report: RecoveryReport;
         let skipped: string[] = [];
+        let listed: string[] = [];
+        let invoked = false;
 
         if (options.server === 'stdio') {
           const rawArgv = process.argv;
@@ -37,9 +41,15 @@ export function registerRecoverCommand(program: Command): void {
             throw new Error('--server stdio requires a command after --, e.g.: mcp-lint recover --server stdio -- node server.js');
           }
           const [cmd, ...cmdArgs] = rawArgv.slice(sepIdx + 1);
-          const probed = await probeStdio(cmd, cmdArgs, { hangMs });
+          const probed = await probeStdio(cmd, cmdArgs, {
+            hangMs,
+            sandbox: Boolean(options.sandbox),
+            invoke: Boolean(options.invoke),
+          });
           report = probed.report;
           skipped = probed.skipped;
+          listed = probed.listed;
+          invoked = probed.invoked;
         } else if (options.server) {
           throw new Error(`Unknown server transport "${options.server}". Use stdio.`);
         } else {
@@ -49,8 +59,8 @@ export function registerRecoverCommand(program: Command): void {
         }
 
         const output = options.format === 'json'
-          ? JSON.stringify({ ...report, skipped }, null, 2) + '\n'
-          : renderTerminal(report, skipped);
+          ? JSON.stringify({ ...report, skipped, listed, invoked }, null, 2) + '\n'
+          : renderTerminal(report, skipped, listed, invoked);
         process.stdout.write(output);
         process.exit(report.errors > 0 ? 1 : 0);
       } catch (err) {
@@ -70,11 +80,15 @@ function samplesFromFile(parsed: RecoveryFile): RecoverySampleInput[] {
   return parsed.samples;
 }
 
-function renderTerminal(report: RecoveryReport, skipped: string[]): string {
+function renderTerminal(report: RecoveryReport, skipped: string[], listed: string[], invoked: boolean): string {
   const lines: string[] = [''];
-  if (report.findings.length === 0) {
+  if (listed.length > 0 && !invoked) {
+    lines.push(chalk.dim(`Listed ${listed.length} tool${listed.length === 1 ? '' : 's'}. No tool was called.`));
+    lines.push('');
+  }
+  if (report.findings.length === 0 && report.samples > 0) {
     lines.push(chalk.green(`All ${report.samples} failure${report.samples === 1 ? '' : 's'} are recoverable.`));
-  } else {
+  } else if (report.findings.length > 0) {
     const grouped = new Map<string, typeof report.findings>();
     for (const item of report.findings) {
       const bucket = grouped.get(item.sampleId) ?? [];
@@ -86,7 +100,7 @@ function renderTerminal(report: RecoveryReport, skipped: string[]): string {
       for (const item of items) {
         const mark = item.severity === 'error' ? chalk.red('✖') : chalk.yellow('⚠');
         lines.push(`  ${mark} ${item.message}`);
-        lines.push(chalk.dim(`    [${item.ruleId}]`));
+        lines.push(chalk.dim(`    [${item.ruleId}] ${item.durability}`));
       }
       lines.push('');
     }
@@ -96,7 +110,7 @@ function renderTerminal(report: RecoveryReport, skipped: string[]): string {
     lines.push(chalk.dim(`Skipped ${skipped.length} tool${skipped.length === 1 ? '' : 's'} with no required arguments: ${skipped.join(', ')}`));
   }
 
-  const summary = `${report.errors} error${report.errors === 1 ? '' : 's'}, ${report.recoverable} recoverable of ${report.samples}`;
+  const summary = `${report.errors} error${report.errors === 1 ? '' : 's'}, ${report.recoverable} recoverable of ${report.samples}, ${report.transient} transient, ${report.permanent} permanent`;
   lines.push(report.errors > 0 ? chalk.red(summary) : chalk.green(summary));
   lines.push('');
   return lines.join('\n');

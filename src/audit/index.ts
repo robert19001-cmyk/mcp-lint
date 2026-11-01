@@ -17,6 +17,7 @@ export type {
   SeverityCounts,
 } from './report.js';
 export { AUDIT_FORMATS, escapeHtml, formatAuditReport } from './format.js';
+export { auditBaselineDiff, projectAuditReport } from './baseline.js';
 export type { AuditFormat } from './format.js';
 export {
   DEFAULT_TOKEN_THRESHOLDS,

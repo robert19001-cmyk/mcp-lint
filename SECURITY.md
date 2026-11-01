@@ -6,12 +6,12 @@ Only the latest published minor receives security updates.
 
 | Version | Supported |
 |---------|-----------|
-| 0.9.x   | yes, the published npm release |
+| 1.0.x   | yes, the published npm release |
 | older   | no |
 
 ## Local use
 
-mcp-lint does not send telemetry. File and directory lints stay on the machine. A live server is contacted only when the command line asks for `--server`, `--installed`, `--from`, or `--remote`. Discovery calls `tools/list`. It does not call the server's tools. Token totals in an audit report are a local character estimate, not a measurement from a tokenizer service. A preflight score is a heuristic. It is not proof that an action is safe.
+mcp-lint does not send telemetry. File and directory lints stay on the machine. A live server is contacted only when the command line asks for `--server`, `--installed`, `--from`, `--remote`, or `catalog`. Discovery calls `tools/list`, and `catalog` calls `resources/list` and `prompts/list`. Those calls do not invoke a tool. `recover --server` calls a tool only when both `--sandbox` and `--invoke` are set, and only for tools that declare required arguments. Token totals in an audit report are a local character estimate, not a measurement from a tokenizer service. A preflight score is a heuristic. It is not proof that an action is safe.
 
 ## Reporting a vulnerability
 

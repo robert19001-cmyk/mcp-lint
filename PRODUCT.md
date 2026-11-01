@@ -1,10 +1,10 @@
 # mcp-lint product
 
-mcp-lint is a local MIT toolkit for MCP server authors. Repository version 0.9.0 lints tool schemas, writes an audit report, scores whether an agent can recover from a recorded failure, and evaluates a proposed action against a policy. It does not call tools in order to discover them. npm `latest` is 0.9.0.
+mcp-lint is a local MIT toolkit for MCP server authors. Repository version 1.0.0 lints tool schemas, writes an audit report, scores whether an agent can recover from a recorded failure, lists resources and prompts, and evaluates a proposed action against a policy. It does not call tools in order to discover them. npm `latest` is 1.0.0.
 
 The public site is https://mcp-lint-alpha.vercel.app/. The site source is `site/`. npm package `mcp-lint`. MCP registry name `io.github.robert19001-cmyk/mcp-lint`.
 
-## What 0.9.0 does
+## What 1.0.0 does
 
 - `check` lints a tools file, a directory that contains one, or a live `tools/list` from stdio, SSE, or streamable HTTP.
 - Bare `npx mcp-lint` looks in the current directory, and one level down, for `tools.json`, `tools.yaml`, `tools.yml`, `mcp-tools.json`, `mcp-tools.yaml`, and `mcp-tools.yml`. It skips `node_modules` and dot directories.
@@ -15,7 +15,9 @@ The public site is https://mcp-lint-alpha.vercel.app/. The site source is `site/
 - `report` writes one tools file as terminal, JSON, Markdown, SARIF 2.1.0, or offline HTML. `check --format json` is still the diagnostic array.
 - `--score` uses `quality-v2`. Missing description or schema fields add no points. An empty tool list is unmeasured. Audit reports withhold that empty score.
 - `snapshot` writes a stable tools JSON file. `diff` exits 1 when the new file adds an error.
-- `recover` scores recorded failures. A stdio probe lists tools and does not invoke them.
+- `recover` scores recorded failures. `rate_limit` and `timeout` are transient. Every other kind is permanent. A stdio probe lists tools and does not call them unless both `--sandbox` and `--invoke` are set.
+- `catalog` lists resources and prompts from a live server. It does not scan installed configs and it does not call a tool.
+- `report --baseline` fails CI when the stable audit snapshot changes. `--update-baseline` rewrites that file.
 - `preflight` returns allow, allow_with_rewrite, require_approval, or deny. The score is a heuristic, not a guarantee.
 - `compat` marks each cell `measured` or `not_observed`. A check mark is not proof that a client accepts the schema. `explain` prints one rule.
 - Preflight denies an unknown `tool_type`. The score stays a heuristic.
@@ -23,9 +25,9 @@ The public site is https://mcp-lint-alpha.vercel.app/. The site source is `site/
 - The `mcp-lint-server` binary exposes list rules, explain, check, fix, preflight, and score recovery.
 - SDK exports: `.`, `./preflight`, `./recover`, `./rules`, `./loaders`, `./fixer`, `./mcp-server`, `./audit`.
 
-## What it is not yet
+## What it is not
 
-Version 0.9.0 is not the 1.0 gate. Zed and OpenCode are not claimed. Windsurf and Cline config files are not scanned. Live `resources/list` and `prompts/list` are not a command. The GitHub Action tag is `v0.9.0`. It installs npm `latest` 0.9.0, which includes `report`, so SARIF upload runs when the workflow allows it.
+Zed and OpenCode are not claimed. Windsurf and Cline have schema rules, and their config files are not scanned. The GitHub Action example is `robert19001-cmyk/mcp-lint@v1.0.0`. It installs npm `latest`.
 
 ## Community product
 
@@ -33,4 +35,4 @@ The CLI, recovery scorer, and preflight stay free, local, and without an account
 
 ## Compatibility promise
 
-Existing commands, flags, SDK exports, and MCP tool names stay. New report formats are additive. A missing measurement is reported as not run. It is not reported as a pass.
+Commands, flags, SDK exports, and MCP tool names from 0.9.0 stay, with one break: `recover --server stdio` no longer calls tools unless `--sandbox` and `--invoke` are both set. New report fields and the catalog command are additive. A missing measurement is reported as not run. It is not reported as a pass.

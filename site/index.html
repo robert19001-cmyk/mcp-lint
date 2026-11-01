@@ -6,7 +6,7 @@
     <title>mcp-lint: the tool failed, the agent stopped</title>
     <meta
       name="description"
-      content="mcp-lint 0.9.0 lints MCP tool schemas, scores recovery, and checks a proposed call against a policy."
+      content="mcp-lint 1.0.0 lints MCP tool schemas, scores recovery, and checks a proposed call against a policy."
     />
     <link rel="canonical" href="https://mcp-lint-alpha.vercel.app/" />
     <link rel="icon" href="%BASE_URL%favicon.svg" type="image/svg+xml" />
@@ -27,12 +27,12 @@
         "name": "mcp-lint",
         "applicationCategory": "DeveloperApplication",
         "operatingSystem": "Cross-platform",
-        "softwareVersion": "0.9.0",
+        "softwareVersion": "1.0.0",
         "license": "https://spdx.org/licenses/MIT.html",
         "url": "https://mcp-lint-alpha.vercel.app/",
         "downloadUrl": "https://www.npmjs.com/package/mcp-lint",
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-        "description": "Lint MCP tool schemas and score whether an agent can recover when a tool fails. Version 0.9.0."
+        "description": "Lint MCP tool schemas and score whether an agent can recover when a tool fails. Version 1.0.0."
       }
     </script>
     <link rel="stylesheet" href="/src/styles.css" />
@@ -49,7 +49,7 @@
     <a class="skip" href="#bench">Skip to recover</a>
     <header class="bar">
       <a class="wordmark" href="#top">mcp-lint</a>
-      <span class="ver">0.9.0</span>
+      <span class="ver">1.0.0</span>
       <nav aria-label="On this page">
         <a href="#bench">Recover</a>
         <a href="#check">Check</a>
@@ -138,7 +138,7 @@
 
       <section class="commands" id="commands" aria-labelledby="commands-title">
         <h2 id="commands-title">Every command</h2>
-        <p class="lede">npm latest is 0.9.0, so these commands, including report, are what npx mcp-lint runs.</p>
+        <p class="lede">npm latest is 1.0.0, so these commands are what npx mcp-lint runs.</p>
         <dl>
           <div>
             <dt>check</dt>
@@ -175,7 +175,7 @@
           </div>
           <div>
             <dt>recover</dt>
-            <dd>Score a recorded failure. A stdio probe lists tools and does not invoke them. The session above calls the same function.</dd>
+            <dd>Score a recorded failure. rate_limit and timeout are transient. Every other kind is permanent. A stdio probe lists tools and does not call them unless both --sandbox and --invoke are set. The session above calls the same function.</dd>
             <code>npx mcp-lint recover errors.json</code>
           </div>
           <div>
@@ -195,8 +195,13 @@
           </div>
           <div>
             <dt>report</dt>
-            <dd>Write one tools file as terminal text, JSON, Markdown, SARIF 2.1.0, or an HTML file that stays on this machine. This is the audit report. If the run has no schema errors, the report says: "No schema errors in this run. Recovery, preflight, and live inspection were not measured."</dd>
+            <dd>Write one tools file as terminal text, JSON, Markdown, SARIF 2.1.0, or an HTML file that stays on this machine. This is the audit report. If the run has no schema errors, the report says: "No schema errors in this run. Recovery, preflight, and live inspection were not measured." --baseline fails when that stable snapshot changes.</dd>
             <code>npx mcp-lint report tools.json --format html --output report.html</code>
+          </div>
+          <div>
+            <dt>catalog</dt>
+            <dd>List resources and prompts from one live server. It does not scan installed configs and it does not call a tool. A missing method is unsupported. --format is terminal or json.</dd>
+            <code>npx mcp-lint catalog --server stdio -- node server.js</code>
           </div>
         </dl>
         <p class="aside">
@@ -225,14 +230,13 @@
       </section>
 
       <section class="limits" id="limits" aria-labelledby="limits-title">
-        <h2 id="limits-title">What 0.9.0 is not</h2>
+        <h2 id="limits-title">What 1.0.0 is not</h2>
         <ul>
-          <li>It is not the 1.0 release.</li>
           <li>Zed and OpenCode are not claimed.</li>
-          <li>There is no command for live resources/list or prompts/list.</li>
-          <li>It does not call a tool in order to discover it.</li>
-          <li>There is no account and no telemetry. The license is MIT. Check, recover, and preflight stay free.</li>
-          <li>The GitHub Action example is robert19001-cmyk/mcp-lint@v0.9.0. It installs npm latest 0.9.0, so sarif: true uploads when the workflow has security-events: write.</li>
+          <li>Windsurf and Cline config files are not scanned. No captured failing schema is in this repository.</li>
+          <li>It does not call a tool in order to discover it. recover calls a tool only when both --sandbox and --invoke are set.</li>
+          <li>There is no account and no telemetry. The license is MIT. Check, recover, catalog, and preflight stay free.</li>
+          <li>The GitHub Action example is robert19001-cmyk/mcp-lint@v1.0.0. It installs npm latest, so sarif: true uploads when the workflow has security-events: write.</li>
         </ul>
       </section>
 

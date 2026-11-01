@@ -14,9 +14,11 @@ mcp-lint is a Node.js 20+ TypeScript package. Source lives in `src/`. `tsc` writ
 | `diff` | `src/cli/commands/diff.ts` | Compares two lint results. Exit 1 on new errors. |
 | `snapshot` | `src/cli/commands/snapshot.ts` | Writes stable tools JSON from a live server. |
 | `preflight` | `src/cli/commands/preflight.ts` | Policy decision for one action. |
-| `recover` | `src/cli/commands/recover.ts` | Scores recorded failures or probes stdio `tools/list`. |
+| `recover` | `src/cli/commands/recover.ts` | Scores recorded failures. A stdio probe lists tools unless `--sandbox` and `--invoke` are both set. |
+| `catalog` | `src/cli/commands/catalog.ts` | Lists resources and prompts. Does not call a tool. |
+| `report` | `src/cli/commands/report.ts` | Writes `MCPAuditReport`. `--baseline` diffs a stable snapshot. |
 
-`report` writes `MCPAuditReport` as terminal, JSON, Markdown, SARIF 2.1.0, or HTML. `check --format json` still prints diagnostics. There is no `inspect`, `benchmark`, `tokens`, or `rules` command yet.
+`check --format json` still prints diagnostics. There is no `inspect`, `benchmark`, `tokens`, or `rules` command.
 
 ## Pipeline
 
@@ -28,9 +30,9 @@ Client ids today are `claude`, `cursor`, `gemini`, `vscode`, `windsurf`, `cline`
 
 Loaders in `src/loaders/` map `tools/list` into `MCPTool`. They do not call tools. Installed-server discovery is `src/installed/`. It reads top-level `mcpServers` and each `projects.<path>.mcpServers` object in `~/.claude.json`.
 
-`src/recover/` and `src/preflight/` are separate engines with their own types. The audit report can point at their results later. It does not reimplement them.
+`src/recover/` and `src/preflight/` are separate engines with their own types. The audit report does not reimplement them. `src/catalog/` lists resources and prompts and does not call tools.
 
-`src/snapshot/serialize.ts` stabilizes tools JSON for `diff`. A full `MCPAuditReport` snapshot is later work.
+`src/snapshot/serialize.ts` stabilizes tools JSON for `diff`. `src/audit/baseline.ts` stabilizes an audit report for `report --baseline`. The snapshot pins `generatedAt` and keeps `tool.version`.
 
 Plugins load from `src/config/plugin-loader.ts`. Presets live in `src/config/presets.ts`.
 

@@ -163,7 +163,7 @@ function render(): void {
   stampEl.classList.toggle('pass', pass);
   pop(stampEl);
 
-  const summary = `${report.errors} error${report.errors === 1 ? '' : 's'}, ${report.recoverable} recoverable of ${report.samples}`;
+  const summary = `${report.errors} error${report.errors === 1 ? '' : 's'}, ${report.recoverable} recoverable of ${report.samples}, ${report.transient} transient, ${report.permanent} permanent`;
   const clear = report.samples === 1
     ? 'The failure is recoverable.'
     : `All ${report.samples} failures are recoverable.`;
@@ -171,7 +171,7 @@ function render(): void {
     ? `<p class="ok">${clear}</p>`
     : `<p class="tool">search#1</p>${report.findings.map((finding) => `
         <p class="hit ${finding.severity === 'warning' ? 'warn' : 'error'}">${finding.severity === 'warning' ? '⚠' : '✖'} ${escapeHtml(finding.message)}</p>
-        <p class="meta">[${escapeHtml(finding.ruleId)}]</p>
+        <p class="meta">[${escapeHtml(finding.ruleId)}] ${escapeHtml(finding.durability)}</p>
       `).join('')}`;
 
   verdictEl.innerHTML = `${body}<p class="sum ${pass ? 'ok' : 'error'}">${escapeHtml(summary)}</p>`;
