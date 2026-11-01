@@ -392,6 +392,21 @@ footer {
 }
 
 @media (max-width: 800px) {
+  .bar {
+    height: auto;
+    flex-wrap: wrap;
+    align-items: center;
+    row-gap: 0.45rem;
+    padding: 0.65rem 1rem 0.75rem;
+  }
+  .bar nav {
+    flex: 1 0 100%;
+    margin-left: 0;
+    overflow: visible;
+    flex-wrap: wrap;
+    column-gap: 0.85rem;
+    row-gap: 0.35rem;
+  }
   .session-body { grid-template-columns: 1fr; }
   .out { order: -1; min-height: 0; }
   dl div { grid-template-columns: 1fr; }
