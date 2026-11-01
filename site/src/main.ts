@@ -100,3 +100,12 @@ document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => 
 });
 
 applyPreset('terminal');
+
+const cube = document.querySelector<HTMLCanvasElement>('#cube');
+if (cube) {
+  void import('./scene.ts').then(({ mountCube }) => {
+    mountCube(cube);
+  }).catch(() => {
+    cube.dataset.state = 'off';
+  });
+}

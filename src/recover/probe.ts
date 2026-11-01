@@ -3,6 +3,7 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { classifyFailure, scoreRecovery } from './score.js';
 import type { RecoveryReport, RecoverySampleInput } from './types.js';
 import { DEFAULT_HANG_MS } from './types.js';
+import { VERSION } from '../version.js';
 
 export interface ProbeTool {
   name: string;
@@ -85,7 +86,7 @@ export async function probeStdio(
   options: { hangMs?: number } = {},
 ): Promise<{ report: RecoveryReport; samples: RecoverySampleInput[]; skipped: string[] }> {
   const transport = new StdioClientTransport({ command, args });
-  const client = new Client({ name: 'mcp-lint-recover', version: '0.8.0' }, { capabilities: {} });
+  const client = new Client({ name: 'mcp-lint-recover', version: VERSION }, { capabilities: {} });
   await client.connect(transport);
   try {
     return await probeClient(client as unknown as ProbeClient, options);

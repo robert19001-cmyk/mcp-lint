@@ -6,7 +6,8 @@ Only the latest published minor receives security updates.
 
 | Version | Supported |
 |---------|-----------|
-| 0.8.x   | yes |
+| 0.9.x   | yes, in this repository |
+| 0.8.x   | yes, the published npm release |
 | older   | no |
 
 ## Local use

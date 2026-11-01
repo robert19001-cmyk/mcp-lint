@@ -3,13 +3,14 @@ import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import type { MCPTool } from '../core/rule.js';
 import { mapListedTools } from './map-tools.js';
+import { VERSION } from '../version.js';
 
 export async function loadRemote(url: string, remoteType = 'http', timeoutMs?: number): Promise<MCPTool[]> {
   const target = new URL(url);
   const transport = remoteType === 'sse'
     ? new SSEClientTransport(target)
     : new StreamableHTTPClientTransport(target);
-  const client = new Client({ name: 'mcp-lint', version: '0.8.0' }, { capabilities: {} });
+  const client = new Client({ name: 'mcp-lint', version: VERSION }, { capabilities: {} });
 
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {

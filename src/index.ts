@@ -10,13 +10,14 @@ import { registerPreflightCommand } from './cli/commands/preflight.js';
 import { registerRecoverCommand } from './cli/commands/recover.js';
 import { registerSnapshotCommand } from './cli/commands/snapshot.js';
 import { registerReportCommand } from './cli/commands/report.js';
+import { VERSION } from './version.js';
 
 const program = new Command();
 
 program
   .name('mcp-lint')
   .description('Lint MCP tool schemas and score whether an agent can recover from tool failures')
-  .version('0.8.0');
+  .version(VERSION);
 
 registerCheckCommand(program);
 registerFixCommand(program);

@@ -1,4 +1,4 @@
-## [Unreleased]
+## [0.9.0] — 2026-11-01
 
 ### Added
 - `check --installed` reads `projects.<path>.mcpServers` inside `~/.claude.json`. A disabled entry is skipped. The same server name in two projects stays two servers.
@@ -16,7 +16,8 @@
 - `PRODUCT.md`, `ROADMAP.md`, `ARCHITECTURE.md`, and `RELEASE.md`.
 
 ### Changed
-- Security policy now says 0.8.x is the supported line.
+- The repository version is 0.9.0. npm `latest` stays 0.8.0 until this version is published.
+- The proof page describes 0.9.0 in plain language and adds a live wireframe beside generated stills.
 
 The CLI JSON shape, commands, and MCP tool names are unchanged.
 

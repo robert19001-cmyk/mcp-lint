@@ -1,6 +1,6 @@
 {
   "name": "mcp-lint",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "mcpName": "io.github.robert19001-cmyk/mcp-lint",
   "description": "Lint MCP tool schemas before they break Claude, Cursor, Gemini, or OpenAI. Run npx mcp-lint.",
   "type": "module",
@@ -95,6 +95,8 @@
   },
   "devDependencies": {
     "@types/node": "^25.5.0",
+    "@types/three": "^0.187.0",
+    "three": "^0.187.0",
     "typescript": "^6.0.2",
     "vite": "^8.3.5",
     "vitest": "^4.1.1"

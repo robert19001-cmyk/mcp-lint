@@ -24,7 +24,7 @@ function reportWith(message: string) {
   return buildAuditReport({
     source: 'tools.json',
     generatedAt,
-    version: '0.8.0',
+    version: '0.9.0',
     tools: [{ name: '<script>', description: 'Find documents.', inputSchema: { type: 'object' } }],
     diagnostics: [finding(message)],
   });
@@ -35,7 +35,7 @@ describe('formatAuditReport', () => {
     const report = reportWith('Missing description');
     const parsed = parseAuditReport(JSON.parse(formatAuditReport(report, 'json')));
     expect(parsed.findings.status).toBe('ran');
-    expect(parsed.tool.version).toBe('0.8.0');
+    expect(parsed.tool.version).toBe('0.9.0');
   });
 
   it('renders markdown with the estimate label and a not-run section', () => {
@@ -95,7 +95,7 @@ describe('buildFileAuditReport', () => {
         inputSchema: { type: 'object', properties: { query: { type: 'string', required: false } } },
       },
     ]));
-    const report = await buildFileAuditReport(file, { generatedAt, version: '0.8.0' });
+    const report = await buildFileAuditReport(file, { generatedAt, version: '0.9.0' });
     expect(report.severity.status).toBe('ran');
     if (report.severity.status === 'ran') expect(report.severity.data.error).toBeGreaterThan(0);
     if (report.findings.status === 'ran') {

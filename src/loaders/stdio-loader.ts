@@ -2,6 +2,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport, getDefaultEnvironment } from '@modelcontextprotocol/sdk/client/stdio.js';
 import type { MCPTool } from '../core/rule.js';
 import { mapListedTools } from './map-tools.js';
+import { VERSION } from '../version.js';
 
 export interface StdioLoadOptions {
   env?: Record<string, string>;
@@ -25,7 +26,7 @@ export async function loadStdio(
     cwd: options.cwd,
   });
   drain(transport.stderr);
-  const client = new Client({ name: 'mcp-lint', version: '0.8.0' }, { capabilities: {} });
+  const client = new Client({ name: 'mcp-lint', version: VERSION }, { capabilities: {} });
 
   try {
     return await withTimeout(options.timeoutMs, command, async () => {

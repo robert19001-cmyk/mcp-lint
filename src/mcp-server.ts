@@ -15,8 +15,7 @@ import { parsePolicy } from './preflight/policy.js';
 import type { Action } from './preflight/types.js';
 import { scoreRecovery } from './recover/score.js';
 import { FAILURE_KINDS } from './recover/types.js';
-
-const VERSION = '0.8.0';
+import { VERSION } from './version.js';
 
 const ClientIdSchema = z.enum([
   'claude',

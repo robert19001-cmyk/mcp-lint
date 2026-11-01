@@ -21,7 +21,7 @@ describe('buildAuditReport', () => {
     const report = buildAuditReport({
       source: 'tools.json',
       generatedAt,
-      version: '0.8.0',
+      version: '0.9.0',
       tools: [{ name: 'search', description: 'Find documents in the index.', inputSchema: { type: 'object' } }],
       diagnostics: [],
     });

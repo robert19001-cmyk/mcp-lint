@@ -6,7 +6,7 @@
     <title>mcp-lint — the tool failed, the agent stopped</title>
     <meta
       name="description"
-      content="mcp-lint checks MCP tool schemas and scores whether an agent can recover when a tool fails."
+      content="mcp-lint 0.9.0 lints MCP tool schemas, scores recovery, and checks a proposed call against a policy. npm latest is still 0.8.0."
     />
     <link rel="canonical" href="https://mcp-lint-alpha.vercel.app/" />
     <link rel="icon" href="%BASE_URL%favicon.svg" type="image/svg+xml" />
@@ -14,12 +14,12 @@
     <meta property="og:title" content="mcp-lint — the tool failed, the agent stopped" />
     <meta
       property="og:description"
-      content="mcp-lint checks MCP tool schemas and scores whether an agent can recover when a tool fails."
+      content="A local MIT toolkit that lints MCP tool schemas and scores whether an agent can recover when a tool fails."
     />
     <meta property="og:url" content="https://mcp-lint-alpha.vercel.app/" />
-    <meta property="og:image" content="https://mcp-lint-alpha.vercel.app/og.png" />
+    <meta property="og:image" content="https://mcp-lint-alpha.vercel.app/og.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="theme-color" content="#f3efe4" />
+    <meta name="theme-color" content="#141311" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -27,12 +27,12 @@
         "name": "mcp-lint",
         "applicationCategory": "DeveloperApplication",
         "operatingSystem": "Cross-platform",
-        "softwareVersion": "0.8.0",
+        "softwareVersion": "0.9.0",
         "license": "https://spdx.org/licenses/MIT.html",
         "url": "https://mcp-lint-alpha.vercel.app/",
         "downloadUrl": "https://www.npmjs.com/package/mcp-lint",
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-        "description": "Lint MCP tool schemas and score whether an agent can recover when a tool fails."
+        "description": "Lint MCP tool schemas and score whether an agent can recover when a tool fails. Repository 0.9.0. npm latest is still 0.8.0."
       }
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -49,9 +49,9 @@
       <a class="wordmark" href="#top">mcp-lint</a>
       <nav aria-label="On this page">
         <a href="#bench">Bench</a>
-        <a href="#names">Names</a>
         <a href="#commands">Commands</a>
         <a href="#clients">Clients</a>
+        <a href="#limits">Limits</a>
         <a href="#install">Install</a>
         <a href="https://www.npmjs.com/package/mcp-lint">npm</a>
         <a href="https://github.com/robert19001-cmyk/mcp-lint">GitHub</a>
@@ -60,45 +60,65 @@
 
     <main id="top">
       <section class="hero">
-        <div>
-          <p class="kicker">01 — Proof</p>
+        <div class="hero-copy">
+          <p class="kicker">Repository 0.9.0</p>
           <h1>The tool failed.<br />The agent stopped.</h1>
           <p class="lede">
-            A schema can be valid and still hand the agent a terminal command, a
-            silent payload, or “wait and retry.” mcp-lint marks that on the page
-            before a user does.
+            A schema can be valid and still hand the agent a terminal command,
+            a silent payload, or “wait and retry.” mcp-lint marks that before
+            a person does.
+          </p>
+          <p class="version-note">
+            This page describes the code in the repository, version 0.9.0.
+            npm <code>latest</code> is still 0.8.0, so <code>npx mcp-lint</code>
+            does not include <code>report</code> until 0.9.0 is published.
           </p>
         </div>
-        <p class="index" aria-hidden="true">0.8</p>
+        <figure class="hero-still">
+          <img
+            src="%BASE_URL%media/hero.jpg"
+            width="1280"
+            height="720"
+            alt="Generated still: a brass desk lamp, a blank sheet of paper, and a brass wireframe cube. Not a screenshot of the CLI."
+            fetchpriority="high"
+          />
+          <figcaption>Generated still. Not a screenshot of the tool.</figcaption>
+        </figure>
+      </section>
+
+      <section class="instrument" aria-labelledby="cube-title">
+        <div class="cube-well">
+          <canvas id="cube" aria-hidden="true"></canvas>
+        </div>
+        <div>
+          <p class="kicker" id="cube-title">Live wireframe</p>
+          <h2>The cube on the desk is a photograph. This one is drawn in the browser.</h2>
+          <p>
+            It is a Three.js wireframe. It turns while the tab is visible and
+            stays still when the system asks for reduced motion. It does not
+            load a model, and it is not part of the npm package.
+          </p>
+        </div>
       </section>
 
       <section class="path" aria-label="What the scorer looks at">
         <ol>
           <li>
-            <svg viewBox="0 0 64 64" aria-hidden="true">
-              <rect x="8" y="10" width="48" height="44" fill="none" stroke="currentColor" stroke-width="1.5"/>
-              <path d="M16 24h32M16 32h24M16 40h18" fill="none" stroke="currentColor" stroke-width="1.5"/>
-            </svg>
+            <span>01</span>
             <div>
               <h2>Schema valid</h2>
-              <p>The JSON parses. The types match. Eight clients can read the tool.</p>
+              <p>The JSON parses. The types match. Eight client rule sets can read the tool.</p>
             </div>
           </li>
           <li>
-            <svg viewBox="0 0 64 64" aria-hidden="true">
-              <circle cx="32" cy="32" r="18" fill="none" stroke="currentColor" stroke-width="1.5"/>
-              <path d="M32 20v14M32 42v2" fill="none" stroke="currentColor" stroke-width="1.5"/>
-            </svg>
+            <span>02</span>
             <div>
               <h2>Tool fails</h2>
               <p>Credential, permission, rate limit, timeout, or an empty payload.</p>
             </div>
           </li>
           <li>
-            <svg viewBox="0 0 64 64" aria-hidden="true">
-              <rect x="8" y="10" width="48" height="44" fill="none" stroke="currentColor" stroke-width="1.5"/>
-              <path d="M22 32h20" stroke="#c5362b" stroke-width="2.4"/>
-            </svg>
+            <span>03</span>
             <div>
               <h2>Agent stops</h2>
               <p>The error says “run npm login” or “wait.” Nothing in the tool list can do that.</p>
@@ -109,9 +129,16 @@
 
       <section id="bench" class="bench" aria-labelledby="bench-title">
         <div class="bench-head">
-          <p class="kicker" id="bench-title">02 — Bench</p>
+          <div>
+            <p class="kicker" id="bench-title">Bench</p>
+            <h2>The same function as <code>mcp-lint recover</code>.</h2>
+          </div>
           <p class="stamp" id="stamp" aria-hidden="true">Fail</p>
         </div>
+        <p class="sheet-lede">
+          Tools in this sample are <code>login</code> and <code>search</code>.
+          Change the kind or the error text. The stamp follows the scorer.
+        </p>
         <div class="bench-grid">
           <form class="sheet" id="sheet">
             <div class="presets" role="group" aria-label="Sample failures">
@@ -140,28 +167,62 @@
         </div>
       </section>
 
+      <section class="gallery" aria-labelledby="gallery-title">
+        <h2 id="gallery-title">Stills</h2>
+        <p class="sheet-lede">Generated photographs of the same desk. They are not product screenshots, and they contain no interface text.</p>
+        <div class="frames">
+          <figure>
+            <img
+              src="%BASE_URL%media/mark.jpg"
+              width="1024"
+              height="1024"
+              alt="Generated still: a brass wireframe cube on a blank sheet of paper, seen from above."
+              loading="lazy"
+            />
+          </figure>
+          <figure>
+            <img
+              src="%BASE_URL%media/detail.jpg"
+              width="1280"
+              height="720"
+              alt="Generated still: the torn edge of a blank sheet beside a brass wireframe cube."
+              loading="lazy"
+            />
+          </figure>
+          <figure>
+            <img
+              src="%BASE_URL%media/closer.jpg"
+              width="1280"
+              height="720"
+              alt="Generated still: a closer view of the lamp, the blank sheet, and the brass wireframe cube."
+              loading="lazy"
+            />
+          </figure>
+        </div>
+      </section>
+
       <section class="proofs" aria-labelledby="proofs-title">
-        <h2 id="proofs-title">What the red mark means</h2>
+        <h2 id="proofs-title">What a red mark means</h2>
         <ol>
           <li>
-            <span>03</span>
+            <span>04</span>
             <div>
               <h3>Name the tool</h3>
               <p>A credential error has to say <code>login</code>, not “run npm login.” A rate limit has to name the call to repeat.</p>
             </div>
           </li>
           <li>
-            <span>04</span>
+            <span>05</span>
             <div>
               <h3>Stay inside the protocol</h3>
               <p>Terminal, config file, browser page. An agent limited to MCP tools cannot do those, and it will try anyway.</p>
             </div>
           </li>
           <li>
-            <span>05</span>
+            <span>06</span>
             <div>
               <h3>Mark the destructive ones</h3>
-              <p><code>check</code> now warns when a delete, send, payment, or deploy tool has no <code>destructiveHint</code>, and errors when a read-only hint is a lie.</p>
+              <p><code>check</code> warns when a delete, send, payment, or deploy tool has no <code>destructiveHint</code>, and errors when a read-only hint is a lie.</p>
             </div>
           </li>
         </ol>
@@ -179,21 +240,30 @@
       </section>
 
       <section class="commands" id="commands" aria-labelledby="commands-title">
-        <h2 id="commands-title">One CLI. The whole check.</h2>
+        <h2 id="commands-title">Every command</h2>
+        <p class="sheet-lede">One CLI. Each command does one job. Examples below are the repository commands. <code>report</code> is in this repository and not yet on npm <code>latest</code>.</p>
         <dl>
           <div>
             <dt>check</dt>
-            <dd>Lint a tools file, a live server, or the stdio servers already configured on this machine. Exit 1 on errors.</dd>
+            <dd>
+              Lint a tools file, or look one directory down for <code>tools.json</code>, <code>tools.yaml</code>, <code>tools.yml</code>, <code>mcp-tools.json</code>, <code>mcp-tools.yaml</code>, and <code>mcp-tools.yml</code>. It skips <code>node_modules</code> and dot directories.
+              It can also read a live <code>tools/list</code> over stdio, SSE, or streamable HTTP. It does not call a tool to discover it.
+              <code>--format</code> is <code>terminal</code>, <code>json</code>, or <code>markdown</code>. JSON here is the diagnostic array, not the audit report.
+              <code>--installed</code> reads Cursor, Claude (including <code>projects.&lt;path&gt;.mcpServers</code> in <code>~/.claude.json</code>), and VS Code configs. Remote URLs are skipped unless <code>--remote</code> is set.
+              <code>--score</code> uses quality-v2. Missing description or schema fields add no points. An empty tool list is unmeasured.
+              Schema rules walk <code>outputSchema</code> the same way as <code>inputSchema</code>. A missing output schema is not an error. A repeated name, or the same name on two installed servers, is an error.
+              Errors exit 1. A missing measurement is not a pass.
+            </dd>
             <code>npx mcp-lint check tools.json</code>
           </div>
           <div>
             <dt>compat</dt>
-            <dd>Show which tools survive Claude, Cursor, Gemini, VS Code, Windsurf, Cline, OpenAI, and Continue.</dd>
+            <dd>Show which tools survive Claude, Cursor, Gemini, VS Code, Windsurf, Cline, OpenAI, and Continue. Each cell is <code>measured</code> or <code>not_observed</code>. A mark is not proof that a client accepts the schema.</dd>
             <code>npx mcp-lint compat tools.json</code>
           </div>
           <div>
             <dt>fix</dt>
-            <dd>Apply the safe auto-fixes. Dry-run first if the file is already in git.</dd>
+            <dd>Write only fixes classed <code>safe</code>. <code>--dry-run</code> also lists <code>review</code> and <code>manual</code>. Titles are not invented.</dd>
             <code>npx mcp-lint fix tools.json --dry-run</code>
           </div>
           <div>
@@ -203,35 +273,39 @@
           </div>
           <div>
             <dt>preflight</dt>
-            <dd>Score a proposed tool call before it runs. Allow, deny, approval, or rewrite.</dd>
+            <dd>Score a proposed tool call against a policy file before it runs. The result is <code>allow</code>, <code>allow_with_rewrite</code>, <code>require_approval</code>, or <code>deny</code>. An unknown <code>tool_type</code> is denied. The score is a heuristic, not a guarantee.</dd>
             <code>npx mcp-lint preflight action.json --policy preflight.yml</code>
           </div>
           <div>
             <dt>recover</dt>
-            <dd>Score a recorded failure. The bench on this page uses that same function.</dd>
+            <dd>Score a recorded failure. A stdio probe lists tools and does not invoke them. The bench on this page calls the same function.</dd>
             <code>npx mcp-lint recover errors.json</code>
           </div>
           <div>
             <dt>snapshot</dt>
-            <dd>Save a live tool list. Commit it, then let diff fail the build when a later list gets worse.</dd>
+            <dd>Save a live tool list as stable JSON. Commit it, then let <code>diff</code> fail the build when a later list gets worse.</dd>
             <code>npx mcp-lint snapshot -o tools.json --server stdio -- node server.js</code>
           </div>
           <div>
             <dt>diff</dt>
-            <dd>Fail CI when a new schema introduces errors the old one did not have.</dd>
+            <dd>Exit 1 when the new file adds an error the old file did not have.</dd>
             <code>npx mcp-lint diff before.json after.json</code>
           </div>
           <div>
             <dt>init</dt>
-            <dd>Write a starter config for all eight clients.</dd>
+            <dd>Write <code>.mcplintrc.json</code>.</dd>
             <code>npx mcp-lint init</code>
           </div>
           <div>
             <dt>report</dt>
-            <dd>Write the audit report as text, JSON, Markdown, SARIF, or an HTML file that stays on this machine.</dd>
+            <dd>Write one tools file as terminal text, JSON, Markdown, SARIF 2.1.0, or an HTML file that stays on this machine. This is the audit report. It is in repository 0.9.0. npm <code>latest</code> 0.8.0 does not ship it yet. If the run has no schema errors, the report says: “No schema errors in this run. Recovery, preflight, and live inspection were not measured.”</dd>
             <code>npx mcp-lint report tools.json --format html --output report.html</code>
           </div>
         </dl>
+        <p class="aside">
+          The <code>mcp-lint-server</code> binary exposes list rules, explain, check, fix, preflight, and score recovery.
+          SDK exports are <code>.</code>, <code>./preflight</code>, <code>./recover</code>, <code>./rules</code>, <code>./loaders</code>, <code>./fixer</code>, <code>./mcp-server</code>, and <code>./audit</code>.
+        </p>
       </section>
 
       <section class="clients" id="clients" aria-labelledby="clients-title">
@@ -246,7 +320,23 @@
           <li>OpenAI</li>
           <li>Continue</li>
         </ul>
-        <p>A tool that is fine for one picker can be illegal for another. <code>check</code> runs the shared rules and the client rules together.</p>
+        <p>
+          A tool that is fine for one picker can be illegal for another.
+          <code>check</code> runs the shared rules and the client rules together.
+          Windsurf and Cline have name and schema rules. Their config files are not scanned by <code>--installed</code>.
+        </p>
+      </section>
+
+      <section class="limits" id="limits" aria-labelledby="limits-title">
+        <h2 id="limits-title">What 0.9.0 is not</h2>
+        <ul>
+          <li>It is not the 1.0 release.</li>
+          <li>Zed and OpenCode are not claimed.</li>
+          <li>There is no command for live <code>resources/list</code> or <code>prompts/list</code>.</li>
+          <li>It does not call a tool in order to discover it.</li>
+          <li>There is no account and no telemetry. The license is MIT. Check, recover, and preflight stay free.</li>
+          <li>The GitHub Action example stays on <code>robert19001-cmyk/mcp-lint@v0.8.0</code> until a <code>v0.9.0</code> tag exists. That published tag does not run this repository’s annotation script. <code>sarif: true</code> on 0.8.0 warns and skips the upload.</li>
+        </ul>
       </section>
 
       <section class="install" id="install" aria-labelledby="install-title">
@@ -266,14 +356,14 @@
           </li>
         </ul>
         <p class="action-note">
-          In GitHub Actions, <code>robert19001-cmyk/mcp-lint@v0.8.0</code> runs the same checks. With <code>tools.json</code> in the repo, the action needs no path.
-          Pass <code>recover</code> when you have a failure file. The package is MIT and stays free.
+          Copy uses the commands in the list above. With <code>tools.json</code> in the repo, the published Action needs no path.
+          Pass <code>recover</code> when you have a failure file.
         </p>
       </section>
     </main>
 
     <footer>
-      <p>MIT. Built by Robert. The bench on this page uses the same scorer as the CLI.</p>
+      <p>MIT. Built by Robert. The bench uses the same scorer as the CLI. Photographs are generated stills.</p>
     </footer>
     <script type="module" src="/src/main.ts"></script>
   </body>

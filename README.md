@@ -13,7 +13,7 @@ Proof page, with a live bench: [mcp-lint-alpha.vercel.app](https://mcp-lint-alph
 
 MCP servers expose tool schemas consumed by **Claude**, **Cursor**, **Gemini**, **VS Code Copilot**, **Windsurf**, **Cline**, **OpenAI Agents SDK**, and **Continue.dev**. Each client has different JSON Schema support and quirks — a schema that works in Claude may silently break in Cursor or OpenAI. `mcp-lint` catches these issues before your users do.
 
-Design notes for the work after 0.8.0: [PRODUCT.md](PRODUCT.md), [ROADMAP.md](ROADMAP.md), [ARCHITECTURE.md](ARCHITECTURE.md), [SECURITY.md](SECURITY.md), [RELEASE.md](RELEASE.md). Those files describe the current code and the 1.0 plan. They are not extra commands.
+This repository is **0.9.0**. npm `latest` is still 0.8.0 until that release is published, so `npx mcp-lint` does not include `report` yet. Design notes: [PRODUCT.md](PRODUCT.md), [ROADMAP.md](ROADMAP.md), [ARCHITECTURE.md](ARCHITECTURE.md), [SECURITY.md](SECURITY.md), [RELEASE.md](RELEASE.md). Those files describe the current code and the 1.0 plan. They are not extra commands.
 
 ```
 $ npx mcp-lint check tools.json
@@ -411,6 +411,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: robert19001-cmyk/mcp-lint@v0.8.0
+        # Published tag. Switch to v0.9.0 after that tag exists.
         with:
           input: tools.json
           severity: warning
@@ -430,7 +431,7 @@ jobs:
 | `score` | `false` | Show quality score |
 | `sarif` | `false` | Upload SARIF when this `mcp-lint` release includes `report`. The workflow needs `security-events: write`. |
 
-The action always writes a `::error`, `::warning`, or `::notice` annotation from `check --format json`. With an empty `input` it also looks one directory down, skipping `node_modules` and dot directories. `sarif: true` on the published 0.8.0 CLI skips the upload and prints a warning, because that release has no `report` command.
+The action in this repository writes a `::error`, `::warning`, or `::notice` annotation from `check --format json`. With an empty `input` it also looks one directory down, skipping `node_modules` and dot directories. `sarif: true` uploads SARIF when the installed CLI has `report`. The published 0.8.0 CLI does not, so that input warns and skips the upload. The example above stays on `@v0.8.0` until `v0.9.0` is tagged.
 
 ### Manual workflow
 
@@ -746,7 +747,7 @@ The repository includes `glama.json` and a production Dockerfile so MCP director
 
 ## Site
 
-The proof page is in `site/`. It runs the same recovery scorer as the CLI.
+The proof page is in `site/`. Version 0.9.0. It runs the same recovery scorer as the CLI and explains every command in plain language. The pictures are generated stills, not screenshots of the tool.
 
 ```bash
 npm run site

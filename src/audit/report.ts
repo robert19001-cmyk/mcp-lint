@@ -8,6 +8,7 @@ import {
   type TokenBudget,
   type TokenThresholds,
 } from './tokens.js';
+import { VERSION } from '../version.js';
 
 export const AUDIT_REPORT_SCHEMA_VERSION = 1 as const;
 export const QUALITY_ALGORITHM = 'quality-v2' as const;
@@ -425,7 +426,7 @@ export function buildAuditReport(input: BuildAuditReportInput): MCPAuditReport {
   return {
     schemaVersion: AUDIT_REPORT_SCHEMA_VERSION,
     generatedAt: input.generatedAt ?? new Date().toISOString(),
-    tool: { name: 'mcp-lint', version: input.version ?? '0.8.0' },
+    tool: { name: 'mcp-lint', version: input.version ?? VERSION },
     scope: {
       source: input.source,
       mode: 'offline-tools',
