@@ -410,8 +410,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: robert19001-cmyk/mcp-lint@v0.8.0
-        # Published tag. Switch to v0.9.0 after that tag exists.
+      - uses: robert19001-cmyk/mcp-lint@v0.9.0
+        # Tag v0.9.0. The action installs npm latest.
         with:
           input: tools.json
           severity: warning
@@ -431,7 +431,7 @@ jobs:
 | `score` | `false` | Show quality score |
 | `sarif` | `false` | Upload SARIF when this `mcp-lint` release includes `report`. The workflow needs `security-events: write`. |
 
-The action in this repository writes a `::error`, `::warning`, or `::notice` annotation from `check --format json`. With an empty `input` it also looks one directory down, skipping `node_modules` and dot directories. `sarif: true` uploads SARIF when the installed CLI has `report`. The published 0.8.0 CLI does not, so that input warns and skips the upload. The example above stays on `@v0.8.0` until `v0.9.0` is tagged.
+The action in this repository writes a `::error`, `::warning`, or `::notice` annotation from `check --format json`. With an empty `input` it also looks one directory down, skipping `node_modules` and dot directories. `sarif: true` uploads SARIF when the installed CLI has `report`. The action installs npm `latest`. That is still 0.8.0, so the input warns and skips the upload until 0.9.0 is published.
 
 ### Manual workflow
 

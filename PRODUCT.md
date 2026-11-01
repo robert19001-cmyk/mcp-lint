@@ -25,7 +25,7 @@ The public site is https://mcp-lint-alpha.vercel.app/. The site source is `site/
 
 ## What it is not yet
 
-Version 0.9.0 is not the 1.0 gate. Zed and OpenCode are not claimed. Windsurf and Cline config files are not scanned. Live `resources/list` and `prompts/list` are not a command. The GitHub Action on the `v0.8.0` tag does not yet run this repository's annotation script.
+Version 0.9.0 is not the 1.0 gate. Zed and OpenCode are not claimed. Windsurf and Cline config files are not scanned. Live `resources/list` and `prompts/list` are not a command. The GitHub Action tag is `v0.9.0`. It installs npm `latest`, which is still 0.8.0 until this version is published, so SARIF upload still warns and skips.
 
 ## Community product
 

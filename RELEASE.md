@@ -4,7 +4,7 @@ The maintainer publishes. An agent does not tag, npm publish, or registry publis
 
 ## Current public release
 
-Repository version is `0.9.0`. It is not published. `0.8.0` remains the npm `latest` and the MCP registry `isLatest` as of 2026-10-31. Git tag `v0.8.0` is commit `7133dfc`. Homepage and registry `websiteUrl` are https://mcp-lint-alpha.vercel.app/. Do not tag or publish `0.9.0` until the maintainer asks.
+Repository version is `0.9.0`. Git tag `v0.9.0` is commit `25d3453`. npm `latest` and the MCP registry `isLatest` remain `0.8.0` until `npm view mcp-lint version` shows `0.9.0`. Git tag `v0.8.0` is commit `7133dfc`. Homepage and registry `websiteUrl` are https://mcp-lint-alpha.vercel.app/.
 
 Unreleased work stays under `## [Unreleased]` in `CHANGELOG.md`. Do not bump `package.json` until the release commit.
 
