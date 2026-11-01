@@ -46,6 +46,10 @@
     "./mcp-server": {
       "types": "./dist/mcp-server.d.ts",
       "default": "./dist/mcp-server.js"
+    },
+    "./audit": {
+      "types": "./dist/audit/index.d.ts",
+      "default": "./dist/audit/index.js"
     }
   },
   "files": [

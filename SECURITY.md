@@ -2,12 +2,16 @@
 
 ## Supported versions
 
-Only the latest minor version receives security updates.
+Only the latest published minor receives security updates.
 
 | Version | Supported |
 |---------|-----------|
-| 0.4.x   | ✅ |
-| < 0.4   | ❌ |
+| 0.8.x   | yes |
+| older   | no |
+
+## Local use
+
+mcp-lint does not send telemetry. File and directory lints stay on the machine. A live server is contacted only when the command line asks for `--server`, `--installed`, `--from`, or `--remote`. Discovery calls `tools/list`. It does not call the server's tools. Token totals in an audit report are a local character estimate, not a measurement from a tokenizer service. A preflight score is a heuristic. It is not proof that an action is safe.
 
 ## Reporting a vulnerability
 

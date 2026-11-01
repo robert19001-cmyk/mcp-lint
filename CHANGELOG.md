@@ -1,3 +1,15 @@
+## [Unreleased]
+
+### Added
+- Versioned `MCPAuditReport` (`schemaVersion` 1) via `mcp-lint/audit`. Sections that did not run are `not_run`, not a pass. An empty tool list does not receive the v1 quality score of 100.
+- Local token estimate `chars / 4`, labeled approximate, with warn and over thresholds, per-tool rank, repeated-description detection, and a budget diff.
+- `PRODUCT.md`, `ROADMAP.md`, `ARCHITECTURE.md`, and `RELEASE.md`.
+
+### Changed
+- Security policy now says 0.8.x is the supported line.
+
+The CLI JSON shape, commands, and MCP tool names are unchanged.
+
 ## [0.8.0] — 2026-10-31
 
 ### Added
