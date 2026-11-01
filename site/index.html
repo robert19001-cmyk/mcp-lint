@@ -6,7 +6,7 @@
     <title>mcp-lint — the tool failed, the agent stopped</title>
     <meta
       name="description"
-      content="mcp-lint 0.9.0 lints MCP tool schemas, scores recovery, and checks a proposed call against a policy. npm latest is still 0.8.0."
+      content="mcp-lint 0.9.0 lints MCP tool schemas, scores recovery, and checks a proposed call against a policy."
     />
     <link rel="canonical" href="https://mcp-lint-alpha.vercel.app/" />
     <link rel="icon" href="%BASE_URL%favicon.svg" type="image/svg+xml" />
@@ -32,7 +32,7 @@
         "url": "https://mcp-lint-alpha.vercel.app/",
         "downloadUrl": "https://www.npmjs.com/package/mcp-lint",
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-        "description": "Lint MCP tool schemas and score whether an agent can recover when a tool fails. Repository 0.9.0. npm latest is still 0.8.0."
+        "description": "Lint MCP tool schemas and score whether an agent can recover when a tool fails. Version 0.9.0."
       }
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -69,9 +69,8 @@
             a person does.
           </p>
           <p class="version-note">
-            This page describes the code in the repository, version 0.9.0.
-            npm <code>latest</code> is still 0.8.0, so <code>npx mcp-lint</code>
-            does not include <code>report</code> until 0.9.0 is published.
+            This page describes version 0.9.0. npm <code>latest</code> is 0.9.0,
+            so <code>npx mcp-lint</code> includes <code>report</code>.
           </p>
         </div>
         <figure class="hero-still">
@@ -241,7 +240,7 @@
 
       <section class="commands" id="commands" aria-labelledby="commands-title">
         <h2 id="commands-title">Every command</h2>
-        <p class="sheet-lede">One CLI. Each command does one job. Examples below are the repository commands. <code>report</code> is in this repository and not yet on npm <code>latest</code>.</p>
+        <p class="sheet-lede">One CLI. Each command does one job. npm <code>latest</code> is 0.9.0, so these commands, including <code>report</code>, are what <code>npx mcp-lint</code> runs.</p>
         <dl>
           <div>
             <dt>check</dt>
@@ -298,7 +297,7 @@
           </div>
           <div>
             <dt>report</dt>
-            <dd>Write one tools file as terminal text, JSON, Markdown, SARIF 2.1.0, or an HTML file that stays on this machine. This is the audit report. It is in repository 0.9.0. npm <code>latest</code> 0.8.0 does not ship it yet. If the run has no schema errors, the report says: “No schema errors in this run. Recovery, preflight, and live inspection were not measured.”</dd>
+            <dd>Write one tools file as terminal text, JSON, Markdown, SARIF 2.1.0, or an HTML file that stays on this machine. This is the audit report. npm <code>latest</code> 0.9.0 ships it. If the run has no schema errors, the report says: “No schema errors in this run. Recovery, preflight, and live inspection were not measured.”</dd>
             <code>npx mcp-lint report tools.json --format html --output report.html</code>
           </div>
         </dl>
@@ -335,7 +334,7 @@
           <li>There is no command for live <code>resources/list</code> or <code>prompts/list</code>.</li>
           <li>It does not call a tool in order to discover it.</li>
           <li>There is no account and no telemetry. The license is MIT. Check, recover, and preflight stay free.</li>
-          <li>The GitHub Action example is <code>robert19001-cmyk/mcp-lint@v0.9.0</code>. The action installs npm <code>latest</code>, which is still 0.8.0, so <code>sarif: true</code> warns and skips the upload until 0.9.0 is published.</li>
+          <li>The GitHub Action example is <code>robert19001-cmyk/mcp-lint@v0.9.0</code>. It installs npm <code>latest</code> 0.9.0, so <code>sarif: true</code> uploads when the workflow has <code>security-events: write</code>.</li>
         </ul>
       </section>
 

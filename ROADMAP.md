@@ -1,6 +1,6 @@
 # Roadmap
 
-This is the path from published 0.8.0 to a 1.0 MCP developer toolkit. The repository version is 0.9.0. npm `latest` is still 0.8.0 until 0.9.0 is published. Nothing here is scheduled as a date.
+This is the path from published 0.9.0 to a 1.0 MCP developer toolkit. The repository version is 0.9.0. npm `latest` is 0.9.0. Nothing here is scheduled as a date.
 
 Work lands in small releases. Each one keeps the current CLI, SDK, and MCP server behavior, adds tests, and updates `CHANGELOG.md`. Publishing a version still needs an explicit decision from the maintainer. See `RELEASE.md`.
 

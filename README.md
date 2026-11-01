@@ -13,7 +13,7 @@ Proof page, with a live bench: [mcp-lint-alpha.vercel.app](https://mcp-lint-alph
 
 MCP servers expose tool schemas consumed by **Claude**, **Cursor**, **Gemini**, **VS Code Copilot**, **Windsurf**, **Cline**, **OpenAI Agents SDK**, and **Continue.dev**. Each client has different JSON Schema support and quirks — a schema that works in Claude may silently break in Cursor or OpenAI. `mcp-lint` catches these issues before your users do.
 
-This repository is **0.9.0**. npm `latest` is still 0.8.0 until that release is published, so `npx mcp-lint` does not include `report` yet. Design notes: [PRODUCT.md](PRODUCT.md), [ROADMAP.md](ROADMAP.md), [ARCHITECTURE.md](ARCHITECTURE.md), [SECURITY.md](SECURITY.md), [RELEASE.md](RELEASE.md). Those files describe the current code and the 1.0 plan. They are not extra commands.
+This repository is **0.9.0**. npm `latest` is 0.9.0, so `npx mcp-lint` includes `report`. Design notes: [PRODUCT.md](PRODUCT.md), [ROADMAP.md](ROADMAP.md), [ARCHITECTURE.md](ARCHITECTURE.md), [SECURITY.md](SECURITY.md), [RELEASE.md](RELEASE.md). Those files describe the current code and the 1.0 plan. They are not extra commands.
 
 ```
 $ npx mcp-lint check tools.json
@@ -431,7 +431,7 @@ jobs:
 | `score` | `false` | Show quality score |
 | `sarif` | `false` | Upload SARIF when this `mcp-lint` release includes `report`. The workflow needs `security-events: write`. |
 
-The action in this repository writes a `::error`, `::warning`, or `::notice` annotation from `check --format json`. With an empty `input` it also looks one directory down, skipping `node_modules` and dot directories. `sarif: true` uploads SARIF when the installed CLI has `report`. The action installs npm `latest`. That is still 0.8.0, so the input warns and skips the upload until 0.9.0 is published.
+The action in this repository writes a `::error`, `::warning`, or `::notice` annotation from `check --format json`. With an empty `input` it also looks one directory down, skipping `node_modules` and dot directories. `sarif: true` uploads SARIF when the installed CLI has `report`. The action installs npm `latest`, which is 0.9.0. The workflow needs `security-events: write`.
 
 ### Manual workflow
 
