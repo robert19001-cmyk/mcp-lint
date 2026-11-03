@@ -9,7 +9,7 @@ describe('committed audit baseline', () => {
     const actual = projectAuditReport(report);
     const expected = await readFile('tests/fixtures/audit/minimal-tool.baseline.json', 'utf8');
     expect(auditBaselineDiff(actual, expected)).toBeNull();
-    expect(actual).toContain('"version": "1.0.0"');
+    expect(actual).toContain('"version": "1.0.1"');
     expect(actual).toContain('No schema errors in this run. Recovery, preflight, and live inspection were not measured.');
   });
 });

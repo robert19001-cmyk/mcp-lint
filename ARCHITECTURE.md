@@ -38,7 +38,7 @@ Plugins load from `src/config/plugin-loader.ts`. Presets live in `src/config/pre
 
 ## Audit report
 
-`src/audit/` builds schema version 1 of `MCPAuditReport`. It is an SDK export, `mcp-lint/audit`, and does not change `check --format json`. Token totals use `chars / 4` and are marked `approximate: true`. Recovery, preflight, and live inspection stay `not_run` until a caller supplies them.
+`src/audit/` builds schema version 1 of `MCPAuditReport`. It is an SDK export, `mcp-lint/audit`, and does not change `check --format json`. Token totals use `chars / 4` and are marked `approximate: true`. Compatibility is filled from the diagnostics for that tools file. A cell is `measured` or `not_observed`. An empty tool list, or a report built without diagnostics, leaves it `not_run`. Recovery and preflight stay `not_run`. `report` does not take a failure sample or an action, so those sections cannot be marked ran.
 
 `parseAuditReport` rejects unknown top-level fields and any `schemaVersion` other than 1.
 
@@ -50,7 +50,7 @@ Plugins load from `src/config/plugin-loader.ts`. Presets live in `src/config/pre
 
 The proof page is Vite, rooted at `site/`, built with `npm run site:build`. Vercel uses `vercel.json` and publishes `site/dist`. GitHub Pages is a mirror with `SITE_BASE=/mcp-lint/`. The canonical URL is the Vercel site.
 
-`action.yml` installs `mcp-lint@latest` and runs `check`. It does not upload SARIF yet.
+`action.yml` installs `mcp-lint@1` unless the `version` input says otherwise, then runs `check`. `sarif: true` uploads SARIF when the installed CLI has `report`. Tag `v1.0.1` has this input. Tag `v1.0.0` still installs `mcp-lint@latest`.
 
 ## Boundaries
 

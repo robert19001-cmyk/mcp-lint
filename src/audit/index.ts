@@ -10,6 +10,8 @@ export type {
   AuditFinding,
   AuditTool,
   BuildAuditReportInput,
+  CompatCellSummary,
+  CompatibilitySectionData,
   MCPAuditReport,
   QualitySectionData,
   Section,

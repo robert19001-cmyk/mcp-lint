@@ -1,3 +1,15 @@
+## [1.0.1] — 2026-11-03
+
+### Added
+- `report` fills the compatibility section from the lint it already ran. Each cell is `measured` or `not_observed`. An empty tool list, and a report built without diagnostics, stay `not_run`. A saved 1.0.0 report that left the section `not_run` still parses. Recovery and preflight stay `not_run`.
+
+### Changed
+- The GitHub Action `fail_on` values `warning` and `info` fail the job from the diagnostic list. `check` still exits 1 only for schema errors.
+- The npm description names eight clients: Claude, Cursor, Gemini, VS Code, Windsurf, Cline, OpenAI, and Continue.
+- The GitHub Action `version` input defaults to `1`, so tag `v1.0.1` installs `mcp-lint@1`. Tag `v1.0.0` still installs `mcp-lint@latest`.
+- The action input text and the README quick start name `tools.json`, `tools.yaml`, `tools.yml`, `mcp-tools.json`, `mcp-tools.yaml`, and `mcp-tools.yml`.
+- `server.json` description names eight clients and stays within 100 characters.
+
 ## [1.0.0] — 2026-11-01
 
 ### Added

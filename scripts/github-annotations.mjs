@@ -4,6 +4,20 @@ function escapeCommand(value) {
 
 const LEVEL = { error: 'error', warning: 'warning', info: 'notice' };
 
+const SEVERITY_RANK = { info: 0, warning: 1, error: 2 };
+
+export function actionShouldFail(diagnostics, failOn) {
+  if (!Object.hasOwn(SEVERITY_RANK, failOn)) {
+    throw new Error('fail_on must be error, warning, or info.');
+  }
+  if (!Array.isArray(diagnostics)) return false;
+  const floor = SEVERITY_RANK[failOn];
+  return diagnostics.some((item) => {
+    const severity = item && typeof item === 'object' ? item.severity : undefined;
+    return Object.hasOwn(SEVERITY_RANK, severity) && SEVERITY_RANK[severity] >= floor;
+  });
+}
+
 export function formatGitHubAnnotations(diagnostics, file) {
   if (!Array.isArray(diagnostics)) return '';
   const lines = [];
@@ -20,6 +34,28 @@ export function formatGitHubAnnotations(diagnostics, file) {
 }
 
 const invokedDirectly = process.argv[1] && import.meta.url === (await import('node:url')).pathToFileURL(process.argv[1]).href;
+if (invokedDirectly && process.argv[2] === '--fail-on') {
+  const { readFileSync } = await import('node:fs');
+  const failOn = process.argv[3];
+  const raw = readFileSync(process.argv[4] ?? 0, 'utf8');
+  let diagnostics;
+  try {
+    diagnostics = JSON.parse(raw);
+  } catch {
+    process.stderr.write('Error: diagnostics JSON could not be parsed.\n');
+    process.exit(2);
+  }
+  if (!Array.isArray(diagnostics)) {
+    process.stderr.write('Error: diagnostics JSON must be an array.\n');
+    process.exit(2);
+  }
+  try {
+    process.exit(actionShouldFail(diagnostics, failOn) ? 1 : 0);
+  } catch (err) {
+    process.stderr.write(`Error: ${err instanceof Error ? err.message : 'Invalid fail_on.'}\n`);
+    process.exit(2);
+  }
+}
 if (invokedDirectly) {
   const { readFileSync } = await import('node:fs');
   const file = process.argv[2] ?? 'tools.json';

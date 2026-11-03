@@ -36,6 +36,21 @@ export function escapeHtml(value: string): string {
     .replace(/'/g, '&#39;');
 }
 
+function compatibilitySummary(report: MCPAuditReport): string | null {
+  if (report.compatibility.status !== 'ran') return null;
+  let measured = 0;
+  let errors = 0;
+  for (const tool of report.compatibility.data.tools) {
+    for (const cell of Object.values(tool.cells)) {
+      if (cell.evidence === 'measured') measured += 1;
+      errors += cell.errorCount;
+    }
+  }
+  const count = report.compatibility.data.tools.length;
+  const noun = count === 1 ? 'tool' : 'tools';
+  return `Compatibility ran for ${count} ${noun}. Measured cells: ${measured}. Client errors: ${errors}. A not_observed cell is not proof that the client accepts the schema.`;
+}
+
 function findingRows(findings: AuditFinding[]): string {
   return findings.map((finding) => {
     const cells = [finding.severity, finding.toolName, finding.ruleId, finding.path, finding.message]
@@ -67,6 +82,7 @@ function formatMarkdownReport(report: MCPAuditReport): string {
     : `${report.tokenBudget.status === 'partial' ? report.tokenBudget.reason : report.tokenBudget.reason}\n`;
   const notRun = report.coverage.notRun.map((name) => `- ${name}`).join('\n');
   const recommendations = report.recommendations.map((line) => `- ${line}`).join('\n');
+  const compatibility = compatibilitySummary(report);
   return [
     `# mcp-lint report`,
     '',
@@ -88,6 +104,7 @@ function formatMarkdownReport(report: MCPAuditReport): string {
     '',
     tokens.trimEnd(),
     '',
+    ...(compatibility ? ['## Compatibility', '', compatibility, ''] : []),
     '## Not measured',
     '',
     notRun || '- none',
@@ -124,6 +141,8 @@ function formatTerminalReport(report: MCPAuditReport, noColor: boolean): string 
   if (report.tokenBudget.status === 'ran') {
     lines.push(`Token estimate (chars/4, approximate): ${report.tokenBudget.data.tokens}  level ${report.tokenBudget.data.level}`);
   }
+  const compatibility = compatibilitySummary(report);
+  if (compatibility) lines.push(compatibility);
   for (const line of report.recommendations) lines.push(line);
   lines.push(`Not measured: ${report.coverage.notRun.join(', ')}`);
   return lines.join('\n') + '\n';
@@ -214,6 +233,8 @@ ${report.findings.data.map((finding) => `<tr>
   const counts = report.severity.status === 'ran'
     ? `${report.severity.data.error} errors, ${report.severity.data.warning} warnings, ${report.severity.data.info} info`
     : report.severity.reason;
+  const compatibility = compatibilitySummary(report);
+  const compatibilityHtml = compatibility ? `<h2>Compatibility</h2><p>${escapeHtml(compatibility)}</p>` : '';
   const notRun = report.coverage.notRun.map((name) => `<li>${escapeHtml(name)}</li>`).join('');
   const recommendations = report.recommendations.map((line) => `<li>${escapeHtml(line)}</li>`).join('');
   return `<!DOCTYPE html>
@@ -243,6 +264,7 @@ ${report.findings.data.map((finding) => `<tr>
 ${findings}
 <h2>Token estimate</h2>
 ${tokens}
+${compatibilityHtml}
 <h2>Not measured</h2>
 <ul>${notRun}</ul>
 <h2>Recommendations</h2>

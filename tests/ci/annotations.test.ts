@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatGitHubAnnotations } from '../../scripts/github-annotations.mjs';
+import { actionShouldFail, formatGitHubAnnotations } from '../../scripts/github-annotations.mjs';
 
 describe('GitHub annotations', () => {
   it('maps severities and escapes newlines', () => {
@@ -27,5 +27,26 @@ describe('GitHub annotations', () => {
 
   it('returns nothing for a non-array', () => {
     expect(formatGitHubAnnotations({ files: [] }, 'tools.json')).toBe('');
+  });
+});
+
+describe('action fail_on', () => {
+  const diagnostics = [
+    { severity: 'warning', ruleId: 'description-exists' },
+    { severity: 'info', ruleId: 'note' },
+  ];
+
+  it('lets warnings pass when the floor is error', () => {
+    expect(actionShouldFail(diagnostics, 'error')).toBe(false);
+  });
+
+  it('fails warning and info floors from the diagnostic list', () => {
+    expect(actionShouldFail(diagnostics, 'warning')).toBe(true);
+    expect(actionShouldFail(diagnostics, 'info')).toBe(true);
+    expect(actionShouldFail([], 'info')).toBe(false);
+  });
+
+  it('rejects an unknown floor', () => {
+    expect(() => actionShouldFail(diagnostics, 'notice')).toThrow(/fail_on/);
   });
 });

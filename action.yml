@@ -4,7 +4,7 @@ author: robert19001-cmyk
 
 inputs:
   input:
-    description: Path to an MCP tools file. When omitted, the action uses the first tools.json, tools.yaml, tools.yml, or mcp-tools.json it finds.
+    description: Path to an MCP tools file. When omitted, the action uses the first tools.json, tools.yaml, tools.yml, mcp-tools.json, mcp-tools.yaml, or mcp-tools.yml it finds in the repo root, then one directory down. It skips node_modules and dot directories.
     required: false
     default: ''
   format:
@@ -19,7 +19,7 @@ inputs:
     description: Comma-separated client filter (claude,cursor,gemini,vscode,windsurf,cline,openai,continue)
     required: false
   fail_on:
-    description: Exit with error code when issues at this severity or above are found (error|warning|info)
+    description: Fail the job when a diagnostic is at this severity or above (error|warning|info). warning and info read the full diagnostic list, because the CLI exits 1 only for schema errors.
     required: false
     default: error
   score:
@@ -34,6 +34,10 @@ inputs:
     description: Upload SARIF when the installed mcp-lint supports report (true|false). The workflow needs security-events write.
     required: false
     default: 'false'
+  version:
+    description: npm dist-tag or version to install. 1 stays on the 1.x line. latest floats. Tag v1.0.0 ignores this input and installs latest.
+    required: false
+    default: '1'
 
 outputs:
   exit_code:
@@ -48,7 +52,16 @@ runs:
   steps:
     - name: Install mcp-lint
       shell: bash
-      run: npm install -g mcp-lint@latest
+      env:
+        MCP_LINT_VERSION: ${{ inputs.version }}
+      run: |
+        case "$MCP_LINT_VERSION" in
+          ''|*[!A-Za-z0-9._+-]*)
+            echo "version must be an npm dist-tag or version, such as 1, 1.0.0, or latest."
+            exit 1
+            ;;
+        esac
+        npm install -g "mcp-lint@${MCP_LINT_VERSION}"
 
     - name: Run mcp-lint
       id: lint
@@ -103,6 +116,17 @@ runs:
         fi
         set -e
 
+        FAIL_SEVERITY="${{ inputs.fail_on }}"
+        if [ "$EXIT_CODE" -le 1 ]; then
+          set +e
+          node "${{ github.action_path }}/scripts/github-annotations.mjs" --fail-on "$FAIL_SEVERITY" "$DIAGNOSTICS"
+          FAIL_CODE=$?
+          set -e
+          if [ "$FAIL_CODE" -gt "$EXIT_CODE" ]; then
+            EXIT_CODE=$FAIL_CODE
+          fi
+        fi
+
         echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
 
         if [ "${{ inputs.sarif }}" = "true" ]; then
@@ -115,13 +139,8 @@ runs:
           fi
         fi
 
-        FAIL_SEVERITY="${{ inputs.fail_on }}"
-        if [ "$FAIL_SEVERITY" = "error" ] && [ $EXIT_CODE -eq 1 ]; then
-          exit 1
-        elif [ "$FAIL_SEVERITY" = "warning" ] && [ $EXIT_CODE -ge 1 ]; then
-          exit 1
-        elif [ "$FAIL_SEVERITY" = "info" ] && [ $EXIT_CODE -ge 1 ]; then
-          exit 1
+        if [ "$EXIT_CODE" -ne 0 ]; then
+          exit "$EXIT_CODE"
         fi
 
     - name: Upload SARIF

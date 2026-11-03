@@ -1,8 +1,8 @@
 {
   "name": "mcp-lint",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "mcpName": "io.github.robert19001-cmyk/mcp-lint",
-  "description": "Lint MCP tool schemas before they break Claude, Cursor, Gemini, or OpenAI. Run npx mcp-lint.",
+  "description": "Lint MCP tool schemas before they break Claude, Cursor, Gemini, VS Code, Windsurf, Cline, OpenAI, or Continue. Run npx mcp-lint.",
   "type": "module",
   "repository": {
     "type": "git",
@@ -69,8 +69,12 @@
     "guardrails",
     "claude",
     "cursor",
+    "vscode",
+    "windsurf",
+    "cline",
     "openai",
-    "gemini"
+    "gemini",
+    "continue"
   ],
   "license": "MIT",
   "engines": {

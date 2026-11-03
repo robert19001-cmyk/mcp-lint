@@ -3,7 +3,7 @@
   "generatedAt": "1970-01-01T00:00:00.000Z",
   "tool": {
     "name": "mcp-lint",
-    "version": "1.0.0"
+    "version": "1.0.1"
   },
   "scope": {
     "source": "tests/fixtures/valid/minimal-tool.json",
@@ -56,8 +56,66 @@
     }
   },
   "compatibility": {
-    "status": "not_run",
-    "reason": "Client compatibility was not re-checked for this report."
+    "status": "ran",
+    "data": {
+      "clients": [
+        "claude",
+        "cursor",
+        "gemini",
+        "vscode",
+        "windsurf",
+        "cline",
+        "openai",
+        "continue"
+      ],
+      "tools": [
+        {
+          "name": "search",
+          "cells": {
+            "claude": {
+              "compatible": true,
+              "errorCount": 0,
+              "evidence": "not_observed"
+            },
+            "cursor": {
+              "compatible": true,
+              "errorCount": 0,
+              "evidence": "measured"
+            },
+            "gemini": {
+              "compatible": true,
+              "errorCount": 0,
+              "evidence": "not_observed"
+            },
+            "vscode": {
+              "compatible": true,
+              "errorCount": 0,
+              "evidence": "not_observed"
+            },
+            "windsurf": {
+              "compatible": true,
+              "errorCount": 0,
+              "evidence": "not_observed"
+            },
+            "cline": {
+              "compatible": true,
+              "errorCount": 0,
+              "evidence": "not_observed"
+            },
+            "openai": {
+              "compatible": true,
+              "errorCount": 0,
+              "evidence": "not_observed"
+            },
+            "continue": {
+              "compatible": true,
+              "errorCount": 0,
+              "evidence": "not_observed"
+            }
+          }
+        }
+      ]
+    }
   },
   "tokenBudget": {
     "status": "ran",
@@ -127,10 +185,10 @@
       "tokenBudget",
       "findings",
       "severity",
-      "quality"
+      "quality",
+      "compatibility"
     ],
     "notRun": [
-      "compatibility",
       "recovery",
       "preflight"
     ],

@@ -37,7 +37,17 @@ describe('buildAuditReport', () => {
     expect(report.quality.status).toBe('ran');
     expect(report.recovery.status).toBe('not_run');
     expect(report.preflight.status).toBe('not_run');
-    expect(report.compatibility.status).toBe('not_run');
+    expect(report.compatibility.status).toBe('ran');
+    if (report.compatibility.status === 'ran') {
+      expect(report.compatibility.data.clients).toEqual([
+        'claude', 'cursor', 'gemini', 'vscode', 'windsurf', 'cline', 'openai', 'continue',
+      ]);
+      expect(report.compatibility.data.tools[0].cells.cursor).toEqual({
+        compatible: true,
+        errorCount: 0,
+        evidence: 'not_observed',
+      });
+    }
     expect(report.tokenBudget.status).toBe('ran');
     expect(report.coverage.confidence).toBe('medium');
     expect(report.recommendations).toEqual([
@@ -57,6 +67,10 @@ describe('buildAuditReport', () => {
       status: 'not_run',
       reason: 'No tools were supplied, so the quality score was withheld.',
     });
+    expect(report.compatibility).toEqual({
+      status: 'not_run',
+      reason: 'No tools were supplied, so compatibility was not measured.',
+    });
     expect(report.coverage.confidence).toBe('low');
     expect(report.recommendations).toContain('No tools were supplied, so the quality score was withheld.');
     expect(JSON.stringify(report)).not.toContain('"overall":100');
@@ -71,6 +85,7 @@ describe('buildAuditReport', () => {
     expect(report.findings.status).toBe('not_run');
     expect(report.severity.status).toBe('not_run');
     expect(report.quality.status).toBe('not_run');
+    expect(report.compatibility.status).toBe('not_run');
     expect(report.recommendations[0]).toMatch(/not a pass/);
     expect(report.tools[0]).toEqual({
       name: 'search',
@@ -101,6 +116,14 @@ describe('buildAuditReport', () => {
       expect(report.findings.data[0].clients).toEqual(['claude', 'cursor']);
     }
     expect(report.severity).toEqual({ status: 'ran', data: { error: 1, warning: 0, info: 1 } });
+    expect(report.compatibility.status).toBe('ran');
+    if (report.compatibility.status === 'ran') {
+      expect(report.compatibility.data.tools).toHaveLength(1);
+      expect(report.compatibility.data.tools[0].cells.claude.evidence).toBe('measured');
+      expect(report.compatibility.data.tools[0].cells.claude.compatible).toBe(false);
+      expect(report.compatibility.data.tools[0].cells.cursor.errorCount).toBe(1);
+      expect(report.compatibility.data.tools[0].cells.gemini.evidence).toBe('not_observed');
+    }
     expect(report.recommendations.some((line) => line.includes('duplicate'))).toBe(true);
   });
 
@@ -120,5 +143,9 @@ describe('buildAuditReport', () => {
     });
     expect(() => parseAuditReport({ ...report, schemaVersion: 2 })).toThrow();
     expect(() => parseAuditReport({ ...report, extra: true })).toThrow();
+    expect(parseAuditReport({
+      ...report,
+      compatibility: { status: 'not_run', reason: 'Client compatibility was not re-checked for this report.' },
+    }).compatibility.status).toBe('not_run');
   });
 });

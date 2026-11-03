@@ -13,7 +13,7 @@ Proof page, with a live bench: [mcp-lint-alpha.vercel.app](https://mcp-lint-alph
 
 MCP servers expose tool schemas consumed by **Claude**, **Cursor**, **Gemini**, **VS Code Copilot**, **Windsurf**, **Cline**, **OpenAI Agents SDK**, and **Continue.dev**. Each client has different JSON Schema support and quirks — a schema that works in Claude may silently break in Cursor or OpenAI. `mcp-lint` catches these issues before your users do.
 
-This repository is **1.0.0**. npm `latest` is 1.0.0. Design notes: [PRODUCT.md](PRODUCT.md), [ROADMAP.md](ROADMAP.md), [ARCHITECTURE.md](ARCHITECTURE.md), [SECURITY.md](SECURITY.md), [RELEASE.md](RELEASE.md). Those files describe the current code. They are not extra commands.
+This repository is **1.0.1**. npm `latest` is 1.0.1. Design notes: [PRODUCT.md](PRODUCT.md), [ROADMAP.md](ROADMAP.md), [ARCHITECTURE.md](ARCHITECTURE.md), [SECURITY.md](SECURITY.md), [RELEASE.md](RELEASE.md). Those files describe the current code. They are not extra commands.
 
 ```
 $ npx mcp-lint check tools.json
@@ -50,7 +50,8 @@ npm install --save-dev mcp-lint
 ## Quick Start
 
 ```bash
-# Look for tools.json, tools.yaml, or mcp-tools.json in this directory
+# Look in this directory, and one level down, for tools.json, tools.yaml,
+# tools.yml, mcp-tools.json, mcp-tools.yaml, or mcp-tools.yml
 npx mcp-lint
 
 # Check a JSON or YAML file
@@ -182,9 +183,9 @@ mcp-lint check --server sse --url http://localhost:3000/sse
 
 | Code | Meaning |
 |------|---------|
-| `0` | No errors (warnings don't count) |
-| `1` | One or more errors found |
-| `2` | Invalid input or configuration error |
+| `0` | No schema errors. Warnings do not fail the command. |
+| `1` | One or more schema errors, or the command could not read its input. |
+| `2` | `--watch` was used without a file. |
 
 ### `mcp-lint report <file>`
 
@@ -197,7 +198,7 @@ mcp-lint report tools.json --format html --output report.html
 mcp-lint report tools.json --format markdown
 ```
 
-Formats are `terminal`, `json`, `markdown`, `sarif`, and `html`. The HTML file has inline CSS and no script. Token totals are a local `chars / 4` estimate. Recovery, preflight, and live inspection stay marked as not run. When the run has no schema errors, the report says: "No schema errors in this run. Recovery, preflight, and live inspection were not measured."
+Formats are `terminal`, `json`, `markdown`, `sarif`, and `html`. The HTML file has inline CSS and no script. Token totals are a local `chars / 4` estimate. The compatibility section is filled from that same lint. A cell is `measured` or `not_observed`. An empty tool list leaves the section not run. Recovery, preflight, and live inspection stay marked as not run. When the run has no schema errors, the report says: "No schema errors in this run. Recovery, preflight, and live inspection were not measured."
 
 ```bash
 mcp-lint report tools.json --baseline audit.baseline.json
@@ -428,8 +429,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: robert19001-cmyk/mcp-lint@v1.0.0
-        # Tag v1.0.0. The action installs npm latest.
+      - uses: robert19001-cmyk/mcp-lint@v1.0.1
+        # Tag v1.0.1 installs mcp-lint@1 unless version is set.
+        # Tag v1.0.0 still installs npm latest.
         with:
           input: tools.json
           severity: warning
@@ -441,15 +443,17 @@ jobs:
 
 | Input | Default | Description |
 |-------|---------|-------------|
-| `input` | first `tools.json` in the repo | Path to an MCP tools JSON or YAML file |
+| `input` | first matching file | `tools.json`, `tools.yaml`, `tools.yml`, `mcp-tools.json`, `mcp-tools.yaml`, or `mcp-tools.yml` in the repo root, then one directory down |
 | `format` | `terminal` | `terminal\|json\|markdown` |
 | `severity` | `info` | Minimum severity to report |
 | `clients` | all | Comma-separated client filter |
-| `fail_on` | `error` | Fail CI when issues at this severity found |
+| `fail_on` | `error` | Fail the job at this severity or above. `warning` and `info` read the full diagnostic list. The CLI itself exits 1 only for schema errors. |
 | `score` | `false` | Show quality score |
+| `recover` | empty | Path to a recovery JSON file. The job fails when recover exits non-zero |
 | `sarif` | `false` | Upload SARIF when this `mcp-lint` release includes `report`. The workflow needs `security-events: write`. |
+| `version` | `1` | npm dist-tag or version. `1` installs `mcp-lint@1`. Tag `v1.0.0` ignores this input and installs `latest`. |
 
-The action in this repository writes a `::error`, `::warning`, or `::notice` annotation from `check --format json`. With an empty `input` it also looks one directory down, skipping `node_modules` and dot directories. `sarif: true` uploads SARIF when the installed CLI has `report`. The action installs npm `latest`, which is 1.0.0. The workflow needs `security-events: write`.
+The action in this repository writes a `::error`, `::warning`, or `::notice` annotation from `check --format json`. With an empty `input` it also looks one directory down, skipping `node_modules` and dot directories. `sarif: true` uploads SARIF when the installed CLI has `report`. Tag `v1.0.1` installs `mcp-lint@1` unless `version` is set. Tag `v1.0.0` still installs npm `latest`. The workflow needs `security-events: write`.
 
 ### Manual workflow
 
@@ -766,7 +770,7 @@ The repository includes `glama.json` and a production Dockerfile so MCP director
 
 ## Site
 
-The proof page is in `site/`. Version 1.0.0. It runs the same recovery scorer, schema linter, and preflight function as the CLI.
+The proof page is in `site/`. Version 1.0.1. It runs the same recovery scorer, schema linter, and preflight function as the CLI.
 
 ```bash
 npm run site

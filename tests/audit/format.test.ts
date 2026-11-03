@@ -44,6 +44,8 @@ describe('formatAuditReport', () => {
     expect(output).toContain('recovery');
     expect(output).toContain('description-exists');
     expect(output).toContain('not a pass');
+    expect(output).toContain('Measured cells: 1');
+    expect(output).toContain('not_observed');
   });
 
   it('renders terminal text without color codes when asked', () => {

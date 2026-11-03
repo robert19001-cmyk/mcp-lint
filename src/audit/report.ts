@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import type { Diagnostic } from '../core/diagnostic.js';
+import { buildCompatMatrix } from '../core/compat-matrix.js';
 import { computeQualityReport } from '../core/quality-score.js';
-import type { MCPTool } from '../core/rule.js';
+import type { ClientId, JSONSchema, MCPTool } from '../core/rule.js';
 import {
   buildTokenBudget,
   DEFAULT_TOKEN_THRESHOLDS,
@@ -85,6 +86,20 @@ export interface SeverityCounts {
   info: number;
 }
 
+export interface CompatCellSummary {
+  compatible: boolean;
+  errorCount: number;
+  evidence: 'measured' | 'not_observed';
+}
+
+export interface CompatibilitySectionData {
+  clients: ClientId[];
+  tools: Array<{
+    name: string;
+    cells: Record<ClientId, CompatCellSummary>;
+  }>;
+}
+
 export interface MCPAuditReport {
   schemaVersion: typeof AUDIT_REPORT_SCHEMA_VERSION;
   generatedAt: string;
@@ -99,7 +114,7 @@ export interface MCPAuditReport {
   duplicateToolNames: string[];
   findings: Section<AuditFinding[]>;
   severity: Section<SeverityCounts>;
-  compatibility: NotRunSection;
+  compatibility: Section<CompatibilitySectionData>;
   tokenBudget: Section<TokenBudget>;
   quality: Section<QualitySectionData>;
   recovery: NotRunSection;
@@ -211,6 +226,38 @@ const notRunSchema = z.object({
   reason: z.string().min(1),
 }).strict();
 
+const compatCellSchema = z.object({
+  compatible: z.boolean(),
+  errorCount: z.number().int().nonnegative(),
+  evidence: z.enum(['measured', 'not_observed']),
+}).strict();
+
+const compatibilitySchema = z.object({
+  clients: z.tuple([
+    z.literal('claude'),
+    z.literal('cursor'),
+    z.literal('gemini'),
+    z.literal('vscode'),
+    z.literal('windsurf'),
+    z.literal('cline'),
+    z.literal('openai'),
+    z.literal('continue'),
+  ]),
+  tools: z.array(z.object({
+    name: z.string().min(1),
+    cells: z.object({
+      claude: compatCellSchema,
+      cursor: compatCellSchema,
+      gemini: compatCellSchema,
+      vscode: compatCellSchema,
+      windsurf: compatCellSchema,
+      cline: compatCellSchema,
+      openai: compatCellSchema,
+      continue: compatCellSchema,
+    }).strict(),
+  }).strict()),
+}).strict();
+
 export const AuditReportSchema = z.object({
   schemaVersion: z.literal(AUDIT_REPORT_SCHEMA_VERSION),
   generatedAt: z.string().min(1),
@@ -229,7 +276,7 @@ export const AuditReportSchema = z.object({
     warning: z.number().int().nonnegative(),
     info: z.number().int().nonnegative(),
   }).strict()),
-  compatibility: notRunSchema,
+  compatibility: sectionSchema(compatibilitySchema),
   tokenBudget: sectionSchema(tokenBudgetSchema),
   quality: sectionSchema(qualitySchema),
   recovery: notRunSchema,
@@ -244,6 +291,46 @@ export const AuditReportSchema = z.object({
 
 function notRun(reason: string): NotRunSection {
   return { status: 'not_run', reason };
+}
+
+function compatibilitySection(
+  tools: ReadonlyArray<Record<string, unknown>>,
+  diagnostics: Diagnostic[] | undefined,
+  findingsRan: boolean,
+): Section<CompatibilitySectionData> {
+  if (!findingsRan) return notRun('Schema lint did not run, so compatibility was not measured.');
+  if (tools.length === 0) return notRun('No tools were supplied, so compatibility was not measured.');
+  const matrix = buildCompatMatrix(asMatrixTools(tools), diagnostics ?? []);
+  const seen = new Set<string>();
+  const rows: CompatibilitySectionData['tools'] = [];
+  for (const name of matrix.tools) {
+    if (seen.has(name)) continue;
+    seen.add(name);
+    const source = matrix.cells[name];
+    const cells = {} as Record<ClientId, CompatCellSummary>;
+    for (const client of matrix.clients) {
+      const cell = source[client];
+      cells[client] = {
+        compatible: cell.compatible,
+        errorCount: cell.errorCount,
+        evidence: cell.evidence,
+      };
+    }
+    rows.push({ name, cells });
+  }
+  return {
+    status: 'ran',
+    data: { clients: matrix.clients, tools: rows },
+  };
+}
+
+function asMatrixTools(tools: ReadonlyArray<Record<string, unknown>>): MCPTool[] {
+  return tools.map((tool) => ({
+    name: tool.name as string,
+    description: typeof tool.description === 'string' ? tool.description : undefined,
+    inputSchema: isRecord(tool.inputSchema) ? tool.inputSchema as JSONSchema : {},
+    outputSchema: isRecord(tool.outputSchema) ? tool.outputSchema as JSONSchema : undefined,
+  }));
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -396,6 +483,7 @@ export function buildAuditReport(input: BuildAuditReportInput): MCPAuditReport {
     };
   }
 
+  const compatibility = compatibilitySection(tools, input.diagnostics, findingsRan);
   const tokenLevel = tokenSection.status === 'ran' ? tokenSection.data.level : undefined;
   const lines = recommendations({
     findingsRan,
@@ -412,7 +500,9 @@ export function buildAuditReport(input: BuildAuditReportInput): MCPAuditReport {
   if (tokenSection.status === 'ran') ran.push('tokenBudget');
   if (findingsRan) ran.push('findings', 'severity');
   if (quality.status === 'ran') ran.push('quality');
-  const notRunNames = ['compatibility', 'recovery', 'preflight'];
+  if (compatibility.status === 'ran') ran.push('compatibility');
+  const notRunNames = ['recovery', 'preflight'];
+  if (compatibility.status !== 'ran') notRunNames.unshift('compatibility');
   if (!findingsRan) notRunNames.push('findings', 'severity');
   if (quality.status !== 'ran') notRunNames.push('quality');
   if (tokenSection.status !== 'ran') notRunNames.push('tokenBudget');
@@ -437,7 +527,7 @@ export function buildAuditReport(input: BuildAuditReportInput): MCPAuditReport {
     duplicateToolNames: duplicates,
     findings: findings ? { status: 'ran', data: findings } : notRun('Schema lint did not run.'),
     severity: counts ? { status: 'ran', data: counts } : notRun('Schema lint did not run.'),
-    compatibility: notRun('Client compatibility was not re-checked for this report.'),
+    compatibility,
     tokenBudget: tokenSection,
     quality,
     recovery: notRun('Recovery was not scored.'),

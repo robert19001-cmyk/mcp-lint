@@ -2,18 +2,18 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.robert19001-cmyk/mcp-lint",
   "title": "mcp-lint",
-  "description": "Lint MCP tool schemas for client compatibility and agent recovery.",
+  "description": "Lint MCP tool schemas for eight clients and score recovery.",
   "websiteUrl": "https://mcp-lint-alpha.vercel.app/",
   "repository": {
     "url": "https://github.com/robert19001-cmyk/mcp-lint",
     "source": "github"
   },
-  "version": "1.0.0",
+  "version": "1.0.1",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "mcp-lint",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "transport": {
         "type": "stdio"
       }
