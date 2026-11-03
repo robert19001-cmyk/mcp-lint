@@ -4,7 +4,7 @@ The maintainer publishes. An agent does not tag, npm publish, or registry publis
 
 ## Current public release
 
-Repository version is `1.0.1`. Git tag `v1.0.1` is the release commit. Git tag `v1.0.0` stays commit `27e4251`. Git tag `v0.9.0` stays commit `25d3453`. Git tag `v0.8.0` stays commit `7133dfc`. npm `latest` is `1.0.1`. Homepage and registry `websiteUrl` are https://mcp-lint-alpha.vercel.app/.
+Repository version is `1.0.2`. Git tag `v1.0.2` is the release commit. Git tag `v1.0.1` stays commit `8369a23`. Git tag `v1.0.0` stays commit `27e4251`. Git tag `v0.9.0` stays commit `25d3453`. Git tag `v0.8.0` stays commit `7133dfc`. npm `latest` is `1.0.2`. npm `1.0.1` was not published. Homepage and registry `websiteUrl` are https://mcp-lint-alpha.vercel.app/.
 
 Unreleased work stays under `## [Unreleased]` in `CHANGELOG.md`. Do not bump `package.json` until the release commit.
 

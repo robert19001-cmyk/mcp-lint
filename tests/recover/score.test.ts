@@ -65,6 +65,14 @@ describe('scoreRecovery', () => {
     expect(classifyDurability('credential')).toBe('permanent');
   });
 
+  it('treats a timeout as a hang when the clock is a millisecond short', () => {
+    const report = scoreRecovery([
+      { tool: 'search', kind: 'timeout', message: 'timed out after 30ms', durationMs: 29 },
+    ], { tools, hangMs: 30 });
+
+    expect(report.findings.map((finding) => finding.ruleId)).toContain('recover/bounded-hang');
+  });
+
   it('rejects silent content and a hang past the budget', () => {
     const report = scoreRecovery([
       { tool: 'search', kind: 'silent', message: '' },

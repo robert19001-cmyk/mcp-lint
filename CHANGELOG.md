@@ -1,3 +1,10 @@
+## [1.0.2] — 2026-11-03
+
+### Fixed
+- A timeout is `recover/bounded-hang` even when the measured duration is a millisecond under the hang budget. The timer can fire early, so that sample was only `recover/names-retry`.
+
+npm `1.0.1` was not published. The package that follows `1.0.0` is `1.0.2`. Git tag `v1.0.1` stays the compatibility release.
+
 ## [1.0.1] — 2026-11-03
 
 ### Added

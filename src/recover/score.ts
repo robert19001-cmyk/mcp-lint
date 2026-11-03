@@ -86,9 +86,8 @@ function scoreSample(sample: RecoverySample, hangMs: number): RecoveryFinding[] 
       'Failure has no text an agent can act on. Return an error that names the tool to call next.'));
   }
 
-  const hung = sample.durationMs === undefined
-    ? sample.kind === 'timeout'
-    : sample.durationMs >= hangMs;
+  const hung = sample.kind === 'timeout'
+    || (sample.durationMs !== undefined && sample.durationMs >= hangMs);
   if (hung) {
     const took = sample.durationMs !== undefined ? `${sample.durationMs}ms` : 'too long';
     findings.push(finding(sample, 'recover/bounded-hang',

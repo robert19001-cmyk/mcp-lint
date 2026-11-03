@@ -13,7 +13,7 @@ Proof page, with a live bench: [mcp-lint-alpha.vercel.app](https://mcp-lint-alph
 
 MCP servers expose tool schemas consumed by **Claude**, **Cursor**, **Gemini**, **VS Code Copilot**, **Windsurf**, **Cline**, **OpenAI Agents SDK**, and **Continue.dev**. Each client has different JSON Schema support and quirks — a schema that works in Claude may silently break in Cursor or OpenAI. `mcp-lint` catches these issues before your users do.
 
-This repository is **1.0.1**. npm `latest` is 1.0.1. Design notes: [PRODUCT.md](PRODUCT.md), [ROADMAP.md](ROADMAP.md), [ARCHITECTURE.md](ARCHITECTURE.md), [SECURITY.md](SECURITY.md), [RELEASE.md](RELEASE.md). Those files describe the current code. They are not extra commands.
+This repository is **1.0.2**. npm `latest` is 1.0.2. Design notes: [PRODUCT.md](PRODUCT.md), [ROADMAP.md](ROADMAP.md), [ARCHITECTURE.md](ARCHITECTURE.md), [SECURITY.md](SECURITY.md), [RELEASE.md](RELEASE.md). Those files describe the current code. They are not extra commands.
 
 ```
 $ npx mcp-lint check tools.json
@@ -429,8 +429,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: robert19001-cmyk/mcp-lint@v1.0.1
-        # Tag v1.0.1 installs mcp-lint@1 unless version is set.
+      - uses: robert19001-cmyk/mcp-lint@v1.0.2
+        # Tag v1.0.2 installs mcp-lint@1 unless version is set.
         # Tag v1.0.0 still installs npm latest.
         with:
           input: tools.json
@@ -453,7 +453,7 @@ jobs:
 | `sarif` | `false` | Upload SARIF when this `mcp-lint` release includes `report`. The workflow needs `security-events: write`. |
 | `version` | `1` | npm dist-tag or version. `1` installs `mcp-lint@1`. Tag `v1.0.0` ignores this input and installs `latest`. |
 
-The action in this repository writes a `::error`, `::warning`, or `::notice` annotation from `check --format json`. With an empty `input` it also looks one directory down, skipping `node_modules` and dot directories. `sarif: true` uploads SARIF when the installed CLI has `report`. Tag `v1.0.1` installs `mcp-lint@1` unless `version` is set. Tag `v1.0.0` still installs npm `latest`. The workflow needs `security-events: write`.
+The action in this repository writes a `::error`, `::warning`, or `::notice` annotation from `check --format json`. With an empty `input` it also looks one directory down, skipping `node_modules` and dot directories. `sarif: true` uploads SARIF when the installed CLI has `report`. Tag `v1.0.2` installs `mcp-lint@1` unless `version` is set. Tag `v1.0.1` does the same. Tag `v1.0.0` still installs npm `latest`. The workflow needs `security-events: write`.
 
 ### Manual workflow
 
@@ -770,7 +770,7 @@ The repository includes `glama.json` and a production Dockerfile so MCP director
 
 ## Site
 
-The proof page is in `site/`. Version 1.0.1. It runs the same recovery scorer, schema linter, and preflight function as the CLI.
+The proof page is in `site/`. Version 1.0.2. It runs the same recovery scorer, schema linter, and preflight function as the CLI.
 
 ```bash
 npm run site

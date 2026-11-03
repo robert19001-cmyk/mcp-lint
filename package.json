@@ -1,6 +1,6 @@
 {
   "name": "mcp-lint",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "mcpName": "io.github.robert19001-cmyk/mcp-lint",
   "description": "Lint MCP tool schemas before they break Claude, Cursor, Gemini, VS Code, Windsurf, Cline, OpenAI, or Continue. Run npx mcp-lint.",
   "type": "module",

@@ -1,6 +1,6 @@
 # mcp-lint product
 
-mcp-lint is a local MIT toolkit for MCP server authors. Repository version 1.0.1 lints tool schemas, writes an audit report, scores whether an agent can recover from a recorded failure, lists resources and prompts, and evaluates a proposed action against a policy. It does not call tools in order to discover them. npm `latest` is 1.0.1.
+mcp-lint is a local MIT toolkit for MCP server authors. Repository version 1.0.2 lints tool schemas, writes an audit report, scores whether an agent can recover from a recorded failure, lists resources and prompts, and evaluates a proposed action against a policy. It does not call tools in order to discover them. npm `latest` is 1.0.2.
 
 The public site is https://mcp-lint-alpha.vercel.app/. The site source is `site/`. npm package `mcp-lint`. MCP registry name `io.github.robert19001-cmyk/mcp-lint`.
 
@@ -27,7 +27,7 @@ The public site is https://mcp-lint-alpha.vercel.app/. The site source is `site/
 
 ## What it is not
 
-Zed and OpenCode are not claimed. Windsurf and Cline have schema rules, and their config files are not scanned. The GitHub Action example is `robert19001-cmyk/mcp-lint@v1.0.1`. That tag installs `mcp-lint@1` unless `version` is set. Tag `v1.0.0` still installs npm `latest`.
+Zed and OpenCode are not claimed. Windsurf and Cline have schema rules, and their config files are not scanned. The GitHub Action example is `robert19001-cmyk/mcp-lint@v1.0.2`. That tag installs `mcp-lint@1` unless `version` is set. Tag `v1.0.1` does the same. Tag `v1.0.0` still installs npm `latest`.
 
 ## Community product
 

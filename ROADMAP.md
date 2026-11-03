@@ -1,6 +1,6 @@
 # Roadmap
 
-This file records the path from published 0.9.0 through 1.0.1. The repository version is 1.0.1. npm `latest` is 1.0.1. Nothing here is scheduled as a date.
+This file records the path from published 0.9.0 through 1.0.2. The repository version is 1.0.2. npm `latest` is 1.0.2. Nothing here is scheduled as a date.
 
 ## Shipped in 1.0.0
 
@@ -25,6 +25,10 @@ This file records the path from published 0.9.0 through 1.0.1. The repository ve
 The GitHub Action `fail_on` values `warning` and `info` used the CLI exit code. That code is 1 only for schema errors, so a warning-only run passed. Tag `v1.0.1` reads the full diagnostic list. `check` itself is unchanged. The action installs `mcp-lint@1` unless `version` is set. Tag `v1.0.0` still installs `mcp-lint@latest`.
 
 The npm description names eight clients. The registry description names eight clients and stays within 100 characters.
+
+## Shipped in 1.0.2
+
+A timeout sample is `recover/bounded-hang` even when the measured duration is a millisecond under the hang budget. The timer can fire early. On Node 20 that sample was only `recover/names-retry`. npm `1.0.1` was not published. The package that follows `1.0.0` is `1.0.2`. Git tag `v1.0.1` stays commit `8369a23`.
 
 ## Still out
 
