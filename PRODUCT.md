@@ -1,6 +1,6 @@
 # mcp-lint product
 
-mcp-lint is a local MIT toolkit for MCP server authors. Repository version 1.0.2 lints tool schemas, writes an audit report, scores whether an agent can recover from a recorded failure, lists resources and prompts, and evaluates a proposed action against a policy. It does not call tools in order to discover them. npm `latest` is 1.0.2.
+mcp-lint is a local MIT toolkit for MCP server authors. Repository version 1.0.3 lints tool schemas, writes an audit report, scores whether an agent can recover from a recorded failure, lists resources and prompts, and evaluates a proposed action against a policy. It does not call tools in order to discover them. npm `1.0.1` and npm `1.0.2` were not published. Registry `latest` was `1.0.0` before this release.
 
 The public site is https://mcp-lint-alpha.vercel.app/. The site source is `site/`. npm package `mcp-lint`. MCP registry name `io.github.robert19001-cmyk/mcp-lint`.
 
@@ -11,7 +11,7 @@ The public site is https://mcp-lint-alpha.vercel.app/. The site source is `site/
 - Rules cover JSON Schema misuse plus eight clients: Claude, Cursor, Gemini, VS Code, Windsurf, Cline, OpenAI, and Continue.
 - `check --installed` and `--from` read local Cursor, Claude, and VS Code MCP configs, including `projects.<path>.mcpServers` in `~/.claude.json`. Remote URLs are skipped unless `--remote` is set.
 - Schema rules walk `outputSchema` the same way as `inputSchema`. A missing output schema is not an error. Repeated names in one list, and the same name on two installed servers, are errors.
-- `fix` writes only fixes marked `safe`. `--dry-run` also lists `review` and `manual` fixes. Titles are not invented.
+- `fix` writes only fixes marked `safe`. `--dry-run` also lists `review` and `manual` fixes. Titles are not invented. `explain` prints that same class.
 - `report` writes one tools file as terminal, JSON, Markdown, SARIF 2.1.0, or offline HTML. `check --format json` is still the diagnostic array. The compatibility section comes from that lint. A cell is `measured` or `not_observed`. An empty tool list leaves it not run. Recovery and preflight stay not run.
 - `--score` uses `quality-v2`. Missing description or schema fields add no points. An empty tool list is unmeasured. Audit reports withhold that empty score.
 - `snapshot` writes a stable tools JSON file. `diff` exits 1 when the new file adds an error.
@@ -27,7 +27,7 @@ The public site is https://mcp-lint-alpha.vercel.app/. The site source is `site/
 
 ## What it is not
 
-Zed and OpenCode are not claimed. Windsurf and Cline have schema rules, and their config files are not scanned. The GitHub Action example is `robert19001-cmyk/mcp-lint@v1.0.2`. That tag installs `mcp-lint@1` unless `version` is set. Tag `v1.0.1` does the same. Tag `v1.0.0` still installs npm `latest`.
+Zed and OpenCode are not claimed. Windsurf and Cline have schema rules, and their config files are not scanned. The GitHub Action example is `robert19001-cmyk/mcp-lint@v1.0.3`. That tag installs `mcp-lint@1` unless `version` is set. Tag `v1.0.2` and tag `v1.0.1` do the same. Tag `v1.0.0` still installs npm `latest`.
 
 ## Community product
 

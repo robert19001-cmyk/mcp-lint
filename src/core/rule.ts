@@ -1,6 +1,6 @@
 import type { Severity } from './severity.js';
 export type { Severity } from './severity.js';
-import type { Diagnostic } from './diagnostic.js';
+import type { Diagnostic, FixClass } from './diagnostic.js';
 
 export type ClientId =
   | 'claude' | 'cursor' | 'gemini' | 'vscode'
@@ -77,6 +77,8 @@ export interface Rule {
   severity: Severity;
   description: string;
   url?: string;
+  /** What `mcp-lint fix` does. `safe` is written. `review` is listed only. `manual` is a note. */
+  fixClass?: FixClass;
   clients: ClientId[];
   docs?: RuleDocs;
   check: (tool: MCPTool, context: RuleContext) => Diagnostic[];

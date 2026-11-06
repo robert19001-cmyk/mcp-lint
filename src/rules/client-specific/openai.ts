@@ -9,6 +9,7 @@ export const openaiNoAdditionalProperties: Rule = {
   id: 'openai/no-additional-properties',
   severity: 'error',
   description: 'OpenAI Agents SDK strict mode requires `additionalProperties: false` on the root inputSchema.',
+  fixClass: 'review',
   clients: ['openai'],
   docs: {
     why: 'OpenAI\'s strict function calling mode rejects schemas that don\'t explicitly set `additionalProperties: false` at the root level.',

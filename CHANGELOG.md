@@ -1,3 +1,14 @@
+## [1.0.3] — 2026-11-06
+
+### Changed
+- Terminal `check` output prints an error index when more than one tool has an error, then errors before warnings. Two or more Cursor missing-title warnings on one tool collapse into a single line. The result names the next `explain` command, and a safe fix also prints `fix --dry-run`.
+- The proof page check bench uses that same order, collapse, and next step.
+- `explain` reports the fix class: `safe`, `review`, `manual`, or `none`. `safe` is what `fix` writes. A review fix is listed and not written.
+- `compat` says "1 tool has" when one tool fails a client.
+- `check --help` names all eight clients.
+
+npm `1.0.1` and npm `1.0.2` were not published. Registry `latest` was `1.0.0` before this release. Git tag `v1.0.2` stays commit `95bc1b2`. Git tag `v1.0.1` stays commit `8369a23`.
+
 ## [1.0.2] — 2026-11-03
 
 ### Fixed

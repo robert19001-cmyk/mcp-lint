@@ -54,6 +54,7 @@ export const toolNameDuplicate: Rule = {
   id: 'tool-name/duplicate',
   severity: 'error',
   description: 'The same tool name must not appear twice in one tools list.',
+  fixClass: 'manual',
   clients: CLIENTS,
   docs: {
     why: 'Clients call a tool by name. Two entries with the same name make the second one unreachable or overwrite the first.',
@@ -70,6 +71,7 @@ export const toolNameServerCollision: Rule = {
   id: 'tool-name/server-collision',
   severity: 'error',
   description: 'The same tool name must not be exposed by two installed servers.',
+  fixClass: 'manual',
   clients: CLIENTS,
   docs: {
     why: 'A client that connects several MCP servers still calls a tool by name. The same name on two servers does not say which server owns the call.',
@@ -86,6 +88,7 @@ export const toolNameClientSafe: Rule = {
   id: 'tool-name/client-safe',
   severity: 'error',
   description: 'Tool names must be 1–64 characters of letters, digits, underscores, or hyphens, and should not start with a digit.',
+  fixClass: 'manual',
   clients: CLIENTS,
   docs: {
     why: 'OpenAI and Azure reject a tool name outside ^[A-Za-z0-9_-]{1,64}$. A space, slash, or dot makes the tool disappear. Gemini also refuses a name that starts with a digit.',

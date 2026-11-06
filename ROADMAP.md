@@ -1,6 +1,6 @@
 # Roadmap
 
-This file records the path from published 0.9.0 through 1.0.2. The repository version is 1.0.2. npm `latest` is 1.0.2. Nothing here is scheduled as a date.
+This file records the path from published 0.9.0 through 1.0.3. The repository version is 1.0.3. npm `1.0.1` and npm `1.0.2` were not published. Registry `latest` was `1.0.0` before this release. Nothing here is scheduled as a date.
 
 ## Shipped in 1.0.0
 
@@ -25,6 +25,12 @@ This file records the path from published 0.9.0 through 1.0.2. The repository ve
 The GitHub Action `fail_on` values `warning` and `info` used the CLI exit code. That code is 1 only for schema errors, so a warning-only run passed. Tag `v1.0.1` reads the full diagnostic list. `check` itself is unchanged. The action installs `mcp-lint@1` unless `version` is set. Tag `v1.0.0` still installs `mcp-lint@latest`.
 
 The npm description names eight clients. The registry description names eight clients and stays within 100 characters.
+
+## Shipped in 1.0.3
+
+`check` prints an error index when more than one tool has an error, then errors before warnings. Two or more Cursor missing-title warnings on one tool collapse into one line, and the warning count stays the real count. The result names `mcp-lint explain <rule>`. A safe fix also names `mcp-lint fix <file> --dry-run`. The proof page check bench uses that same layout. `explain` reports `safe`, `review`, `manual`, or `none`, and that class matches what `fix` writes. `compat` says "1 tool has" for one failing tool. `check --help` names all eight clients.
+
+npm `1.0.1` and npm `1.0.2` were not published. The package that follows `1.0.0` on the registry is `1.0.3`. Git tag `v1.0.2` stays commit `95bc1b2`. Git tag `v1.0.1` stays commit `8369a23`.
 
 ## Shipped in 1.0.2
 

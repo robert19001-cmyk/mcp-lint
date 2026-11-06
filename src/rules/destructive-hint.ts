@@ -9,6 +9,7 @@ export const destructiveUnmarked: Rule = {
   id: 'annotations/destructive-unmarked',
   severity: 'warning',
   description: 'A tool whose name deletes, sends, pays, or deploys must set annotations.destructiveHint.',
+  fixClass: 'manual',
   clients: CLIENTS,
   docs: {
     why: 'Clients use destructiveHint to decide whether a call needs a person. A delete tool with no hint looks the same as a read.',

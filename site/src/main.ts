@@ -7,6 +7,7 @@ import type { FailureKind } from '../../src/recover/types.ts';
 import { LintEngine } from '../../src/core/engine.ts';
 import type { MCPTool } from '../../src/core/rule.ts';
 import type { Diagnostic } from '../../src/core/diagnostic.ts';
+import { layoutDiagnostics } from '../../src/cli/formatters/layout.ts';
 import { allRules } from '../../src/rules/index.ts';
 import { preflight } from '../../src/preflight/engine.ts';
 import type { Action, Decision } from '../../src/preflight/types.ts';
@@ -177,37 +178,44 @@ function render(): void {
   verdictEl.innerHTML = `${body}<p class="sum ${pass ? 'ok' : 'error'}">${escapeHtml(summary)}</p>`;
 }
 
-function renderDiagnostics(target: HTMLElement, diagnostics: Diagnostic[]): void {
+function renderDiagnostics(target: HTMLElement, diagnostics: Diagnostic[], source?: string): void {
   if (diagnostics.length === 0) {
     target.innerHTML = '<p class="ok">✔ No issues found.</p>';
     return;
   }
 
-  const byTool = new Map<string, Diagnostic[]>();
-  for (const diagnostic of diagnostics) {
-    const list = byTool.get(diagnostic.toolName) ?? [];
-    list.push(diagnostic);
-    byTool.set(diagnostic.toolName, list);
-  }
+  const layout = layoutDiagnostics(diagnostics);
+  const index = layout.index.length === 0
+    ? ''
+    : `<p class="tool">Errors</p>${layout.index.map((row) =>
+        `<p class="hit error">${escapeHtml(row.name)}  ${row.count}</p><p class="meta">${escapeHtml(row.rules.join(', '))}</p>`,
+      ).join('')}`;
 
-  const blocks = [...byTool].map(([name, list]) => {
-    const lines = list.map((diagnostic) => {
+  const blocks = layout.tools.map((tool) => {
+    const lines = tool.items.map((item) => {
+      if (item.kind === 'titles') {
+        const shown = item.paths.slice(0, 3);
+        const extra = item.count - shown.length;
+        const where = extra > 0 ? `${shown.join(', ')}, +${extra}` : shown.join(', ');
+        return `<p class="hit warn">⚠ ${item.count} missing titles. Cursor can display raw names without them.</p><p class="meta">${escapeHtml(where)}  [${escapeHtml(item.ruleId)}]</p>`;
+      }
+      const diagnostic = item.diagnostic;
       const tone = diagnostic.severity === 'warning' ? 'warn' : diagnostic.severity === 'info' ? 'info' : 'error';
       const mark = diagnostic.severity === 'warning' ? '⚠' : diagnostic.severity === 'info' ? 'ℹ' : '✖';
       return `<p class="hit ${tone}">${mark} ${escapeHtml(diagnostic.message)}</p><p class="meta">${escapeHtml(diagnostic.path)}  [${escapeHtml(diagnostic.ruleId)}]</p>`;
     }).join('');
-    return `<p class="tool">${escapeHtml(name)}</p>${lines}`;
+    return `<p class="tool">${escapeHtml(tool.name)}</p>${lines}`;
   }).join('');
 
-  const errors = diagnostics.filter((item) => item.severity === 'error').length;
-  const warnings = diagnostics.filter((item) => item.severity === 'warning').length;
-  const infos = diagnostics.filter((item) => item.severity === 'info').length;
   const parts: string[] = [];
-  if (errors > 0) parts.push(`<span class="error">${errors} error${errors === 1 ? '' : 's'}</span>`);
-  if (warnings > 0) parts.push(`<span class="warn">${warnings} warning${warnings === 1 ? '' : 's'}</span>`);
-  if (infos > 0) parts.push(`<span class="info">${infos} info</span>`);
+  if (layout.errors > 0) parts.push(`<span class="error">${layout.errors} error${layout.errors === 1 ? '' : 's'}</span>`);
+  if (layout.warnings > 0) parts.push(`<span class="warn">${layout.warnings} warning${layout.warnings === 1 ? '' : 's'}</span>`);
+  if (layout.infos > 0) parts.push(`<span class="info">${layout.infos} info</span>`);
+  const next = layout.explainRule
+    ? `<p class="meta">Next: mcp-lint explain ${escapeHtml(layout.explainRule)}</p>${layout.hasSafeFix ? `<p class="meta">mcp-lint fix ${escapeHtml(source ?? '<file>')} --dry-run</p>` : ''}`
+    : '';
 
-  target.innerHTML = `${blocks}<p class="sum">${parts.join(', ')}</p>`;
+  target.innerHTML = `${index}${blocks}<p class="sum">${parts.join(', ')}</p>${next}`;
 }
 
 function applySchema(name: string): void {
@@ -220,7 +228,8 @@ function applySchema(name: string): void {
   checkStamp.textContent = errors === 0 ? 'Pass' : 'Fail';
   checkStamp.classList.toggle('pass', errors === 0);
   pop(checkStamp);
-  renderDiagnostics(checkOut, diagnostics);
+  const source = sample.command.split(' ').at(-1);
+  renderDiagnostics(checkOut, diagnostics, source);
   document.querySelectorAll<HTMLButtonElement>('[data-schema]').forEach((button) => {
     button.setAttribute('aria-pressed', button.dataset.schema === name ? 'true' : 'false');
   });

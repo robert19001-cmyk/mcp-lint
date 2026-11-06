@@ -6,6 +6,7 @@ export const noEmptyEnum: Rule = {
   id: 'no-empty-enum',
   severity: 'error',
   description: 'An empty `enum` array makes the parameter impossible to satisfy.',
+  fixClass: 'review',
   clients: ['claude', 'cursor', 'gemini', 'vscode'],
 
   check(tool: MCPTool, _context: RuleContext): Diagnostic[] {

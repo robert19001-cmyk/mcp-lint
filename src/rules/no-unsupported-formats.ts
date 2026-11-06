@@ -13,6 +13,7 @@ export const noUnsupportedFormats: Rule = {
   id: 'no-unsupported-formats',
   severity: 'warning',
   description: 'Some `format` values are not widely supported and may be rejected by strict clients.',
+  fixClass: 'review',
   clients: ['claude', 'cursor', 'gemini', 'vscode'],
 
   check(tool: MCPTool, _context: RuleContext): Diagnostic[] {

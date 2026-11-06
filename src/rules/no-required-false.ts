@@ -6,7 +6,14 @@ export const noRequiredFalse: Rule = {
   id: 'no-required-false',
   severity: 'error',
   description: '`required: false` on a property is not valid JSON Schema. Properties are optional by default.',
+  fixClass: 'safe',
   clients: ['claude', 'cursor', 'gemini', 'vscode'],
+  docs: {
+    why: 'JSON Schema uses the parent `required` array. `required: false` on a property is not a keyword, and strict clients reject the schema.',
+    badExample: { properties: { query: { type: 'string', required: false } } },
+    goodExample: { properties: { query: { type: 'string' } } },
+    fixNote: 'Remove `required: false`. List the name in the parent `required` array only when the property is mandatory.',
+  },
 
   check(tool: MCPTool, _context: RuleContext): Diagnostic[] {
     const diagnostics: Diagnostic[] = [];

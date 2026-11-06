@@ -23,5 +23,5 @@ export function formatDiscovered(groups: DiscoveredFile[], format: string, noCol
   }
 
   if (noColor) chalk.level = 0;
-  return `${groups.map((group) => `${chalk.bold(group.file)}\n${formatTerminal(group.diagnostics, noColor)}`).join('\n')}`;
+  return `${groups.map((group) => `${chalk.bold(group.file)}\n${formatTerminal(group.diagnostics, noColor, group.file)}`).join('\n')}`;
 }

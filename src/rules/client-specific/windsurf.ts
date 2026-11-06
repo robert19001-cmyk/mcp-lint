@@ -7,6 +7,7 @@ export const windsurfNoUnionTypes: Rule = {
   id: 'windsurf/no-union-types',
   severity: 'warning',
   description: 'Windsurf does not support `anyOf` with more than 2 variants.',
+  fixClass: 'manual',
   clients: ['windsurf'],
   docs: {
     why: 'Windsurf\'s MCP client has limited support for complex union types. `anyOf` with more than 2 variants may be silently ignored or cause unexpected behavior.',

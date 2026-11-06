@@ -11,6 +11,12 @@ import { loadPluginRules } from '../../config/plugin-loader.js';
 import type { ClientId, MCPTool } from '../../core/rule.js';
 import chalk from 'chalk';
 
+export function formatCompatIssueCount(count: number): string {
+  const noun = count === 1 ? 'tool' : 'tools';
+  const verb = count === 1 ? 'has' : 'have';
+  return `${count} ${noun} ${verb} compatibility issues. Run \`mcp-lint check\` for details.`;
+}
+
 function formatCompatTerminal(matrix: CompatMatrix, noColor: boolean): string {
   if (noColor) chalk.level = 0;
 
@@ -42,7 +48,7 @@ function formatCompatTerminal(matrix: CompatMatrix, noColor: boolean): string {
     (incompatible.length === 0
       ? chalk.green('\nAll tools compatible across all clients.\n')
       : chalk.yellow(
-          `\n${incompatible.length} tool${incompatible.length !== 1 ? 's' : ''} have compatibility issues. Run \`mcp-lint check\` for details.\n`,
+          `\n${formatCompatIssueCount(incompatible.length)}\n`,
         ))
     + chalk.dim('A check mark means no error fired for that client in this run. It is not proof the client accepts the schema.\n');
 
@@ -86,7 +92,7 @@ function formatCompatMarkdown(matrix: CompatMatrix): string {
   const summary =
     incompatible.length === 0
       ? '\n_All tools compatible across all clients._\n'
-      : `\n_${incompatible.length} tool(s) have compatibility issues. Run \`mcp-lint check\` for details._\n`;
+      : `\n_${formatCompatIssueCount(incompatible.length)}_\n`;
 
   return [header, separator, ...rows, summary].join('\n') + '\n';
 }

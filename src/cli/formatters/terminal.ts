@@ -1,41 +1,32 @@
 import chalk from 'chalk';
 import type { Diagnostic } from '../../core/diagnostic.js';
+import { layoutDiagnostics, type TitleItem } from './layout.js';
 
 const ICONS = { error: '✖', warning: '⚠', info: 'ℹ' } as const;
 
-export function formatTerminal(diagnostics: Diagnostic[], noColor = false): string {
+export function formatTerminal(diagnostics: Diagnostic[], noColor = false, source?: string): string {
   if (noColor) chalk.level = 0;
 
   if (diagnostics.length === 0) {
     return chalk.green('✔ No issues found.\n');
   }
 
-  const byTool = new Map<string, Diagnostic[]>();
-  for (const d of diagnostics) {
-    const list = byTool.get(d.toolName) ?? [];
-    list.push(d);
-    byTool.set(d.toolName, list);
-  }
-
+  const layout = layoutDiagnostics(diagnostics);
   const lines: string[] = [''];
 
-  for (const [toolName, toolDiags] of byTool) {
-    lines.push(chalk.bold(toolName));
-    for (const d of toolDiags) {
-      const icon = d.severity === 'error'
-        ? chalk.red(ICONS.error)
-        : d.severity === 'warning'
-          ? chalk.yellow(ICONS.warning)
-          : chalk.blue(ICONS.info);
+  if (layout.index.length > 0) {
+    lines.push(chalk.bold('Errors'));
+    for (const row of layout.index) {
+      lines.push(`  ${chalk.red(`${row.name}  ${row.count}`)}  ${chalk.dim(row.rules.join(', '))}`);
+    }
+    lines.push('');
+  }
 
-      const msgColor = d.severity === 'error'
-        ? chalk.red
-        : d.severity === 'warning'
-          ? chalk.yellow
-          : chalk.blue;
-
-      lines.push(`  ${icon} ${msgColor(d.message)}`);
-      lines.push(`    ${chalk.gray(d.path)}  ${chalk.dim(`[${d.ruleId}]`)}`);
+  for (const tool of layout.tools) {
+    lines.push(chalk.bold(tool.name));
+    for (const item of tool.items) {
+      if (item.kind === 'finding') writeDiagnostic(lines, item.diagnostic);
+      else writeCollapsedTitles(lines, item);
     }
     lines.push('');
   }
@@ -50,7 +41,36 @@ export function formatTerminal(diagnostics: Diagnostic[], noColor = false): stri
   if (infos > 0) summary.push(chalk.blue(`${infos} info`));
 
   lines.push(summary.join(', '));
+  if (layout.explainRule) {
+    lines.push(`Next: mcp-lint explain ${layout.explainRule}`);
+    if (layout.hasSafeFix) lines.push(`      mcp-lint fix ${source ?? '<file>'} --dry-run`);
+  }
   lines.push('');
 
   return lines.join('\n');
+}
+
+function writeDiagnostic(lines: string[], d: Diagnostic): void {
+  const icon = d.severity === 'error'
+    ? chalk.red(ICONS.error)
+    : d.severity === 'warning'
+      ? chalk.yellow(ICONS.warning)
+      : chalk.blue(ICONS.info);
+
+  const msgColor = d.severity === 'error'
+    ? chalk.red
+    : d.severity === 'warning'
+      ? chalk.yellow
+      : chalk.blue;
+
+  lines.push(`  ${icon} ${msgColor(d.message)}`);
+  lines.push(`    ${chalk.gray(d.path)}  ${chalk.dim(`[${d.ruleId}]`)}`);
+}
+
+function writeCollapsedTitles(lines: string[], titles: TitleItem): void {
+  const shown = titles.paths.slice(0, 3);
+  const extra = titles.count - shown.length;
+  const where = extra > 0 ? `${shown.join(', ')}, +${extra}` : shown.join(', ');
+  lines.push(`  ${chalk.yellow(ICONS.warning)} ${chalk.yellow(`${titles.count} missing titles. Cursor can display raw names without them.`)}`);
+  lines.push(`    ${chalk.gray(where)}  ${chalk.dim(`[${titles.ruleId}]`)}`);
 }

@@ -17,6 +17,7 @@ export const cursorNoDefaultWithoutType: Rule = {
   id: 'cursor/no-default-without-type',
   severity: 'error',
   description: 'Cursor requires an explicit `type` when a `default` value is present.',
+  fixClass: 'review',
   clients: ['cursor'],
 
   check(tool: MCPTool, _context: RuleContext): Diagnostic[] {
@@ -54,6 +55,7 @@ export const cursorNoMissingTitle: Rule = {
   id: 'cursor/no-missing-title',
   severity: 'warning',
   description: 'Cursor displays tool and parameter titles in the tool picker; missing titles can expose raw snake_case names.',
+  fixClass: 'manual',
   clients: ['cursor'],
   docs: {
     why: 'Cursor uses titles to present tools and arguments more clearly. Without titles, users may see internal identifiers such as snake_case tool names or parameter names.',

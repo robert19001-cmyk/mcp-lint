@@ -8,6 +8,7 @@ export const clineDescriptionMaxLength: Rule = {
   id: 'cline/description-max-length',
   severity: 'warning',
   description: `Cline truncates descriptions longer than ${MAX_LENGTH} characters.`,
+  fixClass: 'review',
   clients: ['cline'],
   docs: {
     why: 'Cline\'s UI and prompt construction truncates tool and parameter descriptions at 200 characters. Longer descriptions are silently cut off, hiding important information.',

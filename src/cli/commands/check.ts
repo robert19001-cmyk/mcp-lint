@@ -40,7 +40,7 @@ export function registerCheckCommand(program: Command): void {
     .option('--no-color', 'Disable terminal colors')
     .option('--config <path>', 'Path to .mcplintrc.json config file')
     .option('--severity <level>', 'Minimum severity to report: error|warning|info')
-    .option('--clients <clients>', 'Comma-separated client filter: claude,cursor,gemini,vscode')
+    .option('--clients <clients>', 'Comma-separated client filter: claude,cursor,gemini,vscode,windsurf,cline,openai,continue')
     .option('--ignore <tools>', 'Comma-separated tool names to skip')
     .option('--quiet', 'Only output errors (no warnings/info)')
     .option('--server <type>', 'Server transport: stdio|sse|http')
@@ -187,7 +187,7 @@ export function registerCheckCommand(program: Command): void {
         } else if (options.format === 'markdown') {
           output = formatMarkdown(diagnostics);
         } else {
-          output = formatTerminal(diagnostics, !options.color);
+          output = formatTerminal(diagnostics, !options.color, input);
         }
 
         await emit(output, options, tools, diagnostics);

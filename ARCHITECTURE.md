@@ -50,7 +50,7 @@ Plugins load from `src/config/plugin-loader.ts`. Presets live in `src/config/pre
 
 The proof page is Vite, rooted at `site/`, built with `npm run site:build`. Vercel uses `vercel.json` and publishes `site/dist`. GitHub Pages is a mirror with `SITE_BASE=/mcp-lint/`. The canonical URL is the Vercel site.
 
-`action.yml` installs `mcp-lint@1` unless the `version` input says otherwise, then runs `check`. `sarif: true` uploads SARIF when the installed CLI has `report`. Tag `v1.0.2` and tag `v1.0.1` have this input. Tag `v1.0.0` still installs `mcp-lint@latest`.
+`action.yml` installs `mcp-lint@1` unless the `version` input says otherwise, then runs `check`. `sarif: true` uploads SARIF when the installed CLI has `report`. Tag `v1.0.3`, tag `v1.0.2`, and tag `v1.0.1` have this input. Tag `v1.0.0` still installs `mcp-lint@latest`.
 
 ## Boundaries
 

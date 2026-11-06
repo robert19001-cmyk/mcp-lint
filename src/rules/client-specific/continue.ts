@@ -6,6 +6,7 @@ export const continueNoDefaultValues: Rule = {
   id: 'continue/no-default-values',
   severity: 'warning',
   description: 'Continue.dev ignores `default` fields — users may assume defaults are applied when they are not.',
+  fixClass: 'manual',
   clients: ['continue'],
   docs: {
     why: 'Continue.dev\'s MCP client does not apply `default` values from schemas. If a user omits an optional parameter, they won\'t get the default — they\'ll get an error or undefined behavior.',

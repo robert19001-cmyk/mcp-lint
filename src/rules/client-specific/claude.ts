@@ -7,6 +7,7 @@ export const claudeNoTypeArray: Rule = {
   id: 'claude/no-type-array',
   severity: 'warning',
   description: 'Claude may not handle array syntax for `type` (e.g. `["string", "null"]`) correctly.',
+  fixClass: 'review',
   clients: ['claude'],
 
   check(tool: MCPTool, _context: RuleContext): Diagnostic[] {
