@@ -18,6 +18,7 @@ import { openaiNoAdditionalProperties, openaiStrictTypes } from './client-specif
 import { noUnreachableInstruction } from './agent-unreachable.js';
 import { destructiveUnmarked, readonlyConflict } from './destructive-hint.js';
 import { toolNameClientSafe, toolNameDuplicate, toolNameServerCollision } from './tool-name.js';
+import { catalogRules } from './catalog.js';
 
 export const allRules: Rule[] = [
   noRequiredFalse,
@@ -45,4 +46,5 @@ export const allRules: Rule[] = [
   toolNameClientSafe,
   toolNameDuplicate,
   toolNameServerCollision,
+  ...catalogRules,
 ];

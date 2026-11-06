@@ -1,3 +1,10 @@
+## [1.0.4] — 2026-11-06
+
+### Added
+- `catalog` lints the resources and prompts it listed. An empty or repeated resource URI, an empty resource name, an empty or repeated prompt name, and an empty or repeated prompt argument name are errors. A repeated resource display name, and a missing description, are warnings. `explain` documents each rule. The fix class is `manual`. The command still does not call a tool. A lint error exits 1. Warnings do not.
+
+npm `1.0.3` is the previous registry release. Git tag `v1.0.3` stays commit `4601e11`. npm `1.0.1` and npm `1.0.2` were not published.
+
 ## [1.0.3] — 2026-11-06
 
 ### Changed

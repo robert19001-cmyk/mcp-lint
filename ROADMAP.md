@@ -1,6 +1,6 @@
 # Roadmap
 
-This file records the path from published 0.9.0 through 1.0.3. The repository version is 1.0.3. npm `1.0.1` and npm `1.0.2` were not published. Registry `latest` was `1.0.0` before this release. Nothing here is scheduled as a date.
+This file records the path from published 0.9.0 through 1.0.4. The repository version is 1.0.4. npm `1.0.3` is the previous registry release. npm `1.0.1` and npm `1.0.2` were not published. Nothing here is scheduled as a date.
 
 ## Shipped in 1.0.0
 
@@ -25,6 +25,12 @@ This file records the path from published 0.9.0 through 1.0.3. The repository ve
 The GitHub Action `fail_on` values `warning` and `info` used the CLI exit code. That code is 1 only for schema errors, so a warning-only run passed. Tag `v1.0.1` reads the full diagnostic list. `check` itself is unchanged. The action installs `mcp-lint@1` unless `version` is set. Tag `v1.0.0` still installs `mcp-lint@latest`.
 
 The npm description names eight clients. The registry description names eight clients and stays within 100 characters.
+
+## Shipped in 1.0.4
+
+`catalog` lints the resources and prompts it listed. An empty or repeated resource URI, an empty resource name, an empty or repeated prompt name, and an empty or repeated prompt argument name are errors. A repeated resource display name, and a missing description, are warnings. `explain` documents each rule. The fix class is `manual`. The command still does not call a tool. A lint error exits 1. Warnings do not.
+
+npm `1.0.3` is the previous registry release. Git tag `v1.0.3` stays commit `4601e11`. npm `1.0.1` and npm `1.0.2` were not published.
 
 ## Shipped in 1.0.3
 

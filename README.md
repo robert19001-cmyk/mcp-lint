@@ -13,7 +13,7 @@ Proof page, with a live bench: [mcp-lint-alpha.vercel.app](https://mcp-lint-alph
 
 MCP servers expose tool schemas consumed by **Claude**, **Cursor**, **Gemini**, **VS Code Copilot**, **Windsurf**, **Cline**, **OpenAI Agents SDK**, and **Continue.dev**. Each client has different JSON Schema support and quirks — a schema that works in Claude may silently break in Cursor or OpenAI. `mcp-lint` catches these issues before your users do.
 
-This repository is **1.0.3**. npm `1.0.1` and npm `1.0.2` were not published. Registry `latest` was `1.0.0` before this release. Design notes: [PRODUCT.md](PRODUCT.md), [ROADMAP.md](ROADMAP.md), [ARCHITECTURE.md](ARCHITECTURE.md), [SECURITY.md](SECURITY.md), [RELEASE.md](RELEASE.md). Those files describe the current code. They are not extra commands.
+This repository is **1.0.4**. Install it with `npx mcp-lint@1.0.4`. npm `1.0.3` is the previous registry release. npm `1.0.1` and npm `1.0.2` were not published. Design notes: [PRODUCT.md](PRODUCT.md), [ROADMAP.md](ROADMAP.md), [ARCHITECTURE.md](ARCHITECTURE.md), [SECURITY.md](SECURITY.md), [RELEASE.md](RELEASE.md). Those files describe the current code. They are not extra commands.
 
 ```
 $ npx mcp-lint check tools.json
@@ -212,14 +212,14 @@ mcp-lint report tools.json --update-baseline audit.baseline.json
 
 ### `mcp-lint catalog`
 
-Lists resources and prompts from one live server. It does not read installed configs and it does not call a tool.
+Lists resources and prompts from one live server, then lints that list. It does not read installed configs and it does not call a tool. An empty or repeated URI, an empty resource name, an empty or repeated prompt name, and an empty or repeated argument name are errors and exit 1. A repeated resource display name, and a missing description, are warnings and do not. `explain` prints the rule. The fix class is `manual`: the command does not rewrite the server.
 
 ```bash
 mcp-lint catalog --server stdio -- node server.js
 mcp-lint catalog --server http --url https://example.com/mcp --format json
 ```
 
-`--server` is `stdio`, `sse`, or `http`. Remote transports need `--url`. `--timeout`, `--max-items`, and `--max-bytes` bound each list. A method the server does not implement is `unsupported` and exits 0. Any other list failure exits 1. Usage errors exit 2. `--format` is `terminal` or `json`.
+`--server` is `stdio`, `sse`, or `http`. Remote transports need `--url`. `--timeout`, `--max-items`, and `--max-bytes` bound each list. A method the server does not implement is `unsupported` and exits 0. Any other list failure exits 1. A lint error also exits 1. Usage errors exit 2. `--format` is `terminal` or `json`. JSON adds a `findings` array to the list. The array is empty when the list is clean.
 
 ---
 
@@ -432,9 +432,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: robert19001-cmyk/mcp-lint@v1.0.3
-        # Tag v1.0.3 installs mcp-lint@1 unless version is set.
-        # Tag v1.0.2 and tag v1.0.1 do the same.
+      - uses: robert19001-cmyk/mcp-lint@v1.0.4
+        # Tag v1.0.4 installs mcp-lint@1 unless version is set.
+        # Tag v1.0.3, tag v1.0.2, and tag v1.0.1 do the same.
         # Tag v1.0.0 still installs npm latest.
         with:
           input: tools.json
@@ -457,7 +457,7 @@ jobs:
 | `sarif` | `false` | Upload SARIF when this `mcp-lint` release includes `report`. The workflow needs `security-events: write`. |
 | `version` | `1` | npm dist-tag or version. `1` installs `mcp-lint@1`. Tag `v1.0.0` ignores this input and installs `latest`. |
 
-The action in this repository writes a `::error`, `::warning`, or `::notice` annotation from `check --format json`. With an empty `input` it also looks one directory down, skipping `node_modules` and dot directories. `sarif: true` uploads SARIF when the installed CLI has `report`. Tag `v1.0.3` installs `mcp-lint@1` unless `version` is set. Tag `v1.0.2` and tag `v1.0.1` do the same. Tag `v1.0.0` still installs npm `latest`. The workflow needs `security-events: write`.
+The action in this repository writes a `::error`, `::warning`, or `::notice` annotation from `check --format json`. With an empty `input` it also looks one directory down, skipping `node_modules` and dot directories. `sarif: true` uploads SARIF when the installed CLI has `report`. Tag `v1.0.4` installs `mcp-lint@1` unless `version` is set. Tag `v1.0.3`, tag `v1.0.2`, and tag `v1.0.1` do the same. Tag `v1.0.0` still installs npm `latest`. The workflow needs `security-events: write`.
 
 ### Manual workflow
 
@@ -774,7 +774,7 @@ The repository includes `glama.json` and a production Dockerfile so MCP director
 
 ## Site
 
-The proof page is in `site/`. Version 1.0.3. It runs the same recovery scorer, schema linter, and preflight function as the CLI. The check bench uses the same error index, title collapse, and next step as the terminal.
+The proof page is in `site/`. Version 1.0.4. It runs the same recovery scorer, schema linter, and preflight function as the CLI. The check bench uses the same error index, title collapse, and next step as the terminal. `catalog` lints the resources and prompts it listed.
 
 ```bash
 npm run site

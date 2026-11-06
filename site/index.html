@@ -6,7 +6,7 @@
     <title>mcp-lint: the tool failed, the agent stopped</title>
     <meta
       name="description"
-      content="mcp-lint 1.0.3 lints MCP tool schemas, scores recovery, and checks a proposed call against a policy."
+      content="mcp-lint 1.0.4 lints MCP tool schemas, scores recovery, and checks a proposed call against a policy."
     />
     <link rel="canonical" href="https://mcp-lint-alpha.vercel.app/" />
     <link rel="icon" href="%BASE_URL%favicon.svg" type="image/svg+xml" />
@@ -27,12 +27,12 @@
         "name": "mcp-lint",
         "applicationCategory": "DeveloperApplication",
         "operatingSystem": "Cross-platform",
-        "softwareVersion": "1.0.3",
+        "softwareVersion": "1.0.4",
         "license": "https://spdx.org/licenses/MIT.html",
         "url": "https://mcp-lint-alpha.vercel.app/",
         "downloadUrl": "https://www.npmjs.com/package/mcp-lint",
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-        "description": "Lint MCP tool schemas and score whether an agent can recover when a tool fails. Version 1.0.3."
+        "description": "Lint MCP tool schemas and score whether an agent can recover when a tool fails. Version 1.0.4."
       }
     </script>
     <link rel="stylesheet" href="/src/styles.css" />
@@ -49,7 +49,7 @@
     <a class="skip" href="#bench">Skip to recover</a>
     <header class="bar">
       <a class="wordmark" href="#top">mcp-lint</a>
-      <span class="ver">1.0.3</span>
+      <span class="ver">1.0.4</span>
       <nav aria-label="On this page">
         <a href="#bench">Recover</a>
         <a href="#check">Check</a>
@@ -138,7 +138,7 @@
 
       <section class="commands" id="commands" aria-labelledby="commands-title">
         <h2 id="commands-title">Every command</h2>
-        <p class="lede">These commands are the 1.0.3 CLI. npm 1.0.1 and 1.0.2 were not published, so pin this release with npx mcp-lint@1.0.3.</p>
+        <p class="lede">These commands are the 1.0.4 CLI. Install this release with npx mcp-lint@1.0.4.</p>
         <dl>
           <div>
             <dt>check</dt>
@@ -200,7 +200,7 @@
           </div>
           <div>
             <dt>catalog</dt>
-            <dd>List resources and prompts from one live server. It does not scan installed configs and it does not call a tool. A missing method is unsupported. --format is terminal or json.</dd>
+            <dd>List resources and prompts from one live server, then lint that list. An empty or repeated URI, an empty or repeated prompt name, and an empty or repeated argument name are errors. A missing description is a warning. explain prints the rule. The fix class is manual. It does not scan installed configs and it does not call a tool. A missing method is unsupported. --format is terminal or json.</dd>
             <code>npx mcp-lint catalog --server stdio -- node server.js</code>
           </div>
         </dl>
@@ -230,13 +230,13 @@
       </section>
 
       <section class="limits" id="limits" aria-labelledby="limits-title">
-        <h2 id="limits-title">What 1.0.3 is not</h2>
+        <h2 id="limits-title">What 1.0.4 is not</h2>
         <ul>
           <li>Zed and OpenCode are not claimed.</li>
           <li>Windsurf and Cline config files are not scanned. No captured failing schema is in this repository.</li>
           <li>It does not call a tool in order to discover it. recover calls a tool only when both --sandbox and --invoke are set.</li>
           <li>There is no account and no telemetry. The license is MIT. Check, recover, catalog, and preflight stay free.</li>
-          <li>The GitHub Action example is robert19001-cmyk/mcp-lint@v1.0.3. That tag installs mcp-lint@1 unless version is set. Tag v1.0.2 and tag v1.0.1 do the same. Tag v1.0.0 still installs npm latest. sarif: true uploads when the workflow has security-events: write.</li>
+          <li>The GitHub Action example is robert19001-cmyk/mcp-lint@v1.0.4. That tag installs mcp-lint@1 unless version is set. Tag v1.0.3, tag v1.0.2, and tag v1.0.1 do the same. Tag v1.0.0 still installs npm latest. sarif: true uploads when the workflow has security-events: write.</li>
         </ul>
       </section>
 
@@ -244,15 +244,15 @@
         <h2 id="install-title">Run it on the schema you already have</h2>
         <ul>
           <li>
-            <code id="cmd-check">npx mcp-lint@1.0.3</code>
+            <code id="cmd-check">npx mcp-lint@1.0.4</code>
             <button type="button" data-copy="cmd-check">Copy</button>
           </li>
           <li>
-            <code id="cmd-recover">npx mcp-lint@1.0.3 recover errors.json</code>
+            <code id="cmd-recover">npx mcp-lint@1.0.4 recover errors.json</code>
             <button type="button" data-copy="cmd-recover">Copy</button>
           </li>
           <li>
-            <code id="cmd-preflight">npx mcp-lint@1.0.3 preflight action.json --policy preflight.yml</code>
+            <code id="cmd-preflight">npx mcp-lint@1.0.4 preflight action.json --policy preflight.yml</code>
             <button type="button" data-copy="cmd-preflight">Copy</button>
           </li>
         </ul>

@@ -1,16 +1,18 @@
 import type { Command } from 'commander';
 import { catalogRemote, catalogStdio } from '../../catalog/connect.js';
+import { catalogFindingsToDiagnostics, lintCatalog, type CatalogFinding } from '../../catalog/lint.js';
 import {
   DEFAULT_CATALOG_MAX_BYTES,
   DEFAULT_CATALOG_MAX_ITEMS,
   DEFAULT_CATALOG_TIMEOUT_MS,
   type CatalogReport,
 } from '../../catalog/list.js';
+import { formatTerminal } from '../formatters/terminal.js';
 
 export function registerCatalogCommand(program: Command): void {
   program
     .command('catalog')
-    .description('List resources and prompts from a live MCP server. Does not call tools.')
+    .description('List resources and prompts from a live MCP server, then lint that list. Does not call tools.')
     .option('--server <type>', 'Server transport: stdio|sse|http')
     .option('--url <url>', 'Remote server URL for sse or http')
     .option('--timeout <ms>', 'Timeout in milliseconds', String(DEFAULT_CATALOG_TIMEOUT_MS))
@@ -50,9 +52,11 @@ export function registerCatalogCommand(program: Command): void {
         if (options.format !== 'json' && options.format !== 'terminal') {
           throw new Error('--format must be json or terminal');
         }
-        process.stdout.write(options.format === 'json' ? JSON.stringify(report, null, 2) + '\n' : render(report));
-        const failed = report.resources.status === 'failed' || report.prompts.status === 'failed';
-        process.exit(failed ? 1 : 0);
+        const findings = lintCatalog(report);
+        process.stdout.write(options.format === 'json'
+          ? JSON.stringify({ ...report, findings }, null, 2) + '\n'
+          : render(report, findings));
+        process.exit(catalogExitCode(report, findings));
       } catch (err) {
         process.stderr.write(`Error: ${(err as Error).message}\n`);
         process.exit(2);
@@ -60,13 +64,20 @@ export function registerCatalogCommand(program: Command): void {
     });
 }
 
-function render(report: CatalogReport): string {
+export function catalogExitCode(report: CatalogReport, findings: CatalogFinding[]): number {
+  const failed = report.resources.status === 'failed' || report.prompts.status === 'failed';
+  const errors = findings.some((finding) => finding.severity === 'error');
+  return failed || errors ? 1 : 0;
+}
+
+function render(report: CatalogReport, findings: CatalogFinding[]): string {
   const lines = ['', 'resources'];
   lines.push(...sectionLines(report.resources, (item) => `${item.uri}  ${item.name}`));
   lines.push('', 'prompts');
   lines.push(...sectionLines(report.prompts, (item) => item.title ? `${item.name}  ${item.title}` : item.name));
   lines.push('');
-  return lines.join('\n');
+  if (findings.length === 0) return lines.join('\n');
+  return lines.join('\n') + formatTerminal(catalogFindingsToDiagnostics(findings));
 }
 
 function sectionLines<T>(section: { status: string; items: T[]; truncated: boolean; reason?: string }, line: (item: T) => string): string[] {

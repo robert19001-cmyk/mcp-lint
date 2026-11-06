@@ -9,10 +9,17 @@ export interface CatalogResource {
   mimeType?: string;
 }
 
+export interface CatalogPromptArgument {
+  name: string;
+  description?: string;
+  required?: boolean;
+}
+
 export interface CatalogPrompt {
   name: string;
   title?: string;
   description?: string;
+  arguments?: CatalogPromptArgument[];
 }
 
 export interface CatalogSource {
